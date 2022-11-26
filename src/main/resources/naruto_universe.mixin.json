@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "dev.radon.naruto_universe.mixin.client",
+  "compatibilityLevel": "JAVA_8",
+  "client": [
+    "MixinBlockState"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "refmap": "mixin.refmap.json"
+}

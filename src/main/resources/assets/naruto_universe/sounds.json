@@ -1,0 +1,14 @@
+{
+  "hand_sign": {
+    "subtitle": "sounds.naruto_universe.hand_sign",
+    "sounds": [
+      "naruto_universe:hand_sign"
+    ]
+  },
+  "ability_activate": {
+    "subtitle": "sounds.naruto_universe.ability_activate",
+    "sounds": [
+      "naruto_universe:ability_activate"
+    ]
+  }
+}

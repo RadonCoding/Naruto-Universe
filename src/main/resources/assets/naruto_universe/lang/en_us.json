@@ -1,0 +1,16 @@
+{
+  "key.category.naruto_universe.gameplay": "Gameplay",
+  "key.naruto_universe.hand_sign_one": "Hand Sign One",
+  "key.naruto_universe.hand_sign_two": "Hand Sign Two",
+  "key.naruto_universe.hand_sign_three": "Hand Sign Three",
+  "key.naruto_universe.open_ability_screen": "Open Ability Screen",
+  "sounds.naruto_universe.hand_sign": "Hand Sign",
+  "sounds.naruto_universe.ability_activate": "Ability Activate",
+  "ability.fail.not_found": "No ability found with that combination",
+  "ability.fail.not_enough_chakra": "Not enough chakra",
+  "naruto_universe:great_fireball_jutsu": "Fire Release - Great Fireball Jutsu",
+  "naruto_universe:chakra_charge.start": "Charging chakra...",
+  "naruto_universe:chakra_charge.stop": "Stopped charging chakra",
+  "naruto_universe:chakra_control.enable": "Enabled chakra control",
+  "naruto_universe:chakra_control.disable": "Disabled chakra control"
+}
