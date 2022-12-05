@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "naruto_universe:items/dog_anbu_mask"
+  }
+}

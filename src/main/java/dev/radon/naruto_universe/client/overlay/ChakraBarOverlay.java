@@ -1,16 +1,12 @@
 package dev.radon.naruto_universe.client.overlay;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.*;
 import dev.radon.naruto_universe.NarutoUniverse;
-import dev.radon.naruto_universe.shinobi.ShinobiPlayerProvider;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
+import dev.radon.naruto_universe.capability.NinjaPlayerHandler;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 public class ChakraBarOverlay{
@@ -24,16 +20,16 @@ public class ChakraBarOverlay{
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, TEXTURE);
 
-        GuiComponent.blit(poseStack, 20, 20, 0, 0, 62, 9, 62, 16);
+        GuiComponent.blit(poseStack, 20, 20, 0, 0, 93, 9, 93, 16);
 
         LocalPlayer player = gui.getMinecraft().player;
 
-        player.getCapability(ShinobiPlayerProvider.SHINOBI_PLAYER).ifPresent(cap -> {
-            float chakraWidth = (cap.getChakra() / cap.getMaxChakra()) * 63.0F;
-            GuiComponent.blit(poseStack, 20, 21, 0, 9, (int) chakraWidth, 7, 62, 16);
+        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            float chakraWidth = (cap.getChakra() / cap.getMaxChakra()) * 94.0F;
+            GuiComponent.blit(poseStack, 20, 21, 0, 9, (int) chakraWidth, 7, 93, 16);
             poseStack.pushPose();
             poseStack.scale(0.5F, 0.5F, 0.5F);
-            gui.getFont().draw(poseStack, String.format("%d / %d", Math.round(cap.getChakra()), Math.round(cap.getMaxChakra())),
+            gui.getFont().draw(poseStack, String.format("%f / %f", cap.getChakra(), cap.getMaxChakra()),
                     (20.0F * 2.0F) + 5.0F, (20.0F * 2.0F) + 5.5F, 16777215);
             poseStack.popPose();
         });

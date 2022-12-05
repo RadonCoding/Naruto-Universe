@@ -3,12 +3,11 @@ package dev.radon.naruto_universe.network.packet;
 import dev.radon.naruto_universe.ability.Ability;
 import dev.radon.naruto_universe.ability.AbilityRegistry;
 import dev.radon.naruto_universe.network.PacketHandler;
-import dev.radon.naruto_universe.shinobi.ShinobiPlayerProvider;
+import dev.radon.naruto_universe.capability.NinjaPlayerHandler;
 import dev.radon.naruto_universe.sound.SoundRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -43,7 +42,7 @@ public class HandleComboC2SPacket {
             ctx.enqueueWork(() -> {
                 ServerPlayer player = ctx.getSender();
 
-                if (!ability.checkChakra(player)) {
+                if (!ability.checkChakra(player) || !ability.checkRequirements(player)) {
                     canceled.set(true);
                 }
             });
@@ -53,60 +52,61 @@ public class HandleComboC2SPacket {
         }
 
         if (!canceled.get()) {
-            if (ability.activationType() == Ability.ActivationType.INSTANT) {
-                ctx.enqueueWork(() -> {
-                    ServerPlayer player = ctx.getSender();
-                    ability.runServer(player);
+            if (ability.getActivationType() == Ability.ActivationType.INSTANT) {
+                LocalPlayer localPlayer = Minecraft.getInstance().player;
+                ability.runClient(localPlayer);
 
-                    player.level.playSound(null, player.blockPosition(),
-                            SoundRegistry.ABILITY_ACTIVATE.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
-                    player.sendSystemMessage(ability.getMessage());
+                ctx.enqueueWork(() -> {
+                    ServerPlayer serverPlayer = ctx.getSender();
+                    ability.runServer(serverPlayer);
+
+                    serverPlayer.level.playSound(null, serverPlayer.blockPosition(),
+                            SoundRegistry.ABILITY_ACTIVATE.get(), SoundSource.PLAYERS, 10.0F, 1.0F);
+
+                    serverPlayer.sendSystemMessage(ability.getName());
                 });
-
-                LocalPlayer player = Minecraft.getInstance().player;
-                ability.runClient(player);
-            } else if (ability.activationType() == Ability.ActivationType.CHANNELED) {
+            } else if (ability.getActivationType() == Ability.ActivationType.CHANNELED) {
                 ctx.enqueueWork(() -> {
                     ServerPlayer player = ctx.getSender();
 
-                    player.getCapability(ShinobiPlayerProvider.SHINOBI_PLAYER).ifPresent(cap -> {
-                        ResourceLocation key = AbilityRegistry.ABILITY_REGISTRY.get().getKey(ability);
+                    player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+                        ResourceLocation key = AbilityRegistry.getKey(ability);
 
                         if (ability instanceof Ability.Channeled channeled) {
                             if (cap.getChanneledAbility() != key) {
-                                cap.startChanneledAbility(ability);
+                                cap.setChanneledAbility(ability);
 
                                 player.level.playSound(null, player.blockPosition(),
-                                        SoundRegistry.ABILITY_ACTIVATE.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                                        SoundRegistry.ABILITY_ACTIVATE.get(), SoundSource.PLAYERS, 10.0F, 1.0F);
+
                                 player.sendSystemMessage(channeled.getStartMessage());
                             } else {
                                 cap.stopChanneledAbility();
                                 player.sendSystemMessage(channeled.getStopMessage());
                             }
                         }
-                        PacketHandler.sendToClient(new SyncShinobiPlayerS2CPacket(cap.serialize()), player);
+                        PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
                     });
                 });
-            } else if (ability.activationType() == Ability.ActivationType.TOGGLED) {
+            } else if (ability.getActivationType() == Ability.ActivationType.TOGGLED) {
                 ctx.enqueueWork(() -> {
                     ServerPlayer player = ctx.getSender();
 
-                    player.getCapability(ShinobiPlayerProvider.SHINOBI_PLAYER).ifPresent(cap -> {
-                        ResourceLocation key = AbilityRegistry.ABILITY_REGISTRY.get().getKey(ability);
-
+                    player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                         if (ability instanceof Ability.Toggled toggled) {
-                            if (!cap.getToggledAbilities().contains(key)) {
+                            if (!cap.hasToggledAbility(ability)) {
                                 cap.enableToggledAbility(ability);
 
                                 player.level.playSound(null, player.blockPosition(),
-                                        SoundRegistry.ABILITY_ACTIVATE.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                                        SoundRegistry.ABILITY_ACTIVATE.get(), SoundSource.PLAYERS, 10.0F, 1.0F);
+
                                 player.sendSystemMessage(toggled.getEnableMessage());
                             } else {
                                 cap.disableToggledAbility(ability);
                                 player.sendSystemMessage(toggled.getDisableMessage());
                             }
                         }
-                        PacketHandler.sendToClient(new SyncShinobiPlayerS2CPacket(cap.serialize()), player);
+                        PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
                     });
                 });
             }

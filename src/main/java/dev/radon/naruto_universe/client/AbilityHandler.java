@@ -1,6 +1,5 @@
 package dev.radon.naruto_universe.client;
 
-import dev.radon.naruto_universe.NarutoUniverse;
 import dev.radon.naruto_universe.ability.Ability;
 import dev.radon.naruto_universe.ability.AbilityRegistry;
 import dev.radon.naruto_universe.network.PacketHandler;
@@ -18,7 +17,7 @@ import java.util.List;
 public class AbilityHandler {
     private static int ticksPassed;
     private static long currentCombo;
-    private static final long MAX_COMBO_VALUE = 10000000000L;
+    private static final long MAX_COMBO_VALUE = 10;
     private static final int MAX_TICKS = 15;
     private static Ability currentAbility;
 
@@ -45,7 +44,7 @@ public class AbilityHandler {
             }
         }
 
-        boolean possiblyChanneling = currentAbility != null && currentAbility.activationType() == Ability.ActivationType.CHANNELED;
+        boolean possiblyChanneling = currentAbility != null && currentAbility.getActivationType() == Ability.ActivationType.CHANNELED;
 
         LocalPlayer player = Minecraft.getInstance().player;
 
@@ -86,7 +85,7 @@ public class AbilityHandler {
     }
 
     public static void handleAbilityKey(int i) {
-        if (isCurrentlyChargingAbility || currentCombo > MAX_COMBO_VALUE) {
+        if (isCurrentlyChargingAbility || (currentCombo % 10) > MAX_COMBO_VALUE) {
             return;
         }
 
@@ -94,7 +93,12 @@ public class AbilityHandler {
         currentCombo += i;
         ticksPassed = 0;
 
+        LocalPlayer player = Minecraft.getInstance().player;
         currentAbility = AbilityRegistry.getAbility(currentCombo);
+
+        if (currentAbility != null && !currentAbility.isUnlocked(player)) {
+            currentAbility = null;
+        }
 
         PacketHandler.sendToServer(new HandleHandSignC2SPacket());
     }

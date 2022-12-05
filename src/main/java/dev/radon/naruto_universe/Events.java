@@ -1,77 +1,50 @@
 package dev.radon.naruto_universe;
 
-import dev.radon.naruto_universe.ability.Ability;
-import dev.radon.naruto_universe.ability.AbilityRegistry;
+import dev.radon.naruto_universe.capability.NinjaPlayerHandler;
+import dev.radon.naruto_universe.capability.NinjaTrait;
 import dev.radon.naruto_universe.network.PacketHandler;
-import dev.radon.naruto_universe.network.packet.SyncShinobiPlayerS2CPacket;
-import dev.radon.naruto_universe.shinobi.ShinobiPlayer;
-import dev.radon.naruto_universe.shinobi.ShinobiPlayerProvider;
-import net.minecraft.client.player.LocalPlayer;
+import dev.radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 
-import java.awt.*;
-
 public class Events {
-    @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class ModEvents {
-        @SubscribeEvent
-        public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
-            event.register(ShinobiPlayer.class);
-        }
-    }
-
     @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID)
     public static class ForgeEvents {
         @SubscribeEvent
-        public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
+        public static void onAttachCapabilities(final AttachCapabilitiesEvent<Entity> event) {
             if (event.getObject() instanceof Player player) {
-                if (!player.getCapability(ShinobiPlayerProvider.SHINOBI_PLAYER).isPresent()) {
-                    event.addCapability(new ResourceLocation(NarutoUniverse.MOD_ID, "shinobi_player"),
-                            new ShinobiPlayerProvider());
+                if (!player.getCapability(NinjaPlayerHandler.INSTANCE).isPresent()) {
+                    NinjaPlayerHandler.attach(event);
                 }
             }
         }
 
         @SubscribeEvent
-        public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        public static void onPlayerLoggedIn(final PlayerEvent.PlayerLoggedInEvent event) {
             if (event.getEntity() instanceof ServerPlayer player) {
-                player.getCapability(ShinobiPlayerProvider.SHINOBI_PLAYER).ifPresent(cap ->
-                        PacketHandler.sendToClient(new SyncShinobiPlayerS2CPacket(cap.serialize()),
-                                player));
-            }
-        }
-
-        @SubscribeEvent
-        public static void onLivingJump(LivingEvent.LivingJumpEvent event) {
-            if (event.getEntity() instanceof Player player) {
-                player.getCapability(ShinobiPlayerProvider.SHINOBI_PLAYER).ifPresent(cap -> {
-                    if (cap.hasToggledAbility(AbilityRegistry.CHAKRA_CONTROL.get())) {
-                        Vec3 movement = player.getDeltaMovement();
-                        player.setDeltaMovement(movement.multiply(3.0D, 3.0D, 3.0D));
+                player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+                    if (cap.getClan() == null) {
+                        cap.generateShinobi(player);
                     }
+                    PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
                 });
             }
         }
 
         @SubscribeEvent
-        public static void onLivingFall(LivingFallEvent event) {
+        public static void onLivingFall(final LivingFallEvent event) {
             if (event.getEntity() instanceof Player) {
                 if (event.getDistance() < 20.0F) {
                     event.setCanceled(true);
@@ -80,45 +53,91 @@ public class Events {
         }
 
         @SubscribeEvent
-        public static void onPlayerClone(PlayerEvent.Clone event) {
+        public static void onPlayerClone(final PlayerEvent.Clone event) {
             if (event.isWasDeath()) {
-                event.getOriginal().getCapability(ShinobiPlayerProvider.SHINOBI_PLAYER).ifPresent(oldStore ->
-                        event.getEntity().getCapability(ShinobiPlayerProvider.SHINOBI_PLAYER).ifPresent(newStore ->
-                                newStore.copyFrom(oldStore)));
+                Player original = event.getOriginal();
+                Player player = event.getEntity();
+
+                original.reviveCaps();
+
+                original.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(oldCap -> {
+                    player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(newCap -> {
+                        newCap.deserializeNBT(oldCap.serializeNBT());
+                    });
+                });
+                original.invalidateCaps();
             }
         }
 
         @SubscribeEvent
-        public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-            event.player.getCapability(ShinobiPlayerProvider.SHINOBI_PLAYER).ifPresent(cap -> {
-                cap.updateDelayedTickEvents();
+        public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
+            Player player = event.getEntity();
 
-                Ability channeled = AbilityRegistry.ABILITY_REGISTRY.get()
-                        .getValue(cap.getChanneledAbility());
+            player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+                cap.setChakra(cap.getMaxChakra());
+                PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), (ServerPlayer) player);
+            });
+        }
 
-                if (channeled != null) {
-                    if (event.side == LogicalSide.CLIENT) {
-                        channeled.runClient((LocalPlayer) event.player);
-                    }
-                    else {
-                        channeled.runServer((ServerPlayer) event.player);
-                    }
-                }
+        @SubscribeEvent
+        public static void onPlayerWakeUp(final PlayerWakeUpEvent event) {
+            Player player = event.getEntity();
+            player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+                cap.setChakra(cap.getMaxChakra());
+            });
+        }
 
-                for (var key : cap.getToggledAbilities()) {
-                    Ability toggled = AbilityRegistry.ABILITY_REGISTRY.get()
-                            .getValue(key);
+        @SubscribeEvent
+        public static void onLivingDeath(final LivingDeathEvent event) {
+            Entity entity = event.getEntity();
 
-                    if (event.side == LogicalSide.CLIENT) {
-                        toggled.runClient((LocalPlayer) event.player);
-                    }
-                    else {
-                        if (!toggled.checkChakra((ServerPlayer) event.player)) {
-                            cap.disableToggledAbility(toggled);
+            if (entity instanceof TamableAnimal tamable) {
+                Entity owner = tamable.getOwner();
+
+                if (owner instanceof ServerPlayer player) {
+                    if (event.getSource().getEntity() != null) {
+                        // BAD BOY !!!
+                        if (event.getSource().getEntity().is(player)) {
+                            return;
                         }
-                        toggled.runServer((ServerPlayer) event.player);
                     }
+
+                    player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+                        if (!cap.hasTrait(NinjaTrait.SHARINGAN)) {
+                            return;
+                        }
+
+                        if (!cap.levelUpSharingan()) {
+                            return;
+                        }
+
+                        if (!cap.hasTrait(NinjaTrait.UNLOCKED_SHARINGAN)) {
+                            cap.addTrait(NinjaTrait.UNLOCKED_SHARINGAN);
+                        }
+
+                        int level = cap.getSharinganLevel();
+
+                        switch (level) {
+                            case 1:
+                                player.sendSystemMessage(Component.translatable("sharingan.unlock.one"));
+                                break;
+                            case 2:
+                                player.sendSystemMessage(Component.translatable("sharingan.unlock.two"));
+                                break;
+                            case 3:
+                                player.sendSystemMessage(Component.translatable("sharingan.unlock.three"));
+                                break;
+                        }
+                        PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
+                    });
                 }
+            }
+        }
+
+        @SubscribeEvent
+        public static void onPlayerTick(final TickEvent.PlayerTickEvent event) {
+            event.player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+                cap.tick(event.player, event.side);
             });
         }
     }

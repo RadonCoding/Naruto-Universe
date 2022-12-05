@@ -17,4 +17,8 @@ public class SoundRegistry {
     public static final RegistryObject<SoundEvent> ABILITY_ACTIVATE =
             SOUNDS.register("ability_activate", () -> new SoundEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
                     "ability_activate")));
+
+    public static final RegistryObject<SoundEvent> GREAT_FIREBALL =
+            SOUNDS.register("great_fireball", () -> new SoundEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
+                    "great_fireball")));
 }

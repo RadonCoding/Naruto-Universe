@@ -10,5 +10,10 @@
     "sounds": [
       "naruto_universe:ability_activate"
     ]
+  },
+  "great_fireball": {
+    "sounds": [
+      "naruto_universe:great_fireball"
+    ]
   }
 }

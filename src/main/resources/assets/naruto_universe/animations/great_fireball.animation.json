@@ -1,0 +1,30 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"animation.great_fireball.rotate": {
+			"loop": true,
+			"animation_length": 1,
+			"bones": {
+				"root": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.25": {
+							"vector": [90, 0, 90]
+						},
+						"0.5": {
+							"vector": [180, 0, 180]
+						},
+						"0.75": {
+							"vector": [270, 0, 270]
+						},
+						"1.0": {
+							"vector": [360, 0, 360]
+						}
+					}
+				}
+			}
+		}
+	}
+}

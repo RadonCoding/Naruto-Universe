@@ -27,7 +27,7 @@ public class HandleHandSignC2SPacket {
         ctx.enqueueWork(() -> {
             ServerPlayer player = ctx.getSender();
             player.level.playSound(null, player.blockPosition(),
-                    SoundRegistry.HAND_SIGN.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                    SoundRegistry.HAND_SIGN.get(), SoundSource.PLAYERS, 10.0F, 1.0F);
 
         });
 
