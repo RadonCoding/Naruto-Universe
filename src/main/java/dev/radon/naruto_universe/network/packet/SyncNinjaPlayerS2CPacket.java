@@ -31,12 +31,12 @@ public class SyncNinjaPlayerS2CPacket {
         NetworkEvent.Context ctx = supplier.get();
 
         ctx.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
-            Minecraft minecraft = Minecraft.getInstance();
-            LocalPlayer player = minecraft.player;
+            Minecraft mc = Minecraft.getInstance();
+            LocalPlayer player = mc.player;
 
             player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.deserializeNBT(this.nbt));
 
-            if (minecraft.screen instanceof NinjaScreen screen) {
+            if (mc.screen instanceof NinjaScreen screen) {
                 screen.updateAbilities();
             }
         }));

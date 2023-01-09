@@ -12,17 +12,19 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.resources.TextureAtlasHolder;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
+import software.bernie.shadowed.eliotlash.mclib.math.functions.limit.Min;
 
 public class ParticleRegistry {
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES,
             NarutoUniverse.MOD_ID);
 
-    public static RegistryObject<SimpleParticleType> CHAKRA = PARTICLES.register("chakra", () ->
+    public static RegistryObject<SimpleParticleType> CHAKRA = PARTICLES.register("vapor", () ->
             new SimpleParticleType(true));
 
     public static class ModRenderTypes {
@@ -35,16 +37,14 @@ public class ParticleRegistry {
                 RenderSystem.enableDepthTest();
                 RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA.value, GlStateManager.DestFactor.ONE.value);
                 RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
-                AbstractTexture texture = manager.getTexture(TextureAtlas.LOCATION_PARTICLES);
-                texture.setBlurMipmap(true, false);
                 buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
             }
 
             public void end(Tesselator tesselator) {
                 tesselator.end();
-                Minecraft.getInstance().textureManager.getTexture(TextureAtlas.LOCATION_PARTICLES).restoreLastBlurMipmap();
                 RenderSystem.disableBlend();
                 RenderSystem.depthMask(true);
+                Minecraft.getInstance().gameRenderer.lightTexture().turnOffLightLayer();
             }
         };
     }

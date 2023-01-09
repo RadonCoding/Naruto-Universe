@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "naruto_universe:items/anbu_chestplate"
+    "layer0": "naruto_universe:item/anbu_chestplate"
   }
 }

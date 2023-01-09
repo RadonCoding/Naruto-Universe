@@ -78,7 +78,6 @@ public class AbilityKeyMapping extends KeyMapping {
         else if (!this.isDown() && down) {
             this.ticksHeld = 0;
         }
-
         super.setDown(down);
     }
 }

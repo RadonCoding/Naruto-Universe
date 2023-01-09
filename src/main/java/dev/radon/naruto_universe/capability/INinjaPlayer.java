@@ -5,21 +5,17 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.LogicalSide;
 
-import java.util.List;
 import java.util.function.Consumer;
 
-@AutoRegisterCapability
 public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
     void tick(Player player, LogicalSide side);
 
     void generateShinobi(Player player);
 
     void delayTickEvent(Consumer<ServerPlayer> task, int delay);
-    void updateTickEvents(ServerPlayer player);
 
     NinjaClan getClan();
     void setClan(NinjaClan clan);
@@ -37,19 +33,21 @@ public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
     float getVoicePitch();
     void setVoicePitch(float voicePitch);
 
+    NinjaRank getRank();
+    void setRank(NinjaRank rank);
+
     void addTrait(NinjaTrait trait);
     boolean hasTrait(NinjaTrait trait);
 
     void unlockAbility(ResourceLocation key);
     boolean hasUnlockedAbility(Ability ability);
 
-    void enableToggledAbility(Ability ability);
-    void disableToggledAbility(Ability ability);
+    void enableToggledAbility(Player player, Ability ability);
+    void disableToggledAbility(Player player, Ability ability);
     boolean hasToggledAbility(Ability ability);
-    void updateToggledAbilities(Player player, LogicalSide side);
     
     ResourceLocation getChanneledAbility();
-    void setChanneledAbility(Ability ability);
-    void stopChanneledAbility();
-    void updateChanneledAbilities(Player player, LogicalSide side);
+    void setChanneledAbility(Player player, Ability ability);
+    void stopChanneledAbility(Player player);
+    boolean isChannelingAbility(Ability ability);
 }

@@ -2,20 +2,24 @@ package dev.radon.naruto_universe.ability.utility;
 
 import dev.radon.naruto_universe.ability.Ability;
 import dev.radon.naruto_universe.ability.AbilityRegistry;
-import dev.radon.naruto_universe.client.particle.ParticleRegistry;
+import dev.radon.naruto_universe.capability.NinjaPlayerHandler;
+import dev.radon.naruto_universe.capability.NinjaRank;
 import dev.radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
+import dev.radon.naruto_universe.client.particle.ParticleRegistry;
 import dev.radon.naruto_universe.network.PacketHandler;
 import dev.radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
-import dev.radon.naruto_universe.capability.NinjaPlayerHandler;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
 public class ChakraCharge extends Ability implements Ability.Channeled {
+
+    @Override
+    public NinjaRank getRank() {
+        return NinjaRank.ACADEMY_STUDENT;
+    }
 
     @Override
     public ActivationType getActivationType() {
@@ -41,11 +45,6 @@ public class ChakraCharge extends Ability implements Ability.Channeled {
 
     public ChatFormatting getChatColor() {
         return ChatFormatting.AQUA;
-    }
-
-    @Override
-    public boolean checkChakra(ServerPlayer player) {
-        return true;
     }
 
     @Override

@@ -34,8 +34,8 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
 
     private final Map<Ability, AbilityWidget> abilities = Maps.newLinkedHashMap();
 
-    public AbilityTab(NinjaScreen screen, Minecraft minecraft, int index) {
-        super(screen, minecraft, TITLE, ICON, NinjaTabType.ABOVE, index);
+    public AbilityTab(NinjaScreen screen, Minecraft mc, int index) {
+        super(screen, mc, TITLE, ICON, NinjaTabType.ABOVE, index);
 
         for (RegistryObject<Ability> obj : AbilityRegistry.ABILITIES.getEntries()) {
             this.addAbility(obj.get());
@@ -126,7 +126,7 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
 
     public void addAbility(Ability ability) {
         if (ability.getDisplay() != null) {
-            AbilityWidget widget = new AbilityWidget(this, this.minecraft, ability);
+            AbilityWidget widget = new AbilityWidget(this, this.mc, ability);
 
             if (this.abilities.size() == 0) {
                 this.root = widget;

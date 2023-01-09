@@ -1,15 +1,17 @@
 package dev.radon.naruto_universe.capability;
 
-import dev.radon.naruto_universe.ability.Ability;
-import dev.radon.naruto_universe.ability.AbilityRegistry;
 import dev.radon.naruto_universe.network.PacketHandler;
 import dev.radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
+import dev.radon.naruto_universe.sound.SoundRegistry;
+import dev.radon.naruto_universe.ability.Ability;
+import dev.radon.naruto_universe.ability.AbilityRegistry;
 import dev.radon.naruto_universe.util.HelperMethods;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.LogicalSide;
 import org.apache.commons.compress.utils.Lists;
@@ -24,9 +26,10 @@ public class NinjaPlayer implements INinjaPlayer {
     private float chakra;
     private float maxChakra;
     private float voicePitch;
+    private NinjaRank rank;
     private int sharinganLevel;
-    private ResourceLocation channeledAbility;
 
+    private ResourceLocation channeledAbility;
     private final List<ResourceLocation> toggledAbilities = Lists.newArrayList();
     private final List<NinjaTrait> traits = Lists.newArrayList();
     private final List<DelayedTickEvent> delayedTickEvents = Lists.newArrayList();
@@ -36,9 +39,10 @@ public class NinjaPlayer implements INinjaPlayer {
         this.chakra = 100.0F;
         this.maxChakra = 100.0F;
         this.voicePitch = 1.0F;
-        this.traits.add(NinjaTrait.UNLOCKED_RINNEGAN);
+        this.rank = NinjaRank.ACADEMY_STUDENT;
     }
 
+    @Override
     public void tick(Player player, LogicalSide side) {
         updateChanneledAbilities(player, side);
         updateToggledAbilities(player, side);
@@ -46,10 +50,10 @@ public class NinjaPlayer implements INinjaPlayer {
         if (side == LogicalSide.SERVER && player instanceof ServerPlayer serverPlayer) {
             updateTickEvents(serverPlayer);
         }
-
-        this.addChakra(0.001F);
+        this.addChakra(0.01F);
     }
 
+    @Override
     public void generateShinobi(Player player) {
         NinjaClan clan = HelperMethods.randomEnum(NinjaClan.class);
         this.setClan(clan);
@@ -71,11 +75,12 @@ public class NinjaPlayer implements INinjaPlayer {
         }
     }
 
+    @Override
     public void delayTickEvent(Consumer<ServerPlayer> task, int delay) {
         this.delayedTickEvents.add(new DelayedTickEvent(task, delay));
     }
 
-    public void updateTickEvents(ServerPlayer player) {
+    private void updateTickEvents(ServerPlayer player) {
         Iterator<DelayedTickEvent> iter = this.delayedTickEvents.iterator();
 
         while (iter.hasNext()) {
@@ -89,18 +94,22 @@ public class NinjaPlayer implements INinjaPlayer {
         }
     }
 
+    @Override
     public NinjaClan getClan() {
         return this.clan;
     }
 
+    @Override
     public void setClan(NinjaClan clan) {
         this.clan = clan;
     }
 
+    @Override
     public int getSharinganLevel() {
         return this.sharinganLevel;
     }
 
+    @Override
     public boolean levelUpSharingan() {
         if (this.sharinganLevel == 3) {
             return false;
@@ -109,68 +118,110 @@ public class NinjaPlayer implements INinjaPlayer {
         return true;
     }
 
+    @Override
     public void addChakra(float amount) {
         float newChakra = this.chakra + amount;
         this.chakra = Math.min(newChakra, this.maxChakra);
     }
 
+    @Override
     public void setChakra(float chakra) {
         this.chakra = chakra;
     }
 
+    @Override
     public void useChakra(float amount) {
         this.chakra -= amount;
     }
 
+    @Override
     public float getChakra() {
         return this.chakra;
     }
 
+    @Override
     public float getMaxChakra() {
         return this.maxChakra;
     }
 
+    @Override
     public float getVoicePitch() {
         return this.voicePitch;
     }
 
+    @Override
     public void setVoicePitch(float voicePitch) {
         this.voicePitch = voicePitch;
     }
 
+    @Override
+    public NinjaRank getRank() {
+        return this.rank;
+    }
+
+    @Override
+    public void setRank(NinjaRank rank) {
+        this.rank = rank;
+    }
+
+    @Override
     public void addTrait(NinjaTrait trait) {
         this.traits.add(trait);
     }
 
+    @Override
     public boolean hasTrait(NinjaTrait trait) {
         return this.traits.contains(trait);
     }
 
+    @Override
     public void unlockAbility(ResourceLocation key) {
         this.unlockedAbilities.add(key);
     }
 
+    @Override
     public boolean hasUnlockedAbility(Ability ability) {
         ResourceLocation key = AbilityRegistry.getKey(ability);
         return this.unlockedAbilities.contains(key);
     }
 
-    public void enableToggledAbility(Ability ability) {
+    @Override
+    public void enableToggledAbility(Player player, Ability ability) {
         ResourceLocation key = AbilityRegistry.getKey(ability);
         this.toggledAbilities.add(key);
+
+        if (ability instanceof Ability.Toggled toggled) {
+            player.level.playSound(null, player.blockPosition(),
+                    toggled.getActivationSound(), SoundSource.PLAYERS, 10.0F, 1.0F);
+
+            if (ability.shouldLog()) {
+                player.sendSystemMessage(toggled.getEnableMessage());
+            }
+        }
     }
 
-    public void disableToggledAbility(Ability ability) {
+    @Override
+    public void disableToggledAbility(Player player, Ability ability) {
         ResourceLocation key = AbilityRegistry.getKey(ability);
         this.toggledAbilities.remove(key);
+
+        if (ability instanceof Ability.Toggled toggled) {
+            player.level.playSound(null, player.blockPosition(),
+                    toggled.getDectivationSound(), SoundSource.PLAYERS, 10.0F, 1.0F);
+
+            if (ability.shouldLog()) {
+                player.sendSystemMessage(toggled.getDisableMessage());
+            }
+        }
     }
 
+    @Override
     public boolean hasToggledAbility(Ability ability) {
         ResourceLocation key = AbilityRegistry.getKey(ability);
         return this.toggledAbilities.contains(key);
     }
 
-    public void updateToggledAbilities(Player player, LogicalSide side) {
+    private void updateToggledAbilities(Player player, LogicalSide side) {
         Iterator<ResourceLocation> iter = this.toggledAbilities.iterator();
 
         while (iter.hasNext()) {
@@ -195,20 +246,43 @@ public class NinjaPlayer implements INinjaPlayer {
         }
     }
 
+    @Override
     public ResourceLocation getChanneledAbility() {
         return this.channeledAbility;
     }
 
-    public void setChanneledAbility(Ability ability) {
+    @Override
+    public void setChanneledAbility(Player player, Ability ability) {
         ResourceLocation key = AbilityRegistry.getKey(ability);
         this.channeledAbility = key;
+
+        if (ability instanceof Ability.Channeled channeled) {
+            player.level.playSound(null, player.blockPosition(),
+                    SoundRegistry.ABILITY_ACTIVATE.get(), SoundSource.PLAYERS, 10.0F, 1.0F);
+
+            if (ability.shouldLog()) {
+                player.sendSystemMessage(channeled.getStartMessage());
+            }
+        }
     }
 
-    public void stopChanneledAbility() {
+    @Override
+    public void stopChanneledAbility(Player player) {
+        Ability ability = AbilityRegistry.getValue(this.channeledAbility);
+
+        if (ability.shouldLog() && ability instanceof Ability.Channeled channeled) {
+            player.sendSystemMessage(channeled.getStopMessage());
+        }
         this.channeledAbility = null;
     }
 
-    public void updateChanneledAbilities(Player player, LogicalSide side) {
+    @Override
+    public boolean isChannelingAbility(Ability ability) {
+        ResourceLocation key = AbilityRegistry.getKey(ability);
+        return this.channeledAbility.equals(key);
+    }
+
+    private void updateChanneledAbilities(Player player, LogicalSide side) {
         Ability channeled = AbilityRegistry.getValue(this.channeledAbility);
 
         if (channeled != null) {
@@ -233,6 +307,7 @@ public class NinjaPlayer implements INinjaPlayer {
         nbt.putFloat("chakra", this.chakra);
         nbt.putFloat("max_chakra", this.maxChakra);
         nbt.putFloat("voice_pitch", this.voicePitch);
+        nbt.putString("rank", this.rank.name());
         nbt.putInt("sharingan_level", this.sharinganLevel);
 
         if (this.channeledAbility != null) {
@@ -270,6 +345,7 @@ public class NinjaPlayer implements INinjaPlayer {
         this.chakra = nbt.getFloat("chakra");
         this.maxChakra = nbt.getFloat("max_chakra");
         this.voicePitch = nbt.getFloat("voice_pitch");
+        this.rank = NinjaRank.valueOf(nbt.getString("rank"));
         this.sharinganLevel = nbt.getInt("sharingan_level");
 
         this.channeledAbility = new ResourceLocation(nbt.getString("currently_channeled"));

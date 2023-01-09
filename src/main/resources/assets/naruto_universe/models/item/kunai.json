@@ -1,0 +1,15 @@
+{
+  "parent": "item/handheld",
+  "gui_light": "front",
+  "textures": {
+    "layer0": "naruto_universe:item/kunai"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "throwing": 1
+      },
+      "model": "naruto_universe:item/kunai_throwing"
+    }
+  ]
+}

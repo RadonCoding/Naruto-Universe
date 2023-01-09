@@ -18,9 +18,15 @@ import java.util.function.Function;
 public class EntityRegistry {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, NarutoUniverse.MOD_ID);
 
-    public static final RegistryObject<EntityType<GreatFireballEntity>> GREAT_FIREBALL = ENTITIES.register("great_fireball", () ->
-            EntityType.Builder.<GreatFireballEntity>of(GreatFireballEntity::new, MobCategory.MISC)
+    public static final RegistryObject<EntityType<FireballEntity>> GREAT_FIREBALL = ENTITIES.register("great_fireball", () ->
+            EntityType.Builder.<FireballEntity>of(FireballEntity::new, MobCategory.MISC)
                     .build(new ResourceLocation(NarutoUniverse.MOD_ID, "great_fireball")
+                            .toString()));
+
+    public static final RegistryObject<EntityType<ThrownKunaiEntity>> THROWN_KUNAI = ENTITIES.register("thrown_kunai", () ->
+            EntityType.Builder.<ThrownKunaiEntity>of(ThrownKunaiEntity::new, MobCategory.MISC)
+                    .sized(0.5F, 0.5F)
+                    .build(new ResourceLocation(NarutoUniverse.MOD_ID, "thrown_kunai")
                             .toString()));
 
     public static class ModRenderType extends RenderType {

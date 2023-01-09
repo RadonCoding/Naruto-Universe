@@ -1,19 +1,67 @@
 {
-  "hand_sign": {
-    "subtitle": "sounds.naruto_universe.hand_sign",
+  "hand_sign_one": {
     "sounds": [
-      "naruto_universe:hand_sign"
+      "naruto_universe:hand_sign_one"
+    ]
+  },
+  "hand_sign_two": {
+    "sounds": [
+      "naruto_universe:hand_sign_two"
+    ]
+  },
+  "hand_sign_three": {
+    "sounds": [
+      "naruto_universe:hand_sign_three"
     ]
   },
   "ability_activate": {
-    "subtitle": "sounds.naruto_universe.ability_activate",
     "sounds": [
       "naruto_universe:ability_activate"
+    ]
+  },
+  "chakra_jump": {
+    "sounds": [
+      "naruto_universe:chakra_jump"
     ]
   },
   "great_fireball": {
     "sounds": [
       "naruto_universe:great_fireball"
+    ]
+  },
+  "phoenix_flower": {
+    "sounds": [
+      "naruto_universe:phoenix_flower"
+    ]
+  },
+  "sharingan_activate": {
+    "sounds": [
+      "naruto_universe:sharingan_activate"
+    ]
+  },
+  "sharingan_deactivate": {
+    "sounds": [
+      "naruto_universe:sharingan_deactivate"
+    ]
+  },
+  "rinnegan_activate": {
+    "sounds": [
+      "naruto_universe:rinnegan_activate"
+    ]
+  },
+  "kunai_throw": {
+    "sounds": [
+      "naruto_universe:kunai_throw"
+    ]
+  },
+  "kunai_hit": {
+    "sounds": [
+      "naruto_universe:kunai_hit"
+    ]
+  },
+  "kunai_hit_wood": {
+    "sounds": [
+      "naruto_universe:kunai_hit_wood"
     ]
   }
 }

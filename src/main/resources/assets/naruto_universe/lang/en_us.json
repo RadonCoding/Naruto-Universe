@@ -1,13 +1,15 @@
 {
-  "key.category.naruto_universe.gameplay": "Gameplay",
+  "key.category.naruto_universe": "Naruto Universe",
   "key.naruto_universe.hand_sign_one": "Hand Sign One",
   "key.naruto_universe.hand_sign_two": "Hand Sign Two",
   "key.naruto_universe.hand_sign_three": "Hand Sign Three",
+  "key.naruto_universe.chakra_jump": "Chakra Jump",
   "key.naruto_universe.open_ability_screen": "Open Ability Screen",
   "sounds.naruto_universe.hand_sign": "Hand Sign",
   "sounds.naruto_universe.ability_activate": "Ability Activate",
   "ability.fail.not_found": "No ability found with that combination",
   "ability.fail.not_enough_chakra": "Not enough chakra",
+  "ability.fail.not_skilled_enough": "You cannot use a %1$s level technique",
 
   "naruto_universe:water_walking.name": "Water Walking",
   "naruto_universe:water_walking.desc": "Allows you to walk on water.",
@@ -19,8 +21,14 @@
   "naruto_universe:chakra_charge.start": "Charging chakra...",
   "naruto_universe:chakra_charge.stop": "Stopped charging chakra",
 
+  "naruto_universe:chakra_jump.name": "Chakra Jump",
+  "naruto_universe:chakra_jump.desc": "Allows you to jump high.",
+
   "naruto_universe:great_fireball.name": "Fire Release - Great Fireball",
-  "naruto_universe:great_fireball.desc": "Shoots a fireball at your opponent.",
+  "naruto_universe:great_fireball.desc": "Shoots a large fireball at your opponent.",
+
+  "naruto_universe:phoenix_flower.name": "Fire Release - Phoenix Flower",
+  "naruto_universe:phoenix_flower.desc": "Shoots six fireballs at your opponent.",
 
   "naruto_universe:sharingan.name": "Activate Sharingan",
   "naruto_universe:sharingan.desc": "Activates your sharingan.",
@@ -33,6 +41,7 @@
   "naruto_universe:rinnegan.disable": "Deactivated rinnegan",
 
   "gui.ninja": "Ninja",
+  "gui.tab.info": "Info",
   "gui.tab.ability": "Abilities",
   "gui.tab.settings": "Settings",
   "voice.pitch": "Voice Pitch",
@@ -41,17 +50,20 @@
   "give.release": "You have inherited %1$s",
   "give.bloodline": "You have inherited %1$s",
 
+  "rank.up": "You've been promoted to %1$s",
+
   "trait.fire_release": "Fire Release",
   "trait.sharingan": "Sharingan",
   "trait.unlocked_shraringan": "Unlocked Sharingan",
   "trait.unlocked_rinnegan": "Unlocked Rinnegan",
 
   "sharingan.unlock.one": "You feel grief and you feel something happening to your eyes as you awaken the sharingan",
-  "sharingan.unlock.two": "You feel grief and you feel your sharingan mutating as it awakens the second tomoe",
-  "sharingan.unlock.three": "You feel grief and you feel your sharingan mutating as it awakens the third tomoe",
+  "sharingan.unlock.two": "You feel a sudden surge of power as your sharingan unlocks it's second tomoe",
+  "sharingan.unlock.three": "You feel a sudden surge of power as your sharingan unlocks it's third tomoe",
 
   "item.naruto_universe.dog_anbu_mask": "Dog Anbu Mask",
   "item.naruto_universe.anbu_chestplate": "Anbu Chestplate",
   "item.naruto_universe.anbu_leggings": "Anbu Leggings",
-  "item.naruto_universe.anbu_boots": "Anbu Boots"
+  "item.naruto_universe.anbu_boots": "Anbu Boots",
+  "item.naruto_universe.kunai": "Kunai"
 }

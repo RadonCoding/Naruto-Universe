@@ -1,9 +1,9 @@
 package dev.radon.naruto_universe.network.packet;
 
+import dev.radon.naruto_universe.network.PacketHandler;
 import dev.radon.naruto_universe.ability.Ability;
 import dev.radon.naruto_universe.ability.AbilityRegistry;
 import dev.radon.naruto_universe.capability.NinjaPlayerHandler;
-import dev.radon.naruto_universe.network.PacketHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -35,7 +35,7 @@ public class UnlockAbilityC2SPacket {
             player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                 Ability ability = AbilityRegistry.getValue(this.key);
 
-                if (AbilityRegistry.getProgress(player, ability) >= 1.0F) {
+                if (ability.checkRequirements(player)) {
                     cap.unlockAbility(this.key);
                     PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
                 }

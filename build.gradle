@@ -1,19 +1,30 @@
+buildscript {
+    dependencies {
+        classpath 'org.spongepowered:mixingradle:0.7.+'
+    }
+}
+
 plugins {
-    id 'eclipse'
-    id 'maven-publish'
     id 'net.minecraftforge.gradle' version '5.1.+'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
 }
 
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'org.spongepowered.mixin'
+
 version = '1.0'
 group = 'dev.radon.naruto_universe' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'naruto_universe'
+archivesBaseName = 'NarutoUniverse'
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
+mixin {
+    add sourceSets.main, 'naruto_universe.mixin.refmap.json'
+    config 'naruto_universe.mixin.json'
+}
+
 minecraft {
-    mappings channel: 'parchment', version: '2022.08.14-1.19.2'
+    mappings channel: 'parchment', version: '2022.11.27-1.19.2'
 
     runs {
         client {
@@ -21,8 +32,6 @@ minecraft {
 
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            property 'forge.enabledGameTestNamespaces', 'naruto_universe'
-            arg '-mixin.config=naruto_universe.mixin.json'
 
             mods {
                 naruto_universe {
@@ -35,42 +44,7 @@ minecraft {
             workingDirectory project.file('run')
 
             property 'forge.logging.markers', 'REGISTRIES'
-
             property 'forge.logging.console.level', 'debug'
-
-            property 'forge.enabledGameTestNamespaces', 'naruto_universe'
-
-            mods {
-                naruto_universe {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        gameTestServer {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'forge.logging.console.level', 'debug'
-
-            property 'forge.enabledGameTestNamespaces', 'naruto_universe'
-
-            mods {
-                naruto_universe {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            property 'forge.logging.markers', 'REGISTRIES'
-
-            property 'forge.logging.console.level', 'debug'
-
-            args '--mod', 'naruto_universe', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
                 naruto_universe {
@@ -88,41 +62,26 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.1.7'
-    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.19:3.1.38')
+    minecraft 'net.minecraftforge:forge:1.19.2-43.2.0'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.19:3.1.39')
 }
 
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "naruto_universe",
-                "Specification-Vendor"    : "naruto_universesareus",
-                "Specification-Version"   : "1",
+                "Specification-Title"     : "Naruto Universe",
+                "Specification-Vendor"    : "Radon",
+                "Specification-Version"   : "${project.version}",
                 "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.jar.archiveVersion,
-                "Implementation-Vendor"   : "naruto_universesareus",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
-                "TweakClass"              : "org.spongepowered.asm.launch.MixinTweaker",
-                "TweakOrder"              : 0,
-                "MixinConfigs"            : "naruto_universe.mixin.json"
+                "Implementation-Version"  : "${project.version}",
+                "Implementation-Vendor"   : "Radon",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
 }
 
 jar.finalizedBy('reobfJar')
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            artifact jar
-        }
-    }
-    repositories {
-        maven {
-            url "file://${project.projectDir}/mcmodsrepo"
-        }
-    }
-}
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'

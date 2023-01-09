@@ -34,7 +34,7 @@ public class AbilityWidget extends GuiComponent {
     private final int x;
     private final int y;
 
-    private final Minecraft minecraft;
+    private final Minecraft mc;
 
     private final AbilityTab tab;
 
@@ -42,23 +42,28 @@ public class AbilityWidget extends GuiComponent {
     private final List<FormattedCharSequence> description;
 
     private final int width;
-    private float progress;
+    private boolean unlockable;
     private boolean unlocked;
     private AbilityFrameType frame;
     private final AbilityDisplayInfo display;
 
-    public AbilityWidget(AbilityTab tab, Minecraft minecraft, Ability ability) {
+    public AbilityWidget(AbilityTab tab, Minecraft mc, Ability ability) {
         this.tab = tab;
         this.ability = ability;
         this.display = ability.getDisplay();
         this.x = Mth.floor(this.display.getX() * 28.0F);
         this.y = Mth.floor(this.display.getY() * 27.0F);
-        this.minecraft = minecraft;
+        this.mc = mc;
 
-        this.title = Language.getInstance().getVisualOrder(this.minecraft.font.substrByWidth(ability.getName(), 163));
-        int len = 29 + this.minecraft.font.width(this.title);
+        this.title = Language.getInstance().getVisualOrder(this.mc.font.substrByWidth(ability.getName(), 163));
+        int len = 29 + this.mc.font.width(this.title);
 
         MutableComponent component = this.ability.getDescription().copy();
+        component.append("\n");
+        component.append("\n");
+
+        component.append(Component.literal("Difficulty: "));
+        component.append(this.ability.getRank().getIdentifier());
         component.append("\n");
         component.append("\n");
 
@@ -85,7 +90,7 @@ public class AbilityWidget extends GuiComponent {
                 Style.EMPTY), len));
 
         for (FormattedCharSequence sequence : this.description) {
-            len = Math.max(len, this.minecraft.font.width(sequence));
+            len = Math.max(len, this.mc.font.width(sequence));
         }
 
         this.width = len + 3 + 5;
@@ -94,13 +99,13 @@ public class AbilityWidget extends GuiComponent {
     }
 
     public void update() {
-        this.progress = this.ability.getProgress(this.minecraft.player);
-        this.unlocked = this.ability.isUnlocked(minecraft.player);
-        this.frame = this.progress >= 1.0F ? (this.unlocked ? AbilityFrameType.UNLOCKED : AbilityFrameType.UNLOCKABLE) : AbilityFrameType.NORMAL;
+        this.unlockable = this.ability.isUnlockable(this.mc.player);
+        this.unlocked = this.ability.isUnlocked(this.mc.player);
+        this.frame = this.unlockable ? (this.unlocked ? AbilityFrameType.UNLOCKED : AbilityFrameType.UNLOCKABLE) : AbilityFrameType.NORMAL;
     }
 
     private List<FormattedText> findOptimalLines(Component pComponent, int pMaxWidth) {
-        StringSplitter stringsplitter = this.minecraft.font.getSplitter();
+        StringSplitter stringsplitter = this.mc.font.getSplitter();
         List<FormattedText> list = null;
         float f = Float.MAX_VALUE;
 
@@ -186,8 +191,8 @@ public class AbilityWidget extends GuiComponent {
     }
 
     public void unlock() {
-        if (this.progress >= 1.0F && !this.unlocked) {
-            this.minecraft.player.playSound(SoundEvents.PLAYER_LEVELUP, 1.0F, 1.0F);
+        if (this.unlockable && !this.unlocked) {
+            this.mc.player.playSound(SoundEvents.PLAYER_LEVELUP, 1.0F, 1.0F);
             PacketHandler.sendToServer(new UnlockAbilityC2SPacket(AbilityRegistry.getKey(this.ability)));
             this.update();
         }
@@ -197,7 +202,7 @@ public class AbilityWidget extends GuiComponent {
         boolean drawLeft = pWidth + pX + this.x + this.width + 26 >= this.tab.getScreen().width;
         boolean newLine = 113 - pY - this.y - 26 <= 6 + this.description.size() * 9;
 
-        int j = Mth.floor(this.progress * (float) this.width);
+        int j = this.unlockable ? this.width : 0;
 
         AbilityWidgetType type1;
         AbilityWidgetType type2;
@@ -208,7 +213,7 @@ public class AbilityWidget extends GuiComponent {
             type1 = AbilityWidgetType.OBTAINED;
             type2 = AbilityWidgetType.OBTAINED;
             type3 = AbilityWidgetType.OBTAINED;
-        } else if (this.progress >= 1.0F) {
+        } else if (this.unlockable) {
             type1 = AbilityWidgetType.OBTAINED;
             type2 = AbilityWidgetType.UNOBTAINED;
             type3 = AbilityWidgetType.UNOBTAINED;
@@ -246,18 +251,18 @@ public class AbilityWidget extends GuiComponent {
         this.blit(pPoseStack, pX + this.x + 3, pY + this.y, this.frame.getTexture(), 128 + type3.getIndex() * 26, 26, 26);
 
         if (drawLeft) {
-            this.minecraft.font.drawShadow(pPoseStack, this.title, (float)(i1 + 5), (float)(pY + this.y + 9), -1);
+            this.mc.font.drawShadow(pPoseStack, this.title, (float)(i1 + 5), (float)(pY + this.y + 9), -1);
         } else {
-            this.minecraft.font.drawShadow(pPoseStack, this.title, (float)(pX + this.x + 32), (float)(pY + this.y + 9), -1);
+            this.mc.font.drawShadow(pPoseStack, this.title, (float)(pX + this.x + 32), (float)(pY + this.y + 9), -1);
         }
 
         if (newLine) {
             for (int k1 = 0; k1 < this.description.size(); ++k1) {
-                this.minecraft.font.draw(pPoseStack, this.description.get(k1), (float)(i1 + 5), (float)(l + 26 - j1 + 7 + k1 * 9), -5592406);
+                this.mc.font.draw(pPoseStack, this.description.get(k1), (float)(i1 + 5), (float)(l + 26 - j1 + 7 + k1 * 9), -5592406);
             }
         } else {
             for (int l1 = 0; l1 < this.description.size(); ++l1) {
-                this.minecraft.font.draw(pPoseStack, this.description.get(l1), (float)(i1 + 5), (float)(pY + this.y + 9 + 17 + l1 * 9), -5592406);
+                this.mc.font.draw(pPoseStack, this.description.get(l1), (float)(i1 + 5), (float)(pY + this.y + 9 + 17 + l1 * 9), -5592406);
             }
         }
 

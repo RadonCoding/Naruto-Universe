@@ -1,27 +1,43 @@
 package dev.radon.naruto_universe;
 
-import dev.radon.naruto_universe.capability.NinjaPlayerHandler;
-import dev.radon.naruto_universe.capability.NinjaTrait;
+import dev.radon.naruto_universe.ability.AbilityRegistry;
+import dev.radon.naruto_universe.capability.INinjaPlayer;
 import dev.radon.naruto_universe.network.PacketHandler;
 import dev.radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
+import dev.radon.naruto_universe.capability.NinjaPlayerHandler;
+import dev.radon.naruto_universe.capability.NinjaTrait;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
-import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 public class Events {
+    public static void onCommonSetup(final FMLCommonSetupEvent event) {
+        PacketHandler.register();
+        AbilityRegistry.registerCombos();
+    }
+
     @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID)
     public static class ForgeEvents {
+        @SubscribeEvent
+        public static void onRegisterCapabilities(final RegisterCapabilitiesEvent event) {
+            event.register(INinjaPlayer.class);
+        }
+
         @SubscribeEvent
         public static void onAttachCapabilities(final AttachCapabilitiesEvent<Entity> event) {
             if (event.getObject() instanceof Player player) {
@@ -103,31 +119,14 @@ public class Events {
                     }
 
                     player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                        if (!cap.hasTrait(NinjaTrait.SHARINGAN)) {
+                        if (!cap.hasTrait(NinjaTrait.SHARINGAN) || cap.hasTrait(NinjaTrait.UNLOCKED_SHARINGAN)) {
                             return;
                         }
 
-                        if (!cap.levelUpSharingan()) {
-                            return;
-                        }
+                        cap.levelUpSharingan();
+                        cap.addTrait(NinjaTrait.UNLOCKED_SHARINGAN);
 
-                        if (!cap.hasTrait(NinjaTrait.UNLOCKED_SHARINGAN)) {
-                            cap.addTrait(NinjaTrait.UNLOCKED_SHARINGAN);
-                        }
-
-                        int level = cap.getSharinganLevel();
-
-                        switch (level) {
-                            case 1:
-                                player.sendSystemMessage(Component.translatable("sharingan.unlock.one"));
-                                break;
-                            case 2:
-                                player.sendSystemMessage(Component.translatable("sharingan.unlock.two"));
-                                break;
-                            case 3:
-                                player.sendSystemMessage(Component.translatable("sharingan.unlock.three"));
-                                break;
-                        }
+                        player.sendSystemMessage(Component.translatable("sharingan.unlock.one"));
                         PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
                     });
                 }

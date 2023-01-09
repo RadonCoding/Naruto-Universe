@@ -3,6 +3,7 @@ package dev.radon.naruto_universe.client.gui;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import dev.radon.naruto_universe.client.gui.tab.InfoTab;
 import dev.radon.naruto_universe.client.gui.tab.AbilityTab;
 import dev.radon.naruto_universe.client.gui.tab.SettingsTab;
 import dev.radon.naruto_universe.client.gui.tab.NinjaTab;
@@ -24,7 +25,7 @@ public class NinjaScreen extends Screen {
     public static final int WINDOW_WIDTH = 252;
     public static final int WINDOW_HEIGHT = 140;
     
-    private static final Component TITLE = Component.translatable("gui.shinobi");
+    private static final Component TITLE = Component.translatable("gui.ninja");
 
     private boolean isScrolling;
 
@@ -41,6 +42,7 @@ public class NinjaScreen extends Screen {
         this.tabs.clear();
 
         int index = 0;
+        this.tabs.add(new InfoTab(this, this.minecraft, index++));
         this.tabs.add(new AbilityTab(this, this.minecraft, index++));
         this.tabs.add(new SettingsTab(this, this.minecraft, index++));
         this.setTab(this.tabs.get(0));
@@ -63,8 +65,11 @@ public class NinjaScreen extends Screen {
     }
 
     public void updateAbilities() {
-        AbilityTab tab = (AbilityTab) this.tabs.get(0);
-        tab.updateWidgets();
+        for (NinjaTab tab : this.tabs) {
+            if (tab instanceof AbilityTab abilityTab) {
+                abilityTab.updateWidgets();
+            }
+        }
     }
 
     @Override

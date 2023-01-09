@@ -14,6 +14,7 @@ import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import software.bernie.geckolib3.core.IAnimatable;
 import software.bernie.geckolib3.core.PlayState;
 import software.bernie.geckolib3.core.builder.AnimationBuilder;
@@ -24,30 +25,42 @@ import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
 
-public class GreatFireballEntity extends AbstractHurtingProjectile implements IAnimatable {
-    private static final EntityDataAccessor<Float> ID_EXPLOSION_POWER = SynchedEntityData.defineId(GreatFireballEntity.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> ID_LIFE = SynchedEntityData.defineId(GreatFireballEntity.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Integer> ID_TIME = SynchedEntityData.defineId(GreatFireballEntity.class, EntityDataSerializers.INT);
+public class FireballEntity extends AbstractHurtingProjectile implements IAnimatable {
+    private static final EntityDataAccessor<Float> ID_EXPLOSION_POWER = SynchedEntityData.defineId(FireballEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> ID_LIFE = SynchedEntityData.defineId(FireballEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> ID_TIME = SynchedEntityData.defineId(FireballEntity.class, EntityDataSerializers.INT);
 
-    public static final float INITIAL_SCALE = 0.05F;
-    public static final float SCALAR = 1.0F - INITIAL_SCALE;
-    public static final float ENTITY_SIZE = 5.0F;
-    public static final float SCALE_TIME = 2 * 20;
+    private static int scaleTime;
+    private static float entitySize;
+    private static float initialScale;
+    private static float scalar;
 
     private final AnimationFactory manager = GeckoLibUtil.createFactory(this);
 
-    public GreatFireballEntity(EntityType<? extends GreatFireballEntity> pEntityType, Level pLevel) {
+    public FireballEntity(EntityType<? extends FireballEntity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
 
-    public GreatFireballEntity(Player pShooter, double pOffsetX, double pOffsetY, double pOffsetZ, float explosionPower, float life) {
+    public FireballEntity(Player pShooter, double pOffsetX, double pOffsetY, double pOffsetZ, float pInaccuracy, float explosionPower, float life,
+                          float entitySize, int scaleTime, float initialScale, float scalar) {
         super(EntityRegistry.GREAT_FIREBALL.get(), pShooter, pOffsetX, pOffsetY, pOffsetZ, pShooter.level);
+
+        this.entitySize = entitySize;
+        this.scaleTime = scaleTime;
+        this.initialScale = initialScale;
+        this.scalar = scalar;
 
         this.entityData.set(ID_EXPLOSION_POWER, explosionPower);
         this.entityData.set(ID_LIFE, life);
 
         this.moveTo(pShooter.getX(), pShooter.getEyeY() - 0.2D, pShooter.getZ(), this.getYRot(), this.getXRot());
         this.reapplyPosition();
+
+        Vec3 movement = new Vec3(pOffsetX, pOffsetY, pOffsetZ).normalize().add(this.random.triangle(0.0D, 0.0172275D * 2.0D),
+                        this.random.triangle(0.0D, 0.0172275D * (double) pInaccuracy),
+                        this.random.triangle(0.0D, 0.0172275D * (double) pInaccuracy));
+        this.setDeltaMovement(movement);
+
         double d0 = Math.sqrt(pOffsetX * pOffsetX + pOffsetY * pOffsetY + pOffsetZ * pOffsetZ);
 
         if (d0 != 0.0D) {
@@ -55,6 +68,14 @@ public class GreatFireballEntity extends AbstractHurtingProjectile implements IA
             this.yPower = pOffsetY / d0 * 0.2D;
             this.zPower = pOffsetZ / d0 * 0.2D;
         }
+    }
+
+    public int getScaleTime() {
+        return this.scaleTime;
+    }
+
+    public float getEntitySize() {
+        return this.entitySize;
     }
 
     @Override
@@ -65,18 +86,18 @@ public class GreatFireballEntity extends AbstractHurtingProjectile implements IA
     }
 
     public float getScale(float time, float scaleTime) {
-        return Math.min(GreatFireballEntity.INITIAL_SCALE + (GreatFireballEntity.SCALAR
-                - (GreatFireballEntity.SCALAR * ((scaleTime - time) / scaleTime))), 1.0F);
+        return Math.min(FireballEntity.initialScale + (FireballEntity.scalar
+                - (FireballEntity.scalar * ((scaleTime - time) / scaleTime))), 1.0F);
     }
 
     @Override
     public EntityDimensions getDimensions(Pose pPose) {
-        EntityDimensions dimensions = EntityDimensions.scalable(ENTITY_SIZE, ENTITY_SIZE);
-        return dimensions.scale(this.getScale(this.getTime(), SCALE_TIME));
+        EntityDimensions dimensions = EntityDimensions.scalable(entitySize, entitySize);
+        return dimensions.scale(this.getScale(this.getTime(), scaleTime));
     }
 
     public float getExplosionPower() {
-        return this.getScale(this.getTime(), SCALE_TIME) * this.entityData.get(ID_EXPLOSION_POWER);
+        return this.getScale(this.getTime(), scaleTime) * this.entityData.get(ID_EXPLOSION_POWER);
     }
 
     public int getTime() {
@@ -118,6 +139,10 @@ public class GreatFireballEntity extends AbstractHurtingProjectile implements IA
 
         this.level.addParticle(ParticleTypes.FLAME, this.getX(), this.getY() + this.getBbHeight() / 2.0F, this.getZ(),
                 0.0D, 0.0D, 0.0D);
+
+        if (time % 10 == 0) {
+            this.level.playSound(null, this.blockPosition(), SoundEvents.FIRE_AMBIENT, SoundSource.AMBIENT, 1.0F, 1.0F);
+        }
     }
 
     @Override
@@ -151,7 +176,7 @@ public class GreatFireballEntity extends AbstractHurtingProjectile implements IA
 
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         event.getController().setAnimation(new AnimationBuilder()
-                .addAnimation("animation.great_fireball.rotate", ILoopType.EDefaultLoopTypes.LOOP));
+                .addAnimation("animation.fireball.rotate", ILoopType.EDefaultLoopTypes.LOOP));
         return PlayState.CONTINUE;
     }
 

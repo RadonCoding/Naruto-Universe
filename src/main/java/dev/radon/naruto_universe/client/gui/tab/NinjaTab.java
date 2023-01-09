@@ -21,7 +21,7 @@ public abstract class NinjaTab extends GuiComponent {
     public static final int HEIGHT = 113;
 
     protected final NinjaScreen screen;
-    protected final Minecraft minecraft;
+    protected final Minecraft mc;
     private final Component title;
     private final NinjaTabType type;
     private final ResourceLocation icon;
@@ -29,9 +29,9 @@ public abstract class NinjaTab extends GuiComponent {
 
     public final List<AbstractWidget> widgets = Lists.newArrayList();
 
-    public NinjaTab(NinjaScreen screen, Minecraft minecraft, Component title, ResourceLocation icon, NinjaTabType type, int index) {
+    public NinjaTab(NinjaScreen screen, Minecraft mc, Component title, ResourceLocation icon, NinjaTabType type, int index) {
         this.screen = screen;
-        this.minecraft = minecraft;
+        this.mc = mc;
         this.title = title;
         this.icon = icon;
         this.type = type;

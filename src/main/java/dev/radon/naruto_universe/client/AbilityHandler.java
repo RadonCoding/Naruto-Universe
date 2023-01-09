@@ -1,10 +1,10 @@
 package dev.radon.naruto_universe.client;
 
-import dev.radon.naruto_universe.ability.Ability;
-import dev.radon.naruto_universe.ability.AbilityRegistry;
 import dev.radon.naruto_universe.network.PacketHandler;
 import dev.radon.naruto_universe.network.packet.HandleComboC2SPacket;
 import dev.radon.naruto_universe.network.packet.HandleHandSignC2SPacket;
+import dev.radon.naruto_universe.ability.Ability;
+import dev.radon.naruto_universe.ability.AbilityRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -25,7 +25,7 @@ public class AbilityHandler {
 
     private static final List<AbilityKeyMapping> ABILITY_KEYS = Lists.newArrayList();
 
-    public static void tick() {
+    public static void tick(LocalPlayer player) {
         if (currentCombo != 0) {
             ticksPassed++;
         }
@@ -45,8 +45,6 @@ public class AbilityHandler {
         }
 
         boolean possiblyChanneling = currentAbility != null && currentAbility.getActivationType() == Ability.ActivationType.CHANNELED;
-
-        LocalPlayer player = Minecraft.getInstance().player;
 
         if (possiblyChanneling) {
             if (lastKeyIsHeld && currentKey.currentTickCount() >= MAX_TICKS) {
@@ -94,13 +92,9 @@ public class AbilityHandler {
         ticksPassed = 0;
 
         LocalPlayer player = Minecraft.getInstance().player;
-        currentAbility = AbilityRegistry.getAbility(currentCombo);
+        currentAbility = AbilityRegistry.getUnlockedAbility(player, currentCombo);
 
-        if (currentAbility != null && !currentAbility.isUnlocked(player)) {
-            currentAbility = null;
-        }
-
-        PacketHandler.sendToServer(new HandleHandSignC2SPacket());
+        PacketHandler.sendToServer(new HandleHandSignC2SPacket(i));
     }
 
     private static void resetAbilityCasting() {
@@ -109,13 +103,15 @@ public class AbilityHandler {
         currentAbility = null;
         isCurrentlyChargingAbility = false;
     }
+    
+    public static void registerListener(KeyMapping key, Runnable onClick) {
+        AbilityKeyMapping abilityKey = new AbilityKeyMapping(key.getName(), key.getKey().getValue(), key.getCategory());
+        abilityKey.registerClickConsumer(onClick);
+        ABILITY_KEYS.add(abilityKey);
+    }
 
     public static void registerKeyMapping(RegisterKeyMappingsEvent event, KeyMapping key, Runnable onClick) {
         event.register(key);
-
-        AbilityKeyMapping abilityKey = new AbilityKeyMapping(key.getName(), key.getKey().getValue(), key.getCategory());
-        ABILITY_KEYS.add(abilityKey);
-
-        abilityKey.registerClickConsumer(onClick);
+        registerListener(key, onClick);
     }
 }

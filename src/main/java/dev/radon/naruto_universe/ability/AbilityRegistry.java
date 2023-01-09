@@ -2,13 +2,11 @@ package dev.radon.naruto_universe.ability;
 
 import dev.radon.naruto_universe.NarutoUniverse;
 import dev.radon.naruto_universe.ability.jutsu.GreatFireball;
-import dev.radon.naruto_universe.ability.utility.ChakraCharge;
-import dev.radon.naruto_universe.ability.utility.Rinnegan;
-import dev.radon.naruto_universe.ability.utility.Sharingan;
-import dev.radon.naruto_universe.ability.utility.WaterWalking;
+import dev.radon.naruto_universe.ability.jutsu.PhoenixFlower;
+import dev.radon.naruto_universe.ability.utility.*;
+import dev.radon.naruto_universe.capability.NinjaPlayerHandler;
 import dev.radon.naruto_universe.capability.NinjaTrait;
 import dev.radon.naruto_universe.client.KeyRegistry;
-import dev.radon.naruto_universe.capability.NinjaPlayerHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.registries.DeferredRegister;
@@ -20,7 +18,6 @@ import org.apache.commons.compress.utils.Lists;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class AbilityRegistry {
@@ -31,12 +28,14 @@ public class AbilityRegistry {
 
     public static final RegistryObject<Ability> WATER_WALKING =
             ABILITIES.register("water_walking", WaterWalking::new);
-
     public static final RegistryObject<Ability> CHAKRA_CHARGE =
             ABILITIES.register("chakra_charge", ChakraCharge::new);
-
+    public static final RegistryObject<Ability> CHAKRA_JUMP =
+            ABILITIES.register("chakra_jump", ChakraJump::new);
     public static final RegistryObject<Ability> GREAT_FIREBALL =
             ABILITIES.register("great_fireball", GreatFireball::new);
+    public static final RegistryObject<Ability> PHOENIX_FLOWER =
+            ABILITIES.register("phoenix_flower", PhoenixFlower::new);
     public static final RegistryObject<Ability> SHARINGAN =
             ABILITIES.register("sharingan", Sharingan::new);
     public static final RegistryObject<Ability> RINNEGAN =
@@ -60,24 +59,35 @@ public class AbilityRegistry {
         return null;
     }
 
-    public static float getProgress(Player player, Ability ability) {
-        AtomicReference<Float> progress = new AtomicReference(0.0F);
+    public static Ability getUnlockedAbility(Player player, long combo) {
+        Ability ability = getAbility(combo);
+
+        if (ability != null && ability.isUnlocked(player)) {
+            return ability;
+        }
+        return null;
+    }
+
+
+    public static boolean checkRequirements(Player player, Ability ability) {
+        AtomicBoolean result = new AtomicBoolean(true);
 
         player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            List<NinjaTrait> requirements = ability.getRequirements();
+            if (cap.getRank().ordinal() >= ability.getRank().ordinal()) {
+                List<NinjaTrait> requirements = ability.getRequirements();
 
-            int completed = 0;
-
-            for (NinjaTrait requirement : requirements) {
-                if (cap.hasTrait(requirement)) {
-                    completed++;
+                for (NinjaTrait requirement : requirements) {
+                    if (!cap.hasTrait(requirement)) {
+                        result.set(false);
+                    }
                 }
             }
-
-            progress.set(requirements.size() > 0 ? (float) completed / (float) requirements.size() : 1.0F);
+            else {
+                result.set(false);
+            }
         });
 
-        return progress.get();
+        return result.get();
     }
 
     private static void collectDigits(long num, List<Integer> digits) {
@@ -96,6 +106,9 @@ public class AbilityRegistry {
 
         for (int digit : digits) {
             switch (digit) {
+                case -1:
+                    result.append((char) KeyRegistry.KEY_CHAKRA_JUMP.getKey().getValue());
+                    break;
                 case 1:
                     result.append((char) KeyRegistry.KEY_HAND_SIGN_ONE.getKey().getValue());
                     break;
