@@ -9,7 +9,7 @@
   "sounds.naruto_universe.ability_activate": "Ability Activate",
   "ability.fail.not_found": "No ability found with that combination",
   "ability.fail.not_enough_chakra": "Not enough chakra",
-  "ability.fail.not_skilled_enough": "You cannot use a %1$s level technique",
+  "ability.fail.not_skilled_enough": "You cannot unlock a %1$s level technique",
 
   "naruto_universe:water_walking.name": "Water Walking",
   "naruto_universe:water_walking.desc": "Allows you to walk on water.",

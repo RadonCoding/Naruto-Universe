@@ -49,7 +49,7 @@ public abstract class Ability {
     }
 
     public boolean checkRequirements(Player player) {
-        if (AbilityRegistry.checkRequirements(player, this)) {
+        if (player.getAbilities().instabuild || AbilityRegistry.checkRequirements(player, this)) {
             return true;
         }
         player.sendSystemMessage(Component.translatable("ability.fail.not_skilled_enough", this.getRank().getIdentifier()));

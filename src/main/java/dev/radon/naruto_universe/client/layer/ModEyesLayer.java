@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.radon.naruto_universe.NarutoUniverse;
 import dev.radon.naruto_universe.ability.AbilityRegistry;
 import dev.radon.naruto_universe.capability.NinjaPlayerHandler;
+import dev.radon.naruto_universe.capability.NinjaTrait;
 import dev.radon.naruto_universe.entity.EntityRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -23,6 +24,7 @@ public class ModEyesLayer<T extends LivingEntity, M extends PlayerModel<T>> exte
     private static final RenderType SHARINGAN_TWO = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/sharingan_two.png"));
     private static final RenderType SHARINGAN_THREE = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/sharingan_three.png"));
     private static final RenderType RINNEGAN = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/rinnegan.png"));
+    private static final RenderType SIX_TOMOE_RINNEGAN = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/six_tomoe_rinnegan.png"));
 
     public ModEyesLayer(RenderLayerParent<T, M> pRenderer) {
         super(pRenderer);
@@ -45,7 +47,12 @@ public class ModEyesLayer<T extends LivingEntity, M extends PlayerModel<T>> exte
 
         player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             if (cap.hasToggledAbility(AbilityRegistry.RINNEGAN.get())) {
-                this.renderEyes(pMatrixStack, pBuffer, RINNEGAN);
+                if (cap.hasToggledAbility(AbilityRegistry.SHARINGAN.get())) {
+                    this.renderEyes(pMatrixStack, pBuffer, SIX_TOMOE_RINNEGAN);
+                }
+                else {
+                    this.renderEyes(pMatrixStack, pBuffer, RINNEGAN);
+                }
             }
             else if (cap.hasToggledAbility(AbilityRegistry.SHARINGAN.get())) {
                 int level = cap.getSharinganLevel();
@@ -59,7 +66,7 @@ public class ModEyesLayer<T extends LivingEntity, M extends PlayerModel<T>> exte
                     case 2:
                         this.renderEyes(pMatrixStack, pBuffer, SHARINGAN_TWO);
                         break;
-                    case 3:
+                    default:
                         this.renderEyes(pMatrixStack, pBuffer, SHARINGAN_THREE);
                         break;
                 }
