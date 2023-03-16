@@ -16,19 +16,19 @@
   "naruto_universe:water_walking.enable": "Enabled water walking",
   "naruto_universe:water_walking.disable": "Disabled water walking",
 
-  "naruto_universe:chakra_charge.name": "Chakra Charge",
-  "naruto_universe:chakra_charge.desc": "Charges your chakra.",
-  "naruto_universe:chakra_charge.start": "Charging chakra...",
-  "naruto_universe:chakra_charge.stop": "Stopped charging chakra",
+  "naruto_universe:power_charge.name": "Power Charge",
+  "naruto_universe:power_charge.desc": "Charges your next ability.",
+  "naruto_universe:power_charge.start": "Charging power...",
+  "naruto_universe:power_charge.stop": "Stopped charging power",
 
   "naruto_universe:chakra_jump.name": "Chakra Jump",
   "naruto_universe:chakra_jump.desc": "Allows you to jump high.",
 
-  "naruto_universe:great_fireball.name": "Fire Release - Great Fireball",
+  "naruto_universe:great_fireball.name": "Great Fireball Technique",
   "naruto_universe:great_fireball.desc": "Shoots a large fireball at your opponent.",
 
-  "naruto_universe:phoenix_flower.name": "Fire Release - Phoenix Flower",
-  "naruto_universe:phoenix_flower.desc": "Shoots six fireballs at your opponent.",
+  "naruto_universe:phoenix_flower.name": "Phoenix Sage Fire Technique",
+  "naruto_universe:phoenix_flower.desc": "Shoots multiple fireballs at your opponent.",
 
   "naruto_universe:sharingan.name": "Activate Sharingan",
   "naruto_universe:sharingan.desc": "Activates your sharingan.",
@@ -65,5 +65,8 @@
   "item.naruto_universe.anbu_chestplate": "Anbu Chestplate",
   "item.naruto_universe.anbu_leggings": "Anbu Leggings",
   "item.naruto_universe.anbu_boots": "Anbu Boots",
-  "item.naruto_universe.kunai": "Kunai"
+  "item.naruto_universe.kunai": "Kunai",
+
+  "chat_text.power": "Power: %.1f",
+  "ability.fail.not_enough_power": "You need to charge more power"
 }

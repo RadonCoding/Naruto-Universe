@@ -12,11 +12,11 @@ plugins {
 apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 
-version = '1.0'
-group = 'dev.radon.naruto_universe' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'NarutoUniverse'
+version = project.mod_version
+group = project.maven_group
+archivesBaseName = project.archives_base_name
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(project.language_version)
 
 mixin {
     add sourceSets.main, 'naruto_universe.mixin.refmap.json'
@@ -24,7 +24,7 @@ mixin {
 }
 
 minecraft {
-    mappings channel: 'parchment', version: '2022.11.27-1.19.2'
+    mappings channel: 'parchment', version: '2023.03.12-1.19.3'
 
     runs {
         client {
@@ -52,6 +52,20 @@ minecraft {
                 }
             }
         }
+
+        data {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', 'naruto_universe', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+
+            mods {
+                naruto_universe {
+                    source sourceSets.main
+                }
+            }
+        }
     }
 }
 
@@ -62,20 +76,20 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.2-43.2.0'
+    minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
-    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.19:3.1.39')
+    implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.19.3:4.0.4')
 }
 
 jar {
     manifest {
         attributes([
                 "Specification-Title"     : "Naruto Universe",
-                "Specification-Vendor"    : "Radon",
-                "Specification-Version"   : "${project.version}",
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : "${project.version}",
-                "Implementation-Vendor"   : "Radon",
+                "Specification-Vendor"    : "RadonCoding",
+                "Specification-Version": project.version,
+                "Implementation-Title": project.name,
+                "Implementation-Version": project.version,
+                "Implementation-Vendor"   : "RadonCoding",
                 "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
     }
