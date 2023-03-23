@@ -40,6 +40,11 @@ public class PowerCharge extends Ability implements Ability.Channeled {
     }
 
     @Override
+    public boolean isUnlocked(Player player) {
+        return true;
+    }
+
+    @Override
     public AbilityDisplayInfo getDisplay() {
         String iconPath = this.getId().getPath();
         return new AbilityDisplayInfo(iconPath, 2.0F, 0.0F);

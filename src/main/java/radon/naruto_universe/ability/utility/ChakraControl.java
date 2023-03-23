@@ -36,6 +36,11 @@ public class ChakraControl extends Ability implements Ability.Toggled {
     }
 
     @Override
+    public boolean isUnlocked(Player player) {
+        return true;
+    }
+
+    @Override
     public AbilityDisplayInfo getDisplay() {
         String iconPath = this.getId().getPath();
         return new AbilityDisplayInfo(iconPath, 0.0F, 0.0F);

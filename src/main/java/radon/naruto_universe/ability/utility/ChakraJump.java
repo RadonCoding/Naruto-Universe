@@ -39,6 +39,11 @@ public class ChakraJump extends Ability {
     }
 
     @Override
+    public boolean isUnlocked(Player player) {
+        return true;
+    }
+
+    @Override
     public AbilityDisplayInfo getDisplay() {
         String iconPath = this.getId().getPath();
         AbilityDisplayInfo info = new AbilityDisplayInfo(iconPath, 4.0F, 0.0F);
