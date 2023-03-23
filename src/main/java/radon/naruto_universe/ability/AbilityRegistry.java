@@ -46,7 +46,7 @@ public class AbilityRegistry {
     public static final RegistryObject<Ability> RINNEGAN =
             ABILITIES.register("rinnegan", Rinnegan::new);
 
-    private static HashMap<Long, ResourceLocation> COMBO_MAP = new HashMap<>();
+    private static final HashMap<Long, ResourceLocation> COMBO_MAP = new HashMap<>();
 
     public static void registerCombos() {
         for (RegistryObject<Ability> ability : ABILITIES.getEntries()) {
@@ -111,18 +111,10 @@ public class AbilityRegistry {
 
         for (int digit : digits) {
             switch (digit) {
-                case -1:
-                    result.append((char) KeyRegistry.KEY_CHAKRA_JUMP.getKey().getValue());
-                    break;
-                case 1:
-                    result.append((char) KeyRegistry.KEY_HAND_SIGN_ONE.getKey().getValue());
-                    break;
-                case 2:
-                    result.append((char) KeyRegistry.KEY_HAND_SIGN_TWO.getKey().getValue());
-                    break;
-                case 3:
-                    result.append((char) KeyRegistry.KEY_HAND_SIGN_THREE.getKey().getValue());
-                    break;
+                case -1 -> result.append((char) KeyRegistry.KEY_CHAKRA_JUMP.getKey().getValue());
+                case 1 -> result.append((char) KeyRegistry.KEY_HAND_SIGN_ONE.getKey().getValue());
+                case 2 -> result.append((char) KeyRegistry.KEY_HAND_SIGN_TWO.getKey().getValue());
+                case 3 -> result.append((char) KeyRegistry.KEY_HAND_SIGN_THREE.getKey().getValue());
             }
         }
         return result.toString();

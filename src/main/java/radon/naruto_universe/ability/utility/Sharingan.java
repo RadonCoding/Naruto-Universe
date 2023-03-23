@@ -1,24 +1,19 @@
 package radon.naruto_universe.ability.utility;
 
-import net.minecraft.client.Minecraft;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.phys.AABB;
-import org.joml.Vector3f;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.client.particle.ParticleRegistry;
 import radon.naruto_universe.client.particle.VaporParticle;
 import radon.naruto_universe.sound.SoundRegistry;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -30,7 +25,7 @@ public class Sharingan extends Ability implements Ability.Toggled {
 
     @Override
     public List<NinjaTrait> getRequirements() {
-        return Arrays.asList(NinjaTrait.UNLOCKED_SHARINGAN);
+        return List.of(NinjaTrait.UNLOCKED_SHARINGAN);
     }
 
     @Override
@@ -46,8 +41,7 @@ public class Sharingan extends Ability implements Ability.Toggled {
     @Override
     public AbilityDisplayInfo getDisplay() {
         String iconPath = this.getId().getPath();
-        AbilityDisplayInfo info = new AbilityDisplayInfo(iconPath, 6.0F, 0.0F);
-        return info;
+        return new AbilityDisplayInfo(iconPath, 6.0F, 0.0F);
     }
 
     @Override

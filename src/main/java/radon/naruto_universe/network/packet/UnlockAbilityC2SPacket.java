@@ -26,11 +26,13 @@ public class UnlockAbilityC2SPacket {
         buf.writeResourceLocation(this.key);
     }
 
-    public boolean handle(Supplier<NetworkEvent.Context> supplier) {
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
 
         ctx.enqueueWork(() -> {
             ServerPlayer player = ctx.getSender();
+
+            assert player != null;
 
             player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                 Ability ability = AbilityRegistry.getValue(this.key);
@@ -43,6 +45,5 @@ public class UnlockAbilityC2SPacket {
         });
         ctx.setPacketHandled(true);
 
-        return true;
     }
 }

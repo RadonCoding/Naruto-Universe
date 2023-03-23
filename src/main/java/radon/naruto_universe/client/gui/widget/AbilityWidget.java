@@ -101,6 +101,7 @@ public class AbilityWidget extends GuiComponent {
     }
 
     public void update() {
+        assert this.mc.player != null;
         this.unlockable = this.ability.isUnlockable(this.mc.player);
         this.unlocked = this.ability.isUnlocked(this.mc.player);
         this.frame = this.unlockable ? (this.unlocked ? AbilityFrameType.UNLOCKED : AbilityFrameType.UNLOCKABLE) : AbilityFrameType.NORMAL;
@@ -113,7 +114,7 @@ public class AbilityWidget extends GuiComponent {
 
         for (int i : TEST_SPLIT_OFFSETS) {
             List<FormattedText> list1 = stringsplitter.splitLines(pComponent, pMaxWidth - i, Style.EMPTY);
-            float f1 = Math.abs(this.getMaxWidth(stringsplitter, list1) - (float)pMaxWidth);
+            float f1 = Math.abs(getMaxWidth(stringsplitter, list1) - (float)pMaxWidth);
 
             if (f1 <= 10.0F) {
                 return list1;
@@ -178,7 +179,7 @@ public class AbilityWidget extends GuiComponent {
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, this.display.getIcon());
-        this.blit(pPoseStack, i + this.x + 8, j + this.y + 5,
+        blit(pPoseStack, i + this.x + 8, j + this.y + 5,
                 0, 0, 16, 16, 16, 16);
         RenderSystem.disableBlend();
 
@@ -197,6 +198,7 @@ public class AbilityWidget extends GuiComponent {
 
     public void unlock() {
         if (this.unlockable && !this.unlocked) {
+            assert this.mc.player != null;
             this.mc.player.playSound(SoundEvents.PLAYER_LEVELUP, 1.0F, 1.0F);
             PacketHandler.sendToServer(new UnlockAbilityC2SPacket(AbilityRegistry.getKey(this.ability)));
             this.update();

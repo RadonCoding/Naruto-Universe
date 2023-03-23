@@ -3,6 +3,7 @@ package radon.naruto_universe.client.gui;
 import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.client.gui.tab.InfoTab;
 import radon.naruto_universe.client.gui.tab.AbilityTab;
 import radon.naruto_universe.client.gui.tab.SettingsTab;
@@ -93,7 +94,7 @@ public class NinjaScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTick) {
         int i = (this.width - WINDOW_WIDTH) / 2;
         int j = (this.height - WINDOW_HEIGHT) / 2;
         this.renderBackground(pPoseStack);

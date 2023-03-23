@@ -2,6 +2,7 @@ package radon.naruto_universe.item;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
+import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.entity.ThrownKunaiEntity;
 import radon.naruto_universe.sound.SoundRegistry;
 import net.minecraft.core.BlockPos;
@@ -38,22 +39,22 @@ public class KunaiItem extends Item implements Vanishable {
     }
 
     @Override
-    public boolean canAttackBlock(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer) {
+    public boolean canAttackBlock(@NotNull BlockState pState, @NotNull Level pLevel, @NotNull BlockPos pPos, Player pPlayer) {
         return !pPlayer.isCreative();
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack pStack) {
+    public @NotNull UseAnim getUseAnimation(@NotNull ItemStack pStack) {
         return UseAnim.SPEAR;
     }
 
     @Override
-    public int getUseDuration(ItemStack pStack) {
+    public int getUseDuration(@NotNull ItemStack pStack) {
         return 72000;
     }
 
     @Override
-    public void releaseUsing(ItemStack pStack, Level pLevel, LivingEntity pLivingEntity, int pTimeCharged) {
+    public void releaseUsing(@NotNull ItemStack pStack, @NotNull Level pLevel, @NotNull LivingEntity pLivingEntity, int pTimeCharged) {
         if (pLivingEntity instanceof Player player) {
             if (this.getUseDuration(pStack) - pTimeCharged >= THROW_THRESHOLD_TIME) {
                 if (!pLevel.isClientSide) {
@@ -80,7 +81,7 @@ public class KunaiItem extends Item implements Vanishable {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, Player pPlayer, @NotNull InteractionHand pHand) {
         ItemStack stack = pPlayer.getItemInHand(pHand);
 
         if (stack.getDamageValue() >= stack.getMaxDamage() - 1) {
@@ -94,7 +95,7 @@ public class KunaiItem extends Item implements Vanishable {
     }
 
     @Override
-    public boolean hurtEnemy(ItemStack pStack, LivingEntity pTarget, LivingEntity pAttacker) {
+    public boolean hurtEnemy(ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
         pStack.hurtAndBreak(1, pAttacker, (entity) -> {
             entity.broadcastBreakEvent(EquipmentSlot.MAINHAND);
         });
@@ -102,7 +103,7 @@ public class KunaiItem extends Item implements Vanishable {
     }
 
     @Override
-    public boolean mineBlock(ItemStack pStack, Level pLevel, BlockState pState, BlockPos pPos, LivingEntity pEntityLiving) {
+    public boolean mineBlock(@NotNull ItemStack pStack, @NotNull Level pLevel, BlockState pState, @NotNull BlockPos pPos, @NotNull LivingEntity pEntityLiving) {
         if ((double) pState.getDestroySpeed(pLevel, pPos) != 0.0D) {
             pStack.hurtAndBreak(2, pEntityLiving, (entity) -> {
                 entity.broadcastBreakEvent(EquipmentSlot.MAINHAND);
@@ -117,7 +118,7 @@ public class KunaiItem extends Item implements Vanishable {
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot pEquipmentSlot) {
+    public @NotNull Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(@NotNull EquipmentSlot pEquipmentSlot) {
         return pEquipmentSlot == EquipmentSlot.MAINHAND ? this.defaultModifiers : super.getDefaultAttributeModifiers(pEquipmentSlot);
     }
 }

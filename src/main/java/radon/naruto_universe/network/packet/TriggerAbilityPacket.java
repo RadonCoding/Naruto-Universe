@@ -31,7 +31,7 @@ public class TriggerAbilityPacket {
         buf.writeResourceLocation(this.key);
     }
 
-    public boolean handle(Supplier<NetworkEvent.Context> supplier) {
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
 
         Ability ability = AbilityRegistry.getValue(this.key);
@@ -42,7 +42,9 @@ public class TriggerAbilityPacket {
             ctx.enqueueWork(() -> {
                 ServerPlayer player = ctx.getSender();
 
-                if (!ability.isUnlocked(player) || /*!ability.checkRequirements(player) ||*/ !ability.checkChakra(player)) {
+                assert player != null;
+
+                if (!ability.isUnlocked(player) || /*!ability.checkRequirements(player) ||*/ ability.checkChakra(player)) {
                     canceled.set(true);
                 }
             });
@@ -53,11 +55,16 @@ public class TriggerAbilityPacket {
 
         if (!canceled.get()) {
             ctx.enqueueWork(() -> {
+                assert ability != null;
+
                 if (ability.getMinPower() > 0.0F) {
                     ServerPlayer player = ctx.getSender();
+                    assert player != null;
                     player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.addPower(0.0F));
                 }
             });
+
+            assert ability != null;
 
             if (ability.getActivationType() == Ability.ActivationType.INSTANT) {
                 LocalPlayer localPlayer = Minecraft.getInstance().player;
@@ -68,6 +75,8 @@ public class TriggerAbilityPacket {
                     ability.runServer(serverPlayer);
 
                     SoundEvent sound = ability.getActivationSound();
+
+                    assert serverPlayer != null;
 
                     if (sound != null) {
                         serverPlayer.level.playSound(null, serverPlayer.blockPosition(), sound, SoundSource.PLAYERS, 10.0F, 1.0F);
@@ -80,6 +89,8 @@ public class TriggerAbilityPacket {
             } else if (ability.getActivationType() == Ability.ActivationType.CHANNELED) {
                 ctx.enqueueWork(() -> {
                     ServerPlayer player = ctx.getSender();
+
+                    assert player != null;
 
                     player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                         ResourceLocation key = AbilityRegistry.getKey(ability);
@@ -98,6 +109,8 @@ public class TriggerAbilityPacket {
                 ctx.enqueueWork(() -> {
                     ServerPlayer player = ctx.getSender();
 
+                    assert player != null;
+
                     player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                         if (ability instanceof Ability.Toggled) {
                             if (!cap.hasToggledAbility(ability)) {
@@ -114,6 +127,5 @@ public class TriggerAbilityPacket {
 
         ctx.setPacketHandled(true);
 
-        return true;
     }
 }

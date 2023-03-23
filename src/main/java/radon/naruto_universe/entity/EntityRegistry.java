@@ -3,6 +3,7 @@ package radon.naruto_universe.entity;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.GameRenderer;
+import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.NarutoUniverse;
 import net.minecraft.Util;
 import net.minecraft.client.renderer.RenderStateShard;
@@ -78,7 +79,7 @@ public class EntityRegistry {
             return EYES_BACKGROUND.apply(pLocation);
         }
 
-        public static RenderType eyes(ResourceLocation pLocation) {
+        public static RenderType eyes(@NotNull ResourceLocation pLocation) {
             return EYES.apply(pLocation);
         }
 

@@ -175,7 +175,6 @@ public class FireballJutsuEntity extends AbstractHurtingProjectile {
             if (owner != null) {
                 float sizeFactor = this.getSize() / 2.0F;
                 float damage = BASE_DAMAGE * this.getPower() * sizeFactor;
-                System.out.println(String.format("DAMAGE: %f", damage));
                 target.hurt(DamageSource.playerAttack((Player) owner), damage);
                 this.doEnchantDamageEffects((LivingEntity) owner, target);
             }

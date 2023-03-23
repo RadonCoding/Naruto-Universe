@@ -45,52 +45,43 @@ public enum NinjaTabType {
         int j = pOffsetY + this.getY(pIndex);
 
         switch (this) {
-            case ABOVE:
+            case ABOVE -> {
                 i += 6;
                 j += 9;
-                break;
-            case BELOW:
+            }
+            case BELOW -> {
                 i += 6;
                 j += 6;
-                break;
-            case LEFT:
+            }
+            case LEFT -> {
                 i += 10;
                 j += 5;
-                break;
-            case RIGHT:
+            }
+            case RIGHT -> {
                 i += 6;
                 j += 5;
+            }
         }
         RenderSystem.setShaderTexture(0, icon);
-        pAbstractGui.blit(pPoseStack, i, j, 0, 0, 16, 16, 16, 16);
+        GuiComponent.blit(pPoseStack, i, j, 0, 0, 16, 16, 16, 16);
     }
 
     public int getX(int pIndex) {
-        switch (this) {
-            case ABOVE:
-            case BELOW:
-                return (this.width + 4) * pIndex;
-            case LEFT:
-                return -this.width + 4;
-            case RIGHT:
-                return 248;
-            default:
-                return 0;
-        }
+        return switch (this) {
+            case ABOVE, BELOW -> (this.width + 4) * pIndex;
+            case LEFT -> -this.width + 4;
+            case RIGHT -> 248;
+            default -> 0;
+        };
     }
 
     public int getY(int pIndex) {
-        switch (this) {
-            case ABOVE:
-                return -this.height + 4;
-            case BELOW:
-                return 136;
-            case LEFT:
-            case RIGHT:
-                return this.height * pIndex;
-            default:
-                return 0;
-        }
+        return switch (this) {
+            case ABOVE -> -this.height + 4;
+            case BELOW -> 136;
+            case LEFT, RIGHT -> this.height * pIndex;
+            default -> 0;
+        };
     }
 
     public boolean isMouseOver(int pOffsetX, int pOffsetY, double pMouseX, double pMouseY, int pIndex) {

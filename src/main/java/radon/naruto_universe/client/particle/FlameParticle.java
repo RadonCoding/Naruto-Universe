@@ -42,7 +42,7 @@ public class FlameParticle extends TextureSheetParticle {
     }
 
     @Override
-    public ParticleRenderType getRenderType() {
+    public @NotNull ParticleRenderType getRenderType() {
         return ParticleRegistry.ModRenderTypes.GLOW;
     }
 

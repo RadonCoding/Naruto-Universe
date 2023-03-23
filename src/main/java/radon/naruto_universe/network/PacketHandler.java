@@ -1,14 +1,16 @@
 package radon.naruto_universe.network;
 
-import radon.naruto_universe.NarutoUniverse;
-import radon.naruto_universe.network.packet.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
-import radon.naruto_universe.network.packet.*;
+import radon.naruto_universe.NarutoUniverse;
+import radon.naruto_universe.network.packet.HandleHandSignC2SPacket;
+import radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
+import radon.naruto_universe.network.packet.TriggerAbilityPacket;
+import radon.naruto_universe.network.packet.UnlockAbilityC2SPacket;
 
 public class PacketHandler {
     private static SimpleChannel INSTANCE;

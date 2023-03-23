@@ -1,19 +1,18 @@
 package radon.naruto_universe.ability.utility;
 
-import net.minecraft.network.protocol.game.ClientboundLevelParticlesPacket;
-import net.minecraft.server.level.ServerLevel;
-import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.capability.NinjaRank;
-import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import radon.naruto_universe.ability.Ability;
+import radon.naruto_universe.capability.NinjaRank;
+import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.client.particle.VaporParticle;
 
 import java.util.Random;

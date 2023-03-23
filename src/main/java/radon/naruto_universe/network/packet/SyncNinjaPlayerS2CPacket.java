@@ -27,12 +27,14 @@ public class SyncNinjaPlayerS2CPacket {
         buf.writeNbt(this.nbt);
     }
 
-    public boolean handle(Supplier<NetworkEvent.Context> supplier) {
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
 
         ctx.enqueueWork(() -> DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {
             Minecraft mc = Minecraft.getInstance();
             LocalPlayer player = mc.player;
+
+            assert player != null;
 
             player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.deserializeNBT(this.nbt));
 
@@ -42,6 +44,5 @@ public class SyncNinjaPlayerS2CPacket {
         }));
         ctx.setPacketHandled(true);
 
-        return true;
     }
 }

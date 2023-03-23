@@ -8,8 +8,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -101,6 +99,7 @@ public class NinjaPlayer implements INinjaPlayer {
         if (this.oldExperience != this.experience) {
             this.oldExperience = this.experience;
 
+            assert speedAttr != null;
             speedAttr.removeModifier(MOVEMEMENT_SPEED_UUID);
             speedAttr.addTransientModifier(speedModifier);
         }
@@ -284,7 +283,7 @@ public class NinjaPlayer implements INinjaPlayer {
 
             if (side == LogicalSide.SERVER) {
                 if (player instanceof ServerPlayer serverPlayer) {
-                    if (!toggled.checkChakra(serverPlayer)) {
+                    if (toggled.checkChakra(serverPlayer)) {
                         iter.remove();
                         PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(this.serializeNBT()), serverPlayer);
                     }

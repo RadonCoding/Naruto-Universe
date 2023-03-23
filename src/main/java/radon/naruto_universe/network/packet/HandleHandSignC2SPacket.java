@@ -25,29 +25,26 @@ public class HandleHandSignC2SPacket {
         buf.writeInt(this.handSign);
     }
 
-    public boolean handle(Supplier<NetworkEvent.Context> supplier) {
+    public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
 
         ctx.enqueueWork(() -> {
             ServerPlayer player = ctx.getSender();
 
+            assert player != null;
+
             player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                 cap.setPowerResetTimer(0);
             });
 
-            SoundEvent sound = null;
+            SoundEvent sound = switch (this.handSign) {
+                case 1 -> SoundRegistry.HAND_SIGN_ONE.get();
+                case 2 -> SoundRegistry.HAND_SIGN_TWO.get();
+                case 3 -> SoundRegistry.HAND_SIGN_THREE.get();
+                default -> null;
+            };
 
-            switch (this.handSign) {
-                case 1:
-                    sound = SoundRegistry.HAND_SIGN_ONE.get();
-                    break;
-                case 2:
-                    sound = SoundRegistry.HAND_SIGN_TWO.get();
-                    break;
-                case 3:
-                    sound = SoundRegistry.HAND_SIGN_THREE.get();
-                    break;
-            }
+            assert sound != null;
 
             player.level.playSound(null, player.blockPosition(),
                     sound, SoundSource.PLAYERS, 10.0F, 1.0F);
@@ -55,6 +52,5 @@ public class HandleHandSignC2SPacket {
 
         ctx.setPacketHandled(true);
 
-        return true;
     }
 }

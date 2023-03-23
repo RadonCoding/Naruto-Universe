@@ -97,6 +97,7 @@ public class ModClientEventHandler {
         public static void onAddLayers(final EntityRenderersEvent.AddLayers event) {
             event.getSkins().forEach((skin) -> {
                 LivingEntityRenderer<Player, PlayerModel<Player>> renderer = event.getSkin(skin);
+                assert renderer != null;
                 renderer.addLayer(new ModEyesLayer<>(renderer));
             });
         }
@@ -120,6 +121,8 @@ public class ModClientEventHandler {
             LocalPlayer player = Minecraft.getInstance().player;
 
             PlayerModel model = event.getModelPlayer();
+
+            assert player != null;
 
             if (player.isSprinting() && !player.isSwimming() && !player.getAbilities().flying) {
                 model.body.xRot = 0.5F;
@@ -171,6 +174,7 @@ public class ModClientEventHandler {
             Minecraft mc = Minecraft.getInstance();
 
             if (event.getAction() == InputConstants.PRESS && event.getKey() == mc.options.keyJump.getKey().getValue()) {
+                assert mc.player != null;
                 DoubleJumpHandler.run(mc.player);
             }
 

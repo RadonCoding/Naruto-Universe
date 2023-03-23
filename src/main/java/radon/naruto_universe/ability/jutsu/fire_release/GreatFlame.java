@@ -9,12 +9,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.BaseFireBlock;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.FireBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
-import org.joml.Vector3f;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
@@ -22,12 +17,10 @@ import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.client.particle.ParticleRegistry;
-import radon.naruto_universe.client.particle.VaporParticle;
 import radon.naruto_universe.sound.SoundRegistry;
 
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 public class GreatFlame extends Ability {
     public static final float BASE_DAMAGE = 2.5F;

@@ -1,12 +1,5 @@
 package radon.naruto_universe.ability.utility;
 
-import net.minecraft.tags.FluidTags;
-import net.minecraftforge.fluids.FluidType;
-import radon.naruto_universe.capability.NinjaRank;
-import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
-import radon.naruto_universe.sound.SoundRegistry;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +8,11 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import radon.naruto_universe.ability.Ability;
+import radon.naruto_universe.ability.AbilityRegistry;
+import radon.naruto_universe.capability.NinjaRank;
+import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
+import radon.naruto_universe.sound.SoundRegistry;
 
 public class ChakraJump extends Ability {
 
@@ -46,8 +44,7 @@ public class ChakraJump extends Ability {
     @Override
     public AbilityDisplayInfo getDisplay() {
         String iconPath = this.getId().getPath();
-        AbilityDisplayInfo info = new AbilityDisplayInfo(iconPath, 4.0F, 0.0F);
-        return info;
+        return new AbilityDisplayInfo(iconPath, 4.0F, 0.0F);
     }
 
     @Override

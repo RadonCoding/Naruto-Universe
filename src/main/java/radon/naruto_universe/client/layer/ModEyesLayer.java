@@ -2,6 +2,7 @@ package radon.naruto_universe.client.layer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
@@ -40,9 +41,12 @@ public class ModEyesLayer<T extends LivingEntity, M extends PlayerModel<T>> exte
     }
 
     @Override
-    public void render(PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight, T pLivingEntity, float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
+    public void render(@NotNull PoseStack pMatrixStack, @NotNull MultiBufferSource pBuffer, int pPackedLight, @NotNull T pLivingEntity,
+                       float pLimbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
+
+        assert player != null;
 
         player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             if (cap.hasToggledAbility(AbilityRegistry.RINNEGAN.get())) {
@@ -59,22 +63,16 @@ public class ModEyesLayer<T extends LivingEntity, M extends PlayerModel<T>> exte
                 this.renderBackground(pMatrixStack, pBuffer);
 
                 switch (level) {
-                    case 1:
-                        this.renderEyes(pMatrixStack, pBuffer, SHARINGAN_ONE);
-                        break;
-                    case 2:
-                        this.renderEyes(pMatrixStack, pBuffer, SHARINGAN_TWO);
-                        break;
-                    default:
-                        this.renderEyes(pMatrixStack, pBuffer, SHARINGAN_THREE);
-                        break;
+                    case 1 -> this.renderEyes(pMatrixStack, pBuffer, SHARINGAN_ONE);
+                    case 2 -> this.renderEyes(pMatrixStack, pBuffer, SHARINGAN_TWO);
+                    default -> this.renderEyes(pMatrixStack, pBuffer, SHARINGAN_THREE);
                 }
             }
         });
     }
 
     @Override
-    public RenderType renderType() {
+    public @NotNull RenderType renderType() {
         return null;
     }
 }

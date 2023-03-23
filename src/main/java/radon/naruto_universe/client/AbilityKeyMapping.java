@@ -53,14 +53,12 @@ public class AbilityKeyMapping extends KeyMapping {
         }
     }
 
-    public int consumeReleaseDuration() {
+    public void consumeReleaseDuration() {
         if (this.isDown()) {
-            return 0;
+            return;
         }
 
-        int ticksDownClone = this.ticksHeld;
         this.ticksHeld = 0;
-        return ticksDownClone;
     }
 
     public int currentTickCount() {

@@ -1,18 +1,9 @@
 package radon.naruto_universe.ability;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleOptions;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.BaseFireBlock;
-import net.minecraft.world.phys.AABB;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.client.particle.ParticleRegistry;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
 import radon.naruto_universe.sound.SoundRegistry;
@@ -26,7 +17,6 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class Ability {
@@ -132,7 +122,7 @@ public abstract class Ability {
                 PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
             }
         });
-        return result.get();
+        return !result.get();
     }
 
     public abstract float getCost();

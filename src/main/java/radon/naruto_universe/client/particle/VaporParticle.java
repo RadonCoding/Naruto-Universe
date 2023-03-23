@@ -68,7 +68,7 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
                 return new VaporParticleOptions(color, reader.readFloat(), reader.readBoolean(), reader.readInt());
             }
 
-            public @NotNull VaporParticleOptions fromNetwork(ParticleType<VaporParticleOptions> type, FriendlyByteBuf buf) {
+            public @NotNull VaporParticleOptions fromNetwork(@NotNull ParticleType<VaporParticleOptions> type, @NotNull FriendlyByteBuf buf) {
                 return new VaporParticleOptions(VaporParticleOptions.readColorFromNetwork(buf), buf.readFloat(), buf.readBoolean(), buf.readInt());
             }
         };

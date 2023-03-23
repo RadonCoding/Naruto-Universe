@@ -17,7 +17,7 @@ import java.util.List;
 public class AbilityHandler {
     private static int ticksPassed;
     private static long currentCombo;
-    private static final long MAX_COMBO_VALUE = 10;
+    private static final long MAX_COMBO_VALUE = 10 * 10; // Max 10 hand signs
     private static final int MAX_TICKS = 15;
     private static Ability currentAbility;
 
@@ -53,6 +53,7 @@ public class AbilityHandler {
                 }
                 isCurrentlyChargingAbility = true;
             } else if (!lastKeyIsHeld) {
+                assert currentKey != null;
                 currentKey.consumeReleaseDuration();
 
                 if (isCurrentlyChargingAbility) {
@@ -83,7 +84,7 @@ public class AbilityHandler {
     }
 
     public static void handleAbilityKey(int i) {
-        if (isCurrentlyChargingAbility || (currentCombo % 10) > MAX_COMBO_VALUE) {
+        if (isCurrentlyChargingAbility || currentCombo > MAX_COMBO_VALUE) {
             return;
         }
 

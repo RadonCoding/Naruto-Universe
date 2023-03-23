@@ -1,7 +1,5 @@
 package radon.naruto_universe.entity;
 
-import radon.naruto_universe.item.ItemRegistry;
-import radon.naruto_universe.sound.SoundRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -14,11 +12,11 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+import radon.naruto_universe.item.ItemRegistry;
+import radon.naruto_universe.sound.SoundRegistry;
 
 import javax.annotation.Nullable;
 
@@ -63,17 +61,17 @@ public class ThrownKunaiEntity extends AbstractArrow {
     }
 
     @Override
-    protected ItemStack getPickupItem() {
+    protected @NotNull ItemStack getPickupItem() {
         return this.kunaiItem.copy();
     }
 
     @Nullable
-    protected EntityHitResult findHitEntity(Vec3 pStartVec, Vec3 pEndVec) {
+    protected EntityHitResult findHitEntity(@NotNull Vec3 pStartVec, @NotNull Vec3 pEndVec) {
         return this.dealtDamage ? null : super.findHitEntity(pStartVec, pEndVec);
     }
 
     @Override
-    protected SoundEvent getDefaultHitGroundSoundEvent() {
+    protected @NotNull SoundEvent getDefaultHitGroundSoundEvent() {
         return SoundRegistry.KUNAI_HIT.get();
     }
 
@@ -109,19 +107,19 @@ public class ThrownKunaiEntity extends AbstractArrow {
     }
 
     @Override
-    protected boolean tryPickup(Player pPlayer) {
+    protected boolean tryPickup(@NotNull Player pPlayer) {
         return super.tryPickup(pPlayer) || this.isNoPhysics() && this.ownedBy(pPlayer) && pPlayer.getInventory().add(this.getPickupItem());
     }
 
     @Override
-    public void playerTouch(Player pEntity) {
+    public void playerTouch(@NotNull Player pEntity) {
         if (this.ownedBy(pEntity) || this.getOwner() == null) {
             super.playerTouch(pEntity);
         }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
+    public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
 
         if (pCompound.contains("kunai", 10)) {
@@ -130,7 +128,7 @@ public class ThrownKunaiEntity extends AbstractArrow {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
+    public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
         super.addAdditionalSaveData(pCompound);
 
         pCompound.put("kunai", this.kunaiItem.save(new CompoundTag()));

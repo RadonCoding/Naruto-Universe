@@ -7,23 +7,23 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.Codec;
-import net.minecraft.core.particles.SimpleParticleType;
-import radon.naruto_universe.NarutoUniverse;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import radon.naruto_universe.client.event.PlayerModelEvent;
+import org.jetbrains.annotations.NotNull;
+import radon.naruto_universe.NarutoUniverse;
 
 public class ParticleRegistry {
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES,
             NarutoUniverse.MOD_ID);
 
-    public static final RegistryObject<ParticleType> VAPOR = PARTICLES.register("vapor", () ->
+    public static final RegistryObject<ParticleType<VaporParticle.VaporParticleOptions>> VAPOR = PARTICLES.register("vapor", () ->
             new ParticleType<>(false, VaporParticle.VaporParticleOptions.DESERIALIZER) {
                 @Override
                 public Codec<VaporParticle.VaporParticleOptions> codec() {
@@ -36,7 +36,7 @@ public class ParticleRegistry {
     public static class ModRenderTypes {
         public static final ParticleRenderType GLOW = new ParticleRenderType() {
             @Override
-            public void begin(BufferBuilder buffer, TextureManager manager) {
+            public void begin(BufferBuilder buffer, @NotNull TextureManager manager) {
                 Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
                 RenderSystem.depthMask(false);
                 RenderSystem.enableBlend();
@@ -61,7 +61,7 @@ public class ParticleRegistry {
 
         public static final ParticleRenderType TRANSLUCENT = new ParticleRenderType() {
             @Override
-            public void begin(BufferBuilder buffer, TextureManager manager) {
+            public void begin(BufferBuilder buffer, @NotNull TextureManager manager) {
                 RenderSystem.depthMask(false);
                 RenderSystem.enableBlend();
                 RenderSystem.enableCull();

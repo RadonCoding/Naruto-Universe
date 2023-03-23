@@ -27,7 +27,7 @@ public class Rinnegan extends Ability implements Ability.Toggled {
 
     @Override
     public List<NinjaTrait> getRequirements() {
-        return Arrays.asList(NinjaTrait.UNLOCKED_RINNEGAN);
+        return List.of(NinjaTrait.UNLOCKED_RINNEGAN);
     }
 
     @Override
@@ -38,8 +38,7 @@ public class Rinnegan extends Ability implements Ability.Toggled {
     @Override
     public AbilityDisplayInfo getDisplay() {
         String iconPath = this.getId().getPath();
-        AbilityDisplayInfo info = new AbilityDisplayInfo(iconPath, 7.0F, 0.0F);
-        return info;
+        return new AbilityDisplayInfo(iconPath, 7.0F, 0.0F);
     }
 
     @Override

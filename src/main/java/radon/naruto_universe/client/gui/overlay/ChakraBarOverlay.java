@@ -24,6 +24,8 @@ public class ChakraBarOverlay{
 
         LocalPlayer player = gui.getMinecraft().player;
 
+        assert player != null;
+
         player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             float chakraWidth = (cap.getChakra() / cap.getMaxChakra()) * 94.0F;
             GuiComponent.blit(poseStack, 20, 21, 0, 9, (int) chakraWidth, 7, 93, 16);

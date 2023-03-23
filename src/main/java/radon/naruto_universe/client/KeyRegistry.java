@@ -7,22 +7,21 @@ import net.minecraft.client.KeyMapping;
 
 public class KeyRegistry {
     public static final String KEY_CATEGORY_NARUTO_UNIVERSE = String.format("key.category.%s", NarutoUniverse.MOD_ID);
-    public static final KeyMapping KEY_HAND_SIGN_ONE = createKeyMapping("hand_sign_one", KEY_CATEGORY_NARUTO_UNIVERSE,
+    public static final KeyMapping KEY_HAND_SIGN_ONE = createKeyMapping("hand_sign_one",
             InputConstants.KEY_C);
-    public static final KeyMapping KEY_HAND_SIGN_TWO = createKeyMapping("hand_sign_two", KEY_CATEGORY_NARUTO_UNIVERSE,
+    public static final KeyMapping KEY_HAND_SIGN_TWO = createKeyMapping("hand_sign_two",
             InputConstants.KEY_V);
-    public static final KeyMapping KEY_HAND_SIGN_THREE = createKeyMapping("hand_sign_three", KEY_CATEGORY_NARUTO_UNIVERSE,
+    public static final KeyMapping KEY_HAND_SIGN_THREE = createKeyMapping("hand_sign_three",
             InputConstants.KEY_B);
-    public static final KeyMapping KEY_CHAKRA_JUMP = createKeyMapping("chakra_jump", KEY_CATEGORY_NARUTO_UNIVERSE,
+    public static final KeyMapping KEY_CHAKRA_JUMP = createKeyMapping("chakra_jump",
             InputConstants.KEY_X);
-    public static final KeyMapping OPEN_NINJA_SCREEN = createKeyMapping("open_ninja_screen", KEY_CATEGORY_NARUTO_UNIVERSE,
+    public static final KeyMapping OPEN_NINJA_SCREEN = createKeyMapping("open_ninja_screen",
             InputConstants.KEY_J);
-    public static final KeyMapping SHOW_DOJUTSU_MENU = createKeyMapping("show_dojutsu_menu", KEY_CATEGORY_NARUTO_UNIVERSE,
+    public static final KeyMapping SHOW_DOJUTSU_MENU = createKeyMapping("show_dojutsu_menu",
             InputConstants.KEY_Z);
 
-    private static KeyMapping createKeyMapping(String name, String category, int keyCode) {
-        final KeyMapping key = new KeyMapping(String.format("key.%s.%s", NarutoUniverse.MOD_ID, name), keyCode, category);
-        return key;
+    private static KeyMapping createKeyMapping(String name, int keyCode) {
+        return new KeyMapping(String.format("key.%s.%s", NarutoUniverse.MOD_ID, name), keyCode, KeyRegistry.KEY_CATEGORY_NARUTO_UNIVERSE);
     }
 
     public static void register(final RegisterKeyMappingsEvent event) {

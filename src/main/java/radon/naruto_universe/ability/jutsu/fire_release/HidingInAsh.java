@@ -2,14 +2,11 @@ package radon.naruto_universe.ability.jutsu.fire_release;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.level.block.BaseFireBlock;
-import net.minecraft.world.level.block.FireBlock;
 import net.minecraft.world.phys.AABB;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
@@ -17,7 +14,6 @@ import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.client.particle.ParticleRegistry;
 import radon.naruto_universe.client.particle.VaporParticle;
 import radon.naruto_universe.sound.SoundRegistry;
 

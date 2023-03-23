@@ -1,13 +1,12 @@
 package radon.naruto_universe.item.armor;
 
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.item.Items;
-import radon.naruto_universe.NarutoUniverse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorMaterial;
 import net.minecraft.world.item.crafting.Ingredient;
+import org.jetbrains.annotations.NotNull;
+import radon.naruto_universe.NarutoUniverse;
 
 import java.util.function.Supplier;
 
@@ -30,17 +29,17 @@ public record ModArmorMaterial(String name, int durabilityMultiplier, int[] slot
     }
 
     @Override
-    public SoundEvent getEquipSound() {
+    public @NotNull SoundEvent getEquipSound() {
         return this.sound;
     }
 
     @Override
-    public Ingredient getRepairIngredient() {
+    public @NotNull Ingredient getRepairIngredient() {
         return repairIngredient.get();
     }
 
     @Override
-    public String getName() {
+    public @NotNull String getName() {
         return new ResourceLocation(NarutoUniverse.MOD_ID, this.name).toString();
     }
 
