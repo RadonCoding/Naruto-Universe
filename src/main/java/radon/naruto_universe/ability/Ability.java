@@ -1,10 +1,18 @@
 package radon.naruto_universe.ability;
 
-import radon.naruto_universe.capability.INinjaPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.phys.AABB;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
+import radon.naruto_universe.client.particle.ParticleRegistry;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
 import radon.naruto_universe.sound.SoundRegistry;
@@ -18,15 +26,22 @@ import net.minecraft.world.entity.player.Player;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class Ability {
     public enum ActivationType {
         INSTANT,
         TOGGLED,
         CHANNELED
+    }
+
+    // Used for storing the power that was used to activate the jutsu
+    private float power = 0.0F;
+
+    // A way to avoid hardcoding the dojutsu in AbilityRegistry::getDojutsuAbilities
+    public boolean isDojutsu() {
+        return false;
     }
 
     public boolean shouldLog() {
@@ -48,7 +63,7 @@ public abstract class Ability {
     }
 
     public long getCombo() {
-        return -1;
+        return 0;
     }
 
     public NinjaTrait getRelease() {
@@ -87,30 +102,33 @@ public abstract class Ability {
     public float getMinPower() {
         return 0.0F;
     }
-
-    public float getMaxPower() {
-        return 0.0F;
-    }
-
-    public float getPower(INinjaPlayer cap) {
-        return Math.min(this.getMaxPower(), cap.getPower());
-    }
+    public float getPower() { return this.power; }
 
     public boolean checkChakra(ServerPlayer player) {
         AtomicBoolean result = new AtomicBoolean(true);
 
         player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            if (this.getMinPower() > 0.0F && cap.getPower() < this.getMinPower()) {
+            float power = cap.getPower();
+
+            this.power = power;
+
+            if (this.getMinPower() > 0.0F && power < this.getMinPower()) {
                 player.sendSystemMessage(Component.translatable("ability.fail.not_enough_power"));
                 result.set(false);
                 return;
             }
 
-            if (cap.getChakra() < this.getCost()) {
+            if (player.getAbilities().instabuild) {
+                return;
+            }
+
+            float cost = this.getMinPower() > 0.0F ? this.getCost() * power : this.getCost();
+
+            if (cap.getChakra() < cost) {
                 player.sendSystemMessage(Component.translatable("ability.fail.not_enough_chakra"));
                 result.set(false);
             } else {
-                cap.useChakra(this.getCost());
+                cap.useChakra(cost);
                 PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
             }
         });

@@ -73,18 +73,8 @@ public class ThrownKunaiEntity extends AbstractArrow {
     }
 
     @Override
-    protected void onHitBlock(BlockHitResult pResult) {
-        super.onHitBlock(pResult);
-
-        BlockState state = this.level.getBlockState(pResult.getBlockPos());
-        Material material = state.getMaterial();
-        SoundEvent sound =  material == Material.WOOD ? SoundRegistry.KUNAI_HIT_WOOD.get() : SoundRegistry.KUNAI_HIT.get();
-        this.playSound(sound, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
-    }
-
-    @Override
     protected SoundEvent getDefaultHitGroundSoundEvent() {
-        return null;
+        return SoundRegistry.KUNAI_HIT.get();
     }
 
     @Override
@@ -114,8 +104,8 @@ public class ThrownKunaiEntity extends AbstractArrow {
             }
         }
 
-        this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01D, -0.1D, -0.01D));
         this.playSound(SoundRegistry.KUNAI_HIT.get(), 1.0F, 1.0F);
+        this.discard();
     }
 
     @Override
@@ -142,6 +132,7 @@ public class ThrownKunaiEntity extends AbstractArrow {
     @Override
     public void addAdditionalSaveData(CompoundTag pCompound) {
         super.addAdditionalSaveData(pCompound);
+
         pCompound.put("kunai", this.kunaiItem.save(new CompoundTag()));
     }
 

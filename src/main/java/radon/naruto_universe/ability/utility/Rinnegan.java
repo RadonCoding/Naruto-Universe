@@ -15,7 +15,11 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Rinnegan extends Ability implements Ability.Toggled {
-
+    @Override
+    public boolean isDojutsu() {
+        return true;
+    }
+    
     @Override
     public NinjaRank getRank() {
         return NinjaRank.ACADEMY_STUDENT;
@@ -29,11 +33,6 @@ public class Rinnegan extends Ability implements Ability.Toggled {
     @Override
     public ActivationType getActivationType() {
         return ActivationType.TOGGLED;
-    }
-
-    @Override
-    public long getCombo() {
-        return 23;
     }
 
     @Override

@@ -67,13 +67,6 @@ public class AbilityWidget extends GuiComponent {
         component.append("\n");
         component.append("\n");
 
-        if (this.ability.getCost() > 0.0F) {
-            component.append(Component.literal("Cost: "));
-            component.append(String.format("%.1f", this.ability.getCost()));
-            component.append("\n");
-            component.append("\n");
-        }
-
         List<NinjaTrait> requirements = this.ability.getRequirements();
 
         component.append(Component.literal("Requirements: "));
@@ -90,8 +83,10 @@ public class AbilityWidget extends GuiComponent {
         component.append("\n");
         component.append("\n");
 
-        component.append(Component.literal("Combo: "));
-        component.append(AbilityRegistry.getStringFromCombo(this.ability.getCombo()));
+        if (this.ability.getCombo() != 0) {
+            component.append(Component.literal("Combo: "));
+            component.append(AbilityRegistry.getStringFromCombo(this.ability.getCombo()));
+        }
 
         this.description = Language.getInstance().getVisualOrder(this.findOptimalLines(ComponentUtils.mergeStyles(component.copy(),
                 Style.EMPTY), len));
@@ -180,9 +175,12 @@ public class AbilityWidget extends GuiComponent {
         RenderSystem.setShaderTexture(0, WIDGETS_LOCATION);
         this.blit(pPoseStack, i + this.x + 3, j + this.y,
                 this.frame.getTexture(), 128 + type.getIndex() * 26, 26, 26);
+
+        RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, this.display.getIcon());
         this.blit(pPoseStack, i + this.x + 8, j + this.y + 5,
                 0, 0, 16, 16, 16, 16);
+        RenderSystem.disableBlend();
 
         for (AbilityWidget child : this.children) {
             child.draw(pPoseStack, i, j);
@@ -273,8 +271,10 @@ public class AbilityWidget extends GuiComponent {
             }
         }
 
+        RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, this.display.getIcon());
         this.blit(pPoseStack, pX + this.x + 8, pY + this.y + 5, 0, 0, 16, 16, 16, 16);
+        RenderSystem.disableBlend();
     }
 
     protected void render9Sprite(PoseStack pPoseStack, int pX, int pY, int pWidth, int pHeight, int pPadding, int pUWidth, int pVHeight, int pUOffset, int pVOffset) {

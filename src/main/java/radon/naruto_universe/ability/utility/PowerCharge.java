@@ -2,6 +2,8 @@ package radon.naruto_universe.ability.utility;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.NinjaPlayer;
@@ -17,6 +19,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import radon.naruto_universe.util.HelperMethods;
+
+import java.util.Random;
 
 public class PowerCharge extends Ability implements Ability.Channeled {
 
@@ -43,7 +47,7 @@ public class PowerCharge extends Ability implements Ability.Channeled {
 
     @Override
     public Ability getParent() {
-        return AbilityRegistry.WATER_WALKING.get();
+        return AbilityRegistry.CHAKRA_CONTROL.get();
     }
 
     public ChatFormatting getChatColor() {
@@ -55,30 +59,34 @@ public class PowerCharge extends Ability implements Ability.Channeled {
         return 0.0F;
     }
 
-    @Override
-    public void runClient(LocalPlayer player) {
-        player.level.addParticle(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 0.5F),
-                player.level.random.nextGaussian() * 0.1D + player.getX(),
-                player.getY() + 0.56F, player.level.random.nextGaussian() * 0.1D + player.getZ(),
-                0.0D, 0.75D, 0.0D);
-
+    private void chargePower(Player player) {
         player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            Minecraft.getInstance().gui.setOverlayMessage(Component.translatable("chat_text.power", HelperMethods.round(cap.getPower(), 1)), false);
+            float amount = player.isShiftKeyDown() ? NinjaPlayer.POWER_CHARGE_AMOUNT : Math.max(NinjaPlayer.POWER_CHARGE_AMOUNT,
+                    (cap.getRank().ordinal() * 10.0F) * NinjaPlayer.POWER_CHARGE_AMOUNT);
+            cap.addPower(amount);
+            cap.setPowerResetTimer(0);
         });
     }
 
     @Override
+    public void runClient(LocalPlayer player) {
+        this.chargePower(player);
+
+        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap ->
+                Minecraft.getInstance().gui.setOverlayMessage(Component.translatable("chat_text.power", HelperMethods.round(cap.getPower(), 1)), false));
+    }
+
+    @Override
     public void runServer(ServerPlayer player) {
+        Random random = new Random();
+
+        ServerLevel serverLevel = player.getLevel();
+        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.0F, true, 3),
+                player.getX() + random.nextGaussian() * 0.1D, player.getY(), player.getZ() + random.nextGaussian() * 0.1D,
+                0, 0.0D, 0.56F, 0.0D, 1.75D);
+
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 1, 10, false, false, false));
 
-        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            float amount = 0.01F;
-
-            if (cap.getPower() + amount <= NinjaPlayer.MAX_ABILITY_POWER) {
-                cap.addPower(amount);
-            }
-            cap.startPowerReset();
-            PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
-        });
+        this.chargePower(player);
     }
 }

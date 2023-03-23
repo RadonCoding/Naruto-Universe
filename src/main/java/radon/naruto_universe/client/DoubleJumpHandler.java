@@ -7,7 +7,7 @@ public class DoubleJumpHandler {
     private static boolean hasJumped = false;
 
     public static void run(LocalPlayer player) {
-        if (!player.isOnGround() && !hasJumped) {
+        if (!player.isOnGround() && !player.getAbilities().flying && !hasJumped) {
             player.jumpFromGround();
             player.level.addParticle(ParticleTypes.CLOUD, player.getX(), player.getBoundingBox().minY,
                     player.getZ(), 0.0D, 0.0D, 0.0D);

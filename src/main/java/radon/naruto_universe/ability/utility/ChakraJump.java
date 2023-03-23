@@ -1,5 +1,7 @@
 package radon.naruto_universe.ability.utility;
 
+import net.minecraft.tags.FluidTags;
+import net.minecraftforge.fluids.FluidType;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.ability.Ability;
@@ -29,6 +31,11 @@ public class ChakraJump extends Ability {
     @Override
     public boolean shouldLog() {
         return false;
+    }
+
+    @Override
+    public long getCombo() {
+        return -1;
     }
 
     @Override

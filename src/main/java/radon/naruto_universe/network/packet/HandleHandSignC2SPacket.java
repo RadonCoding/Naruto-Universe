@@ -1,5 +1,6 @@
 package radon.naruto_universe.network.packet;
 
+import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.sound.SoundRegistry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -29,6 +30,10 @@ public class HandleHandSignC2SPacket {
 
         ctx.enqueueWork(() -> {
             ServerPlayer player = ctx.getSender();
+
+            player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+                cap.setPowerResetTimer(0);
+            });
 
             SoundEvent sound = null;
 

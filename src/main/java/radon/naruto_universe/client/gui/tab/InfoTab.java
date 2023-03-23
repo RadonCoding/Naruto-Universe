@@ -32,8 +32,6 @@ public class InfoTab extends NinjaTab{
             Component rank = Component.literal("Rank: ").append(cap.getRank().getIdentifier());
             this.mc.font.drawShadow(pPoseStack, rank, i, j, 16777215);
             j += this.mc.font.lineHeight + 2;
-            Component clan = Component.literal("Clan: ").append(cap.getClan().getIdentifier());
-            this.mc.font.drawShadow(pPoseStack, clan, i, j, 16777215);
         });
     }
 }

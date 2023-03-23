@@ -29,9 +29,24 @@
       "naruto_universe:great_fireball"
     ]
   },
-  "phoenix_flower": {
+  "sage_fire": {
     "sounds": [
-      "naruto_universe:phoenix_flower"
+      "naruto_universe:sage_fire"
+    ]
+  },
+  "hiding_in_ash": {
+    "sounds": [
+      "naruto_universe:hiding_in_ash"
+    ]
+  },
+  "great_flame": {
+    "sounds": [
+      "naruto_universe:great_flame"
+    ]
+  },
+  "great_annihilation": {
+    "sounds": [
+      "naruto_universe:great_annihilation"
     ]
   },
   "sharingan_activate": {
@@ -57,11 +72,6 @@
   "kunai_hit": {
     "sounds": [
       "naruto_universe:kunai_hit"
-    ]
-  },
-  "kunai_hit_wood": {
-    "sounds": [
-      "naruto_universe:kunai_hit_wood"
     ]
   }
 }

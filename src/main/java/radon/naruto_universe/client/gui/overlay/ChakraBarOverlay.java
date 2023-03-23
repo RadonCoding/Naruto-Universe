@@ -29,7 +29,7 @@ public class ChakraBarOverlay{
             GuiComponent.blit(poseStack, 20, 21, 0, 9, (int) chakraWidth, 7, 93, 16);
             poseStack.pushPose();
             poseStack.scale(0.5F, 0.5F, 0.5F);
-            gui.getFont().draw(poseStack, String.format("%f / %f", cap.getChakra(), cap.getMaxChakra()),
+            gui.getFont().draw(poseStack, String.format("%.1f / %.1f", cap.getChakra(), cap.getMaxChakra()),
                     (20.0F * 2.0F) + 5.0F, (20.0F * 2.0F) + 5.5F, 16777215);
             poseStack.popPose();
         });

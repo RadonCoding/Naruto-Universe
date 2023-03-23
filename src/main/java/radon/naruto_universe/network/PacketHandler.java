@@ -30,10 +30,10 @@ public class PacketHandler {
                 .encoder(HandleHandSignC2SPacket::encode)
                 .consumerMainThread(HandleHandSignC2SPacket::handle)
                 .add();
-        INSTANCE.messageBuilder(HandleComboC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(HandleComboC2SPacket::new)
-                .encoder(HandleComboC2SPacket::encode)
-                .consumerMainThread(HandleComboC2SPacket::handle)
+        INSTANCE.messageBuilder(TriggerAbilityPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(TriggerAbilityPacket::new)
+                .encoder(TriggerAbilityPacket::encode)
+                .consumerMainThread(TriggerAbilityPacket::handle)
                 .add();
         INSTANCE.messageBuilder(SyncNinjaPlayerS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(SyncNinjaPlayerS2CPacket::new)

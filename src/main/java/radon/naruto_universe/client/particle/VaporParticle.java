@@ -8,7 +8,6 @@ import net.minecraft.core.particles.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
@@ -16,18 +15,26 @@ import org.joml.Vector3f;
 import java.util.Locale;
 
 public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends TextureSheetParticle {
-    private static final RandomSource RANDOM = RandomSource.create();
     private final SpriteSet sprites;
+    private final boolean glow;
 
     protected VaporParticle(ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed, T options, SpriteSet pSprites) {
         super(pLevel, pX, pY, pZ);
-        this.setLifetime(3);
-        this.setParticleSpeed(pXSpeed, RANDOM.nextFloat() * pYSpeed, pZSpeed);
+
+        this.lifetime = options.lifetime();
+
+        this.xd = pXSpeed;
+        this.yd = this.random.nextFloat() * pYSpeed;
+        this.zd = pZSpeed;
 
         Vector3f color = options.color();
-        this.setColor(color.x(), color.y(), color.z());
+        this.rCol = color.x();
+        this.gCol = color.y();
+        this.bCol = color.z();
 
-        this.quadSize = 1.0F - (options.scalar() * RANDOM.nextFloat());
+        this.glow = options.glow();
+
+        this.quadSize = Math.max(options.scalar(), this.random.nextFloat() * options.scalar());
         this.sprites = pSprites;
         this.setSpriteFromAge(this.sprites);
     }
@@ -35,6 +42,7 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
     @Override
     public void tick() {
         super.tick();
+
         this.fadeOut();
         this.setSpriteFromAge(this.sprites);
     }
@@ -45,23 +53,23 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
 
     @Override
     public @NotNull ParticleRenderType getRenderType() {
-        return ParticleRegistry.ModRenderTypes.GLOW;
+        return this.glow ? ParticleRegistry.ModRenderTypes.GLOW : ParticleRegistry.ModRenderTypes.TRANSLUCENT;
     }
 
-    public record VaporParticleOptions(Vector3f color, float scalar) implements ParticleOptions {
-        public static final Vector3f CHAKRA_COLOR = Vec3.fromRGB24(240116).toVector3f();
-        public static final Vector3f FIRE_COLOR = Vec3.fromRGB24(16727040).toVector3f();
+    public record VaporParticleOptions(Vector3f color, float scalar, boolean glow, int lifetime) implements ParticleOptions {
+        public static final Vector3f CHAKRA_COLOR = Vec3.fromRGB24(2003199).toVector3f();
+        public static final Vector3f FLAME_COLOR = Vec3.fromRGB24(16727040).toVector3f();
+        public static final Vector3f SMOKE_COLOR = Vec3.fromRGB24(4342338).toVector3f();
 
         public static final Deserializer<VaporParticleOptions> DESERIALIZER = new Deserializer<>() {
             public @NotNull VaporParticleOptions fromCommand(ParticleType<VaporParticleOptions> type, StringReader reader) throws CommandSyntaxException {
                 Vector3f color = VaporParticleOptions.readColorVector3f(reader);
                 reader.expect(' ');
-                float scalar = reader.readFloat();
-                return new VaporParticleOptions(color, scalar);
+                return new VaporParticleOptions(color, reader.readFloat(), reader.readBoolean(), reader.readInt());
             }
 
             public @NotNull VaporParticleOptions fromNetwork(ParticleType<VaporParticleOptions> type, FriendlyByteBuf buf) {
-                return new VaporParticleOptions(VaporParticleOptions.readColorFromNetwork(buf), buf.readFloat());
+                return new VaporParticleOptions(VaporParticleOptions.readColorFromNetwork(buf), buf.readFloat(), buf.readBoolean(), buf.readInt());
             }
         };
 
@@ -90,12 +98,14 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
             buf.writeFloat(this.color.y());
             buf.writeFloat(this.color.z());
             buf.writeFloat(this.scalar);
+            buf.writeBoolean(this.glow);
+            buf.writeInt(this.lifetime);
         }
 
         @Override
         public @NotNull String writeToString() {
-            return String.format(Locale.ROOT, "%s %.2f %.2f %.2f %.2f", BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()),
-                    this.color.x(), this.color.y(), this.color.z(), this.scalar);
+            return String.format(Locale.ROOT, "%s %.2f %.2f %.2f %.2f %b %d", BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()),
+                    this.color.x(), this.color.y(), this.color.z(), this.scalar, this.glow, this.lifetime);
         }
     }
 

@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
 public class ThrownKunaiRenderer extends EntityRenderer<ThrownKunaiEntity> {
-    public static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/models/entity/thrown_kunai.png");
+    public static final ResourceLocation TEXTURE_LOCATION = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/entity/thrown_kunai.png");
 
     private final ThrownKunaiModel model;
 

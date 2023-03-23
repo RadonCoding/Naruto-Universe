@@ -19,11 +19,12 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.Vanishable;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class KunaiItem extends Item implements Vanishable {
-    public static final int THROW_THRESHOLD_TIME = 10;
+    public static final int THROW_THRESHOLD_TIME = 1;
     public static final float BASE_DAMAGE = 8.0F;
     public static final float SHOOT_POWER = 2.5F;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
@@ -47,29 +48,49 @@ public class KunaiItem extends Item implements Vanishable {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
-        ItemStack pStack = pPlayer.getItemInHand(pHand);
+    public int getUseDuration(ItemStack pStack) {
+        return 72000;
+    }
 
-            if (!pLevel.isClientSide) {
-                pStack.hurtAndBreak(1, pPlayer, (entity) -> {
-                    entity.broadcastBreakEvent(pPlayer.getUsedItemHand());
-                });
+    @Override
+    public void releaseUsing(ItemStack pStack, Level pLevel, LivingEntity pLivingEntity, int pTimeCharged) {
+        if (pLivingEntity instanceof Player player) {
+            if (this.getUseDuration(pStack) - pTimeCharged >= THROW_THRESHOLD_TIME) {
+                if (!pLevel.isClientSide) {
+                    pStack.hurtAndBreak(1, player, (entity) -> {
+                        entity.broadcastBreakEvent(player.getUsedItemHand());
+                    });
 
-                ThrownKunaiEntity thrownKunai = new ThrownKunaiEntity(pLevel, pPlayer, pStack);
-                thrownKunai.shootFromRotation(pPlayer, pPlayer.getXRot(), pPlayer.getYRot(), 0.0F, SHOOT_POWER, 1.0F);
+                    ThrownKunaiEntity thrownKunai = new ThrownKunaiEntity(pLevel, player, pStack);
+                    thrownKunai.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, SHOOT_POWER, 1.0F);
 
-                if (pPlayer.getAbilities().instabuild) {
-                    thrownKunai.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
-                }
+                    if (player.getAbilities().instabuild) {
+                        thrownKunai.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
+                    }
 
-                pLevel.addFreshEntity(thrownKunai);
-                pLevel.playSound(null, thrownKunai, SoundRegistry.KUNAI_THROW.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                    pLevel.addFreshEntity(thrownKunai);
+                    pLevel.playSound(null, thrownKunai, SoundRegistry.KUNAI_THROW.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
 
-                if (!pPlayer.getAbilities().instabuild) {
-                    pPlayer.getInventory().removeItem(pStack);
+                    if (!player.getAbilities().instabuild) {
+                        player.getInventory().removeItem(pStack);
+                    }
                 }
             }
-        return InteractionResultHolder.consume(pStack);
+        }
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level pLevel, Player pPlayer, InteractionHand pHand) {
+        ItemStack stack = pPlayer.getItemInHand(pHand);
+
+        if (stack.getDamageValue() >= stack.getMaxDamage() - 1) {
+            return InteractionResultHolder.fail(stack);
+        } else if (EnchantmentHelper.getRiptide(stack) > 0 && !pPlayer.isInWaterOrRain()) {
+            return InteractionResultHolder.fail(stack);
+        } else {
+            pPlayer.startUsingItem(pHand);
+            return InteractionResultHolder.consume(stack);
+        }
     }
 
     @Override
@@ -91,12 +112,12 @@ public class KunaiItem extends Item implements Vanishable {
     }
 
     @Override
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot pEquipmentSlot) {
-        return pEquipmentSlot == EquipmentSlot.MAINHAND ? this.defaultModifiers : super.getDefaultAttributeModifiers(pEquipmentSlot);
+    public int getMaxStackSize(ItemStack stack) {
+        return 64;
     }
 
     @Override
-    public int getEnchantmentValue() {
-        return 1;
+    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot pEquipmentSlot) {
+        return pEquipmentSlot == EquipmentSlot.MAINHAND ? this.defaultModifiers : super.getDefaultAttributeModifiers(pEquipmentSlot);
     }
 }

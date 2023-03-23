@@ -1,8 +1,7 @@
 package radon.naruto_universe.ability;
 
 import radon.naruto_universe.NarutoUniverse;
-import radon.naruto_universe.ability.jutsu.GreatFireball;
-import radon.naruto_universe.ability.jutsu.PhoenixFlower;
+import radon.naruto_universe.ability.jutsu.fire_release.*;
 import radon.naruto_universe.ability.utility.*;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaTrait;
@@ -26,16 +25,22 @@ public class AbilityRegistry {
     public static final Supplier<IForgeRegistry<Ability>> ABILITY_REGISTRY =
             ABILITIES.makeRegistry(RegistryBuilder::new);
 
-    public static final RegistryObject<Ability> WATER_WALKING =
-            ABILITIES.register("water_walking", WaterWalking::new);
+    public static final RegistryObject<Ability> CHAKRA_CONTROL =
+            ABILITIES.register("chakra_control", ChakraControl::new);
     public static final RegistryObject<Ability> POWER_CHARGE =
             ABILITIES.register("power_charge", PowerCharge::new);
     public static final RegistryObject<Ability> CHAKRA_JUMP =
             ABILITIES.register("chakra_jump", ChakraJump::new);
     public static final RegistryObject<Ability> GREAT_FIREBALL =
             ABILITIES.register("great_fireball", GreatFireball::new);
-    public static final RegistryObject<Ability> PHOENIX_FLOWER =
-            ABILITIES.register("phoenix_flower", PhoenixFlower::new);
+    public static final RegistryObject<Ability> PHOENIX_SAGE_FIRE =
+            ABILITIES.register("phoenix_sage_fire", PhoenixSageFire::new);
+    public static final RegistryObject<Ability> HIDING_IN_ASH =
+            ABILITIES.register("hiding_in_ash", HidingInAsh::new);
+    public static final RegistryObject<Ability> GREAT_FLAME =
+            ABILITIES.register("great_flame", GreatFlame::new);
+    public static final RegistryObject<Ability> GREAT_ANNIHILATION =
+            ABILITIES.register("great_annihilation", GreatAnnihilation::new);
     public static final RegistryObject<Ability> SHARINGAN =
             ABILITIES.register("sharingan", Sharingan::new);
     public static final RegistryObject<Ability> RINNEGAN =
@@ -140,5 +145,16 @@ public class AbilityRegistry {
             }
         });
         return result.get();
+    }
+
+    public static List<Ability> getDojutsuAbilities(Player player) {
+        final List<Ability> abilities = Lists.newArrayList();
+
+        for (RegistryObject<Ability> ability : ABILITIES.getEntries()) {
+            if (ability.get().isDojutsu() && ability.get().isUnlocked(player)) {
+                abilities.add(ability.get());
+            }
+        }
+        return abilities;
     }
 }

@@ -34,9 +34,21 @@ public class SoundRegistry {
             SOUNDS.register("great_fireball", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
                     "great_fireball")));
 
-    public static final RegistryObject<SoundEvent> PHOENIX_FLOWER =
-            SOUNDS.register("phoenix_flower", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
-                    "phoenix_flower")));
+    public static final RegistryObject<SoundEvent> SAGE_FIRE =
+            SOUNDS.register("sage_fire", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
+                    "sage_fire")));
+
+    public static final RegistryObject<SoundEvent> HIDING_IN_ASH =
+            SOUNDS.register("hiding_in_ash", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
+                    "hiding_in_ash")));
+
+    public static final RegistryObject<SoundEvent> GREAT_FLAME =
+            SOUNDS.register("great_flame", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
+                    "great_flame")));
+
+    public static final RegistryObject<SoundEvent> GREAT_ANNIHILATION =
+            SOUNDS.register("great_annihilation", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
+                    "great_annihilation")));
 
     public static final RegistryObject<SoundEvent> SHARINGAN_ACTIVATE =
             SOUNDS.register("sharingan_activate", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
@@ -57,8 +69,4 @@ public class SoundRegistry {
     public static final RegistryObject<SoundEvent> KUNAI_HIT =
             SOUNDS.register("kunai_hit", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
                     "kunai_hit")));
-
-    public static final RegistryObject<SoundEvent> KUNAI_HIT_WOOD =
-            SOUNDS.register("kunai_hit_wood", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
-                    "kunai_hit_wood")));
 }

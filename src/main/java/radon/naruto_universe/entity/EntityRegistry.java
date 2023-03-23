@@ -19,9 +19,9 @@ import java.util.function.Function;
 public class EntityRegistry {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, NarutoUniverse.MOD_ID);
 
-    public static final RegistryObject<EntityType<FireballEntity>> GREAT_FIREBALL = ENTITIES.register("great_fireball", () ->
-            EntityType.Builder.<FireballEntity>of(FireballEntity::new, MobCategory.MISC)
-                    .build(new ResourceLocation(NarutoUniverse.MOD_ID, "great_fireball")
+    public static final RegistryObject<EntityType<FireballJutsuEntity>> FIREBALL_JUTSU = ENTITIES.register("fireball_jutsu", () ->
+            EntityType.Builder.<FireballJutsuEntity>of(FireballJutsuEntity::new, MobCategory.MISC)
+                    .build(new ResourceLocation(NarutoUniverse.MOD_ID, "fireball_jutsu")
                             .toString()));
 
     public static final RegistryObject<EntityType<ThrownKunaiEntity>> THROWN_KUNAI = ENTITIES.register("thrown_kunai", () ->
@@ -59,14 +59,14 @@ public class EntityRegistry {
             RenderStateShard.TextureStateShard shard = new RenderStateShard.TextureStateShard(pLocation, true, false);
             return create("fireball", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, 256,
                     false, false, RenderType.CompositeState.builder()
-                            .setLayeringState(RenderStateShard.POLYGON_OFFSET_LAYERING)
+                            .setLayeringState(POLYGON_OFFSET_LAYERING)
                             .setShaderState(new ShaderStateShard(GameRenderer::getPositionColorTexLightmapShader))
-                            .setTransparencyState(RenderStateShard.TRANSLUCENT_TRANSPARENCY)
+                            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                             .setTextureState(shard)
-                            .setDepthTestState(RenderStateShard.LEQUAL_DEPTH_TEST)
-                            .setCullState(RenderStateShard.NO_CULL)
-                            .setWriteMaskState(RenderStateShard.COLOR_DEPTH_WRITE)
-                            .setLightmapState(RenderStateShard.NO_LIGHTMAP)
+                            .setDepthTestState(LEQUAL_DEPTH_TEST)
+                            .setCullState(NO_CULL)
+                            .setWriteMaskState(COLOR_DEPTH_WRITE)
+                            .setLightmapState(NO_LIGHTMAP)
                             .createCompositeState(false));
         });
 

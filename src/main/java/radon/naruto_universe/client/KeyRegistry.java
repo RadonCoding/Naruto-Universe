@@ -1,6 +1,7 @@
 package radon.naruto_universe.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import radon.naruto_universe.NarutoUniverse;
 import net.minecraft.client.KeyMapping;
 
@@ -14,12 +15,18 @@ public class KeyRegistry {
             InputConstants.KEY_B);
     public static final KeyMapping KEY_CHAKRA_JUMP = createKeyMapping("chakra_jump", KEY_CATEGORY_NARUTO_UNIVERSE,
             InputConstants.KEY_X);
-
-    public static final KeyMapping OPEN_ABILITY_SCREEN = createKeyMapping("open_ability_screen", KEY_CATEGORY_NARUTO_UNIVERSE,
+    public static final KeyMapping OPEN_NINJA_SCREEN = createKeyMapping("open_ninja_screen", KEY_CATEGORY_NARUTO_UNIVERSE,
             InputConstants.KEY_J);
+    public static final KeyMapping SHOW_DOJUTSU_MENU = createKeyMapping("show_dojutsu_menu", KEY_CATEGORY_NARUTO_UNIVERSE,
+            InputConstants.KEY_Z);
 
     private static KeyMapping createKeyMapping(String name, String category, int keyCode) {
         final KeyMapping key = new KeyMapping(String.format("key.%s.%s", NarutoUniverse.MOD_ID, name), keyCode, category);
         return key;
+    }
+
+    public static void register(final RegisterKeyMappingsEvent event) {
+        event.register(OPEN_NINJA_SCREEN);
+        event.register(SHOW_DOJUTSU_MENU);
     }
 }

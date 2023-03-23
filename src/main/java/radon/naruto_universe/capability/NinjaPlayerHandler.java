@@ -1,5 +1,6 @@
 package radon.naruto_universe.capability;
 
+import net.minecraft.world.entity.player.Player;
 import radon.naruto_universe.NarutoUniverse;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -19,11 +20,14 @@ public class NinjaPlayerHandler {
     public static final Capability<INinjaPlayer> INSTANCE = CapabilityManager.get(new CapabilityToken<>() {});
 
     public static void attach(final AttachCapabilitiesEvent<Entity> event) {
-        final ShinobiPlayerProvider provider = new ShinobiPlayerProvider();
-        event.addCapability(ShinobiPlayerProvider.IDENTIFIER, provider);
+        final NinjaPlayerProvider provider = new NinjaPlayerProvider();
+        event.addCapability(NinjaPlayerProvider.IDENTIFIER, provider);
+
+        Player player = (Player) event.getObject();
+        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.generateShinobi(player));
     }
 
-    private static class ShinobiPlayerProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
+    private static class NinjaPlayerProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
         public static final ResourceLocation IDENTIFIER = new ResourceLocation(NarutoUniverse.MOD_ID, "shinobi_player");
 
         private final INinjaPlayer cap = new NinjaPlayer();

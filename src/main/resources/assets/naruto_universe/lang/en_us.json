@@ -4,20 +4,23 @@
   "key.naruto_universe.hand_sign_two": "Hand Sign Two",
   "key.naruto_universe.hand_sign_three": "Hand Sign Three",
   "key.naruto_universe.chakra_jump": "Chakra Jump",
-  "key.naruto_universe.open_ability_screen": "Open Ability Screen",
+  "key.naruto_universe.open_ninja_screen": "Open Ninja Screen",
+  "key.naruto_universe.show_dojutsu_screen": "Show Dojutsu Screen",
+
   "sounds.naruto_universe.hand_sign": "Hand Sign",
   "sounds.naruto_universe.ability_activate": "Ability Activate",
+
   "ability.fail.not_found": "No ability found with that combination",
   "ability.fail.not_enough_chakra": "Not enough chakra",
   "ability.fail.not_skilled_enough": "You cannot unlock a %1$s level technique",
 
-  "naruto_universe:water_walking.name": "Water Walking",
-  "naruto_universe:water_walking.desc": "Allows you to walk on water.",
-  "naruto_universe:water_walking.enable": "Enabled water walking",
-  "naruto_universe:water_walking.disable": "Disabled water walking",
+  "naruto_universe:chakra_control.name": "Chakra Control",
+  "naruto_universe:chakra_control.desc": "Allows you to walk on water and climb walls.",
+  "naruto_universe:chakra_control.enable": "Enabled chakra control",
+  "naruto_universe:chakra_control.disable": "Disabled chakra control",
 
   "naruto_universe:power_charge.name": "Power Charge",
-  "naruto_universe:power_charge.desc": "Charges your next ability.",
+  "naruto_universe:power_charge.desc": "Charges your next ability. Hold [SHIFT] to charge gradually.",
   "naruto_universe:power_charge.start": "Charging power...",
   "naruto_universe:power_charge.stop": "Stopped charging power",
 
@@ -27,8 +30,17 @@
   "naruto_universe:great_fireball.name": "Great Fireball Technique",
   "naruto_universe:great_fireball.desc": "Shoots a large fireball at your opponent.",
 
-  "naruto_universe:phoenix_flower.name": "Phoenix Sage Fire Technique",
-  "naruto_universe:phoenix_flower.desc": "Shoots multiple fireballs at your opponent.",
+  "naruto_universe:phoenix_sage_fire.name": "Phoenix Sage Fire Technique",
+  "naruto_universe:phoenix_sage_fire.desc": "Shoots multiple fireballs at your opponent.",
+
+  "naruto_universe:hiding_in_ash.name": "Hiding in Ash Technique",
+  "naruto_universe:hiding_in_ash.desc": "User expels chakra-infused ash from their mouth that burns anyone who comes in contact with it.",
+
+  "naruto_universe:great_flame.name": "Great Flame Technique",
+  "naruto_universe:great_flame.desc": "User expels a large stream of flames from their mouth that progressively widens with range.",
+
+  "naruto_universe:great_annihilation.name": "Great Annihilation Technique",
+  "naruto_universe:great_annihilation.desc": "User expels a large \"sea of flames\" from their mouth which covers a wide area.",
 
   "naruto_universe:sharingan.name": "Activate Sharingan",
   "naruto_universe:sharingan.desc": "Activates your sharingan.",
@@ -53,7 +65,12 @@
   "rank.up": "You've been promoted to %1$s",
 
   "trait.fire_release": "Fire Release",
+  "trait.water_release": "Water Release",
+  "trait.earth_release": "Earth Release",
+  "trait.wind_release": "Wind Release",
+  "trait.lightning_release": "Lightning Release",
   "trait.sharingan": "Sharingan",
+  "trait.rinnegan": "Rinnegan",
   "trait.unlocked_shraringan": "Unlocked Sharingan",
   "trait.unlocked_rinnegan": "Unlocked Rinnegan",
 
@@ -61,12 +78,11 @@
   "sharingan.unlock.two": "You feel a sudden surge of power as your sharingan unlocks it's second tomoe",
   "sharingan.unlock.three": "You feel a sudden surge of power as your sharingan unlocks it's third tomoe",
 
-  "item.naruto_universe.dog_anbu_mask": "Dog Anbu Mask",
-  "item.naruto_universe.anbu_chestplate": "Anbu Chestplate",
-  "item.naruto_universe.anbu_leggings": "Anbu Leggings",
-  "item.naruto_universe.anbu_boots": "Anbu Boots",
   "item.naruto_universe.kunai": "Kunai",
+  "item.naruto_universe.akatsuki_cloak": "Akatsuki Cloak",
 
   "chat_text.power": "Power: %.1f",
-  "ability.fail.not_enough_power": "You need to charge more power"
+  "ability.fail.not_enough_power": "You need to charge more power",
+
+  "item_group.naruto_universe.tab": "Naruto Universe"
 }

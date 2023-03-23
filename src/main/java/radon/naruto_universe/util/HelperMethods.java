@@ -13,6 +13,13 @@ public class HelperMethods {
         return enumClass.getEnumConstants()[x];
     }
 
+    public static final int toRGB24(int r, int g, int b, int a) {
+        return ((a & 0xFF) << 24) |
+                ((r & 0xFF) << 16) |
+                ((g & 0xFF) << 8)  |
+                ((b & 0xFF) << 0);
+    }
+
     public static double round(double value, int precision) {
         int scale = (int) Math.pow(10, precision);
         return (double) Math.round(value * scale) / scale;

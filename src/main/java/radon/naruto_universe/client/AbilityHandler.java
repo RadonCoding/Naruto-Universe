@@ -1,7 +1,6 @@
 package radon.naruto_universe.client;
 
 import radon.naruto_universe.network.PacketHandler;
-import radon.naruto_universe.network.packet.HandleComboC2SPacket;
 import radon.naruto_universe.network.packet.HandleHandSignC2SPacket;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
@@ -11,6 +10,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import org.apache.commons.compress.utils.Lists;
+import radon.naruto_universe.network.packet.TriggerAbilityPacket;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class AbilityHandler {
 
     private static boolean isCurrentlyChargingAbility;
 
-    private static final List<AbilityKeyMapping> ABILITY_KEYS = Lists.newArrayList();
+    private static final List<AbilityKeyMapping> MOD_KEYS = Lists.newArrayList();
 
     public static void tick(LocalPlayer player) {
         if (currentCombo != 0) {
@@ -36,8 +36,8 @@ public class AbilityHandler {
 
         AbilityKeyMapping currentKey = null;
 
-        if (lastKey > 0 && lastKey < ABILITY_KEYS.size()) {
-            currentKey = ABILITY_KEYS.get(lastKey - 1);
+        if (lastKey > 0 && lastKey < MOD_KEYS.size()) {
+            currentKey = MOD_KEYS.get(lastKey - 1);
 
             if (currentKey.isDown()) {
                 lastKeyIsHeld = true;
@@ -49,14 +49,14 @@ public class AbilityHandler {
         if (possiblyChanneling) {
             if (lastKeyIsHeld && currentKey.currentTickCount() >= MAX_TICKS) {
                 if (!isCurrentlyChargingAbility) {
-                    PacketHandler.sendToServer(new HandleComboC2SPacket(currentCombo));
+                    PacketHandler.sendToServer(new TriggerAbilityPacket(currentAbility.getId()));
                 }
                 isCurrentlyChargingAbility = true;
             } else if (!lastKeyIsHeld) {
                 currentKey.consumeReleaseDuration();
 
                 if (isCurrentlyChargingAbility) {
-                    PacketHandler.sendToServer(new HandleComboC2SPacket(currentCombo));
+                    PacketHandler.sendToServer(new TriggerAbilityPacket(currentAbility.getId()));
                     resetAbilityCasting();
                 }
                 else if (ticksPassed > MAX_TICKS) {
@@ -68,7 +68,7 @@ public class AbilityHandler {
         } else {
             if (ticksPassed > MAX_TICKS) {
                 if (currentAbility != null) {
-                    PacketHandler.sendToServer(new HandleComboC2SPacket(currentCombo));
+                    PacketHandler.sendToServer(new TriggerAbilityPacket(currentAbility.getId()));
                 }
                 else {
                     player.sendSystemMessage(Component.translatable("ability.fail.not_found"));
@@ -77,7 +77,7 @@ public class AbilityHandler {
             }
         }
 
-        for (var key : ABILITY_KEYS) {
+        for (AbilityKeyMapping key : MOD_KEYS) {
             key.update();
         }
     }
@@ -105,9 +105,9 @@ public class AbilityHandler {
     }
     
     public static void registerListener(KeyMapping key, Runnable onClick) {
-        AbilityKeyMapping abilityKey = new AbilityKeyMapping(key.getName(), key.getKey().getValue(), key.getCategory());
-        abilityKey.registerClickConsumer(onClick);
-        ABILITY_KEYS.add(abilityKey);
+        AbilityKeyMapping modKey = new AbilityKeyMapping(key.getName(), key.getKey().getValue(), key.getCategory());
+        modKey.registerClickConsumer(onClick);
+        MOD_KEYS.add(modKey);
     }
 
     public static void registerKeyMapping(RegisterKeyMappingsEvent event, KeyMapping key, Runnable onClick) {

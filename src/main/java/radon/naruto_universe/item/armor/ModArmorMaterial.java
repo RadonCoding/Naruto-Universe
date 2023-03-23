@@ -1,5 +1,7 @@
 package radon.naruto_universe.item.armor;
 
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.item.Items;
 import radon.naruto_universe.NarutoUniverse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;

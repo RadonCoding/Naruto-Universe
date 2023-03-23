@@ -1,5 +1,6 @@
 package radon.naruto_universe.capability;
 
+import net.minecraftforge.event.TickEvent;
 import radon.naruto_universe.ability.Ability;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -11,22 +12,19 @@ import net.minecraftforge.fml.LogicalSide;
 import java.util.function.Consumer;
 
 public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
-    void tick(Player player, LogicalSide side);
+    void tick(Player player, LogicalSide side, TickEvent.Phase phase);
 
     void generateShinobi(Player player);
-    void startPowerReset();
+    void setPowerResetTimer(int value);
 
     void delayTickEvent(Consumer<ServerPlayer> task, int delay);
-
-    NinjaClan getClan();
-    void setClan(NinjaClan clan);
 
     int getSharinganLevel();
     void levelUpSharingan();
 
     float getPower();
     void addPower(float amount);
-    void setPower(float power);
+    float getMaxPower();
 
     void addChakra(float amount);
     void useChakra(float amount);
@@ -34,6 +32,10 @@ public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
 
     float getChakra();
     float getMaxChakra();
+
+    void addExperience(float amount);
+    float getExperience();
+    void setExperience(float experience);
 
     NinjaRank getRank();
     void setRank(NinjaRank rank);
@@ -47,6 +49,7 @@ public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
     void enableToggledAbility(Player player, Ability ability);
     void disableToggledAbility(Player player, Ability ability);
     boolean hasToggledAbility(Ability ability);
+    void clearToggledAbilities();
     
     ResourceLocation getChanneledAbility();
     void setChanneledAbility(Player player, Ability ability);
