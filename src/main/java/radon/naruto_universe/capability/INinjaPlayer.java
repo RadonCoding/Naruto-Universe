@@ -50,6 +50,7 @@ public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
     void disableToggledAbility(Player player, Ability ability);
     boolean hasToggledAbility(Ability ability);
     void clearToggledAbilities();
+    void clearToggledDojutsus(Player player, Ability exclude);
     
     ResourceLocation getChanneledAbility();
     void setChanneledAbility(Player player, Ability ability);

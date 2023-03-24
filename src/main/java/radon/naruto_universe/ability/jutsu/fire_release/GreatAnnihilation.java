@@ -86,7 +86,7 @@ public class GreatAnnihilation extends Ability {
             cap.delayTickEvent((playerClone1) -> {
                 final float power = this.getPower();
 
-                final int duration = Math.max(1, Math.round(power));
+                final int duration = Math.max(1, Math.round(power * 3.0F));
                 final int cloudSize = Math.round(10.0F + power);
 
                 for (int i = 0; i < duration; i++) {
@@ -130,7 +130,7 @@ public class GreatAnnihilation extends Ability {
                             y += playerClone2.getLookAngle().y();
                             z += playerClone2.getLookAngle().z();
                         }
-                    }, i * 5);
+                    }, i);
                 }
             }, 2 * 20);
         });

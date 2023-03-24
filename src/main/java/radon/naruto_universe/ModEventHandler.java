@@ -167,9 +167,25 @@ public class ModEventHandler {
                                 0.0D, 0.0D, 0.0D, 0.0D);
                     }
 
-                    final Vec3 movement = entity.getDeltaMovement();
-                    entity.setDeltaMovement(movement.add(rand.nextDouble(), 0.0D, rand.nextDouble()));
+                    BlockPos pos = entity.blockPosition();
+                    double diffX = entity.getX() - pos.getX();
+                    double diffZ = entity.getZ() - pos.getZ();
 
+                    Vec3 movement = entity.getDeltaMovement();
+
+                    if (diffX <= 0.1D) {
+                        movement = new Vec3(rand.nextDouble(), 0.0D, movement.z());
+                    } else if (diffX >= 0.9D) {
+                        movement = new Vec3(-rand.nextDouble(), 0.0D, movement.z());
+                    } else if (diffZ <= 0.1D) {
+                        movement = new Vec3(movement.x(), 0.0D, rand.nextDouble());
+                    } else if (diffZ >= 0.9D) {
+                        movement = new Vec3(movement.x(), 0.0D, -rand.nextDouble());
+                    } else {
+                        movement = new Vec3(rand.nextDouble() * 2.0D - 1.0D, 0.0D, rand.nextDouble() * 2.0D - 1.0D);
+                    }
+
+                    entity.setDeltaMovement(movement);
                     entity.hurtMarked = true;
 
                     event.setCanceled(true);
@@ -193,6 +209,25 @@ public class ModEventHandler {
                                     0.0D, 0.0D, 0.0D, 0.0D);
                         }
 
+                        BlockPos pos = entity.blockPosition();
+                        double diffX = entity.getX() - pos.getX();
+                        double diffZ = entity.getZ() - pos.getZ();
+
+                        Vec3 movement = entity.getDeltaMovement();
+
+                        if (diffX <= 0.1D) {
+                            movement = new Vec3(rand.nextDouble(), 0.0D, movement.z());
+                        } else if (diffX >= 0.9D) {
+                            movement = new Vec3(-rand.nextDouble(), 0.0D, movement.z());
+                        } else if (diffZ <= 0.1D) {
+                            movement = new Vec3(movement.x(), 0.0D, rand.nextDouble());
+                        } else if (diffZ >= 0.9D) {
+                            movement = new Vec3(movement.x(), 0.0D, -rand.nextDouble());
+                        } else {
+                            movement = new Vec3(rand.nextDouble() * 2.0D - 1.0D, 0.0D, rand.nextDouble() * 2.0D - 1.0D);
+                        }
+
+                        entity.setDeltaMovement(movement);
                         entity.hurtMarked = true;
 
                         event.setCanceled(true);

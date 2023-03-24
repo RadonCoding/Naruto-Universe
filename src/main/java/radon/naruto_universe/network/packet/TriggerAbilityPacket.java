@@ -118,14 +118,16 @@ public class TriggerAbilityPacket {
                             } else {
                                 cap.disableToggledAbility(player, ability);
                             }
+
+                            if (ability.isDojutsu()) {
+                                cap.clearToggledDojutsus(player, ability);
+                            }
                         }
                         PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
                     });
                 });
             }
         }
-
         ctx.setPacketHandled(true);
-
     }
 }

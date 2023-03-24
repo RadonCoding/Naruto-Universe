@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.client.particle.VaporParticle;
 
 public class FireballJutsuEntity extends AbstractHurtingProjectile {
-    public static final float INITIAL_SCALE = 0.1F;
+    public static final float INITIAL_SCALE = 0.01F;
     public static final float SCALAR = 1.0F - INITIAL_SCALE;
     public static final float SCALE_TIME = 20.0F;
 

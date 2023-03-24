@@ -63,13 +63,12 @@ public class ParticleRegistry {
 
         public static final ParticleRenderType TRANSLUCENT = new ParticleRenderType() {
             @Override
-            public void begin(BufferBuilder buffer, @NotNull TextureManager manager) {
+            public void begin(BufferBuilder buffer, TextureManager manager) {
                 RenderSystem.depthMask(false);
-                RenderSystem.enableBlend();
                 RenderSystem.enableCull();
                 RenderSystem.enableDepthTest();
                 RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                        GlStateManager.SourceFactor.ONE_MINUS_DST_COLOR, GlStateManager.DestFactor.ONE);
+                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
                 RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
                 buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
             }
@@ -77,10 +76,8 @@ public class ParticleRegistry {
             @Override
             public void end(Tesselator tesselator) {
                 tesselator.end();
-                RenderSystem.defaultBlendFunc();
                 RenderSystem.disableDepthTest();
                 RenderSystem.disableCull();
-                RenderSystem.disableBlend();
                 RenderSystem.depthMask(true);
             }
         };

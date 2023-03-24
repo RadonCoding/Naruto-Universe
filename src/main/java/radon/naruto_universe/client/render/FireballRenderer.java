@@ -1,15 +1,12 @@
 package radon.naruto_universe.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -22,6 +19,7 @@ import radon.naruto_universe.util.HelperMethods;
 
 public class FireballRenderer extends EntityRenderer<FireballJutsuEntity> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/entity/fireball.png");
+    private static final RenderType RENDER_TYPE = EntityRegistry.ModRenderType.glow(TEXTURE);
 
     public FireballRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager);
@@ -32,8 +30,9 @@ public class FireballRenderer extends EntityRenderer<FireballJutsuEntity> {
         pPoseStack.pushPose();
         pPoseStack.translate(0.0D, pEntity.getBbHeight() / 2.0F, 0.0D);
 
-        Entity entity = Minecraft.getInstance().getCameraEntity();
-        RenderType type = EntityRegistry.ModRenderType.fireball(TEXTURE);
+        Minecraft mc = Minecraft.getInstance();
+
+        Entity entity = mc.getCameraEntity();
 
         if (entity != null) {
             float yaw = entity.yRotO + (entity.getYRot() - entity.yRotO) * pPartialTick;
@@ -50,14 +49,13 @@ public class FireballRenderer extends EntityRenderer<FireballJutsuEntity> {
             float bxx = -scale;
             float yy = 0.0F;
 
-            VertexConsumer bb = Minecraft.getInstance().renderBuffers().bufferSource().getBuffer(type);
+            VertexConsumer consumer = mc.renderBuffers().bufferSource().getBuffer(RENDER_TYPE);
             Matrix4f pose = pPoseStack.last().pose();
-            bb.vertex(pose, bxx, yy, bxx).color(1.0F, 1.0F, 1.0F, 1.0F).uv(0.0F, 0.0F).uv2(j, k).endVertex();
-            bb.vertex(pose, bxx, yy, scale).color(1.0F, 1.0F, 1.0F, 1.0F).uv(0.0F, 1.0F).uv2(j, k).endVertex();
-            bb.vertex(pose, scale, yy, scale).color(1.0F, 1.0F, 1.0F, 1.0F).uv(1.0F, 1.0F).uv2(j, k).endVertex();
-            bb.vertex(pose, scale, yy, bxx).color(1.0F, 1.0F, 1.0F, 1.0F).uv(1.0F, 0.0F).uv2(j, k).endVertex();
-
-            Minecraft.getInstance().renderBuffers().bufferSource().endBatch(type);
+            consumer.vertex(pose, bxx, yy, bxx).color(1.0F, 1.0F, 1.0F, 1.0F).uv(0.0F, 0.0F).uv2(j, k).endVertex();
+            consumer.vertex(pose, bxx, yy, scale).color(1.0F, 1.0F, 1.0F, 1.0F).uv(0.0F, 1.0F).uv2(j, k).endVertex();
+            consumer.vertex(pose, scale, yy, scale).color(1.0F, 1.0F, 1.0F, 1.0F).uv(1.0F, 1.0F).uv2(j, k).endVertex();
+            consumer.vertex(pose, scale, yy, bxx).color(1.0F, 1.0F, 1.0F, 1.0F).uv(1.0F, 0.0F).uv2(j, k).endVertex();
+            mc.renderBuffers().bufferSource().endBatch(RENDER_TYPE);
         }
         pPoseStack.popPose();
 
@@ -71,6 +69,6 @@ public class FireballRenderer extends EntityRenderer<FireballJutsuEntity> {
 
     @Override
     public @NotNull ResourceLocation getTextureLocation(@NotNull FireballJutsuEntity pEntity) {
-        return TextureAtlas.LOCATION_BLOCKS;
+        return null;
     }
 }

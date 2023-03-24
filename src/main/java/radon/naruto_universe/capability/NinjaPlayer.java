@@ -275,6 +275,17 @@ public class NinjaPlayer implements INinjaPlayer {
         this.toggledAbilities.clear();
     }
 
+    @Override
+    public void clearToggledDojutsus(Player player, Ability exclude) {
+        for (ResourceLocation key : this.toggledAbilities) {
+            Ability toggled = AbilityRegistry.getValue(key);
+
+            if (toggled != exclude && toggled.isDojutsu()) {
+                this.disableToggledAbility(player, toggled);
+            }
+        }
+    }
+
     private void updateToggledAbilities(Player player, LogicalSide side) {
         Iterator<ResourceLocation> iter = this.toggledAbilities.iterator();
 

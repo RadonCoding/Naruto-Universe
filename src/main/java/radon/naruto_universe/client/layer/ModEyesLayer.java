@@ -19,12 +19,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
 public class ModEyesLayer<T extends LivingEntity, M extends PlayerModel<T>> extends EyesLayer<T, M> {
-    private static final RenderType BACKGROUND = EntityRegistry.ModRenderType.eyesBackground(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/background.png"));
+    private static final RenderType BACKGROUND = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/background.png"));
     private static final RenderType SHARINGAN_ONE = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/sharingan_one.png"));
     private static final RenderType SHARINGAN_TWO = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/sharingan_two.png"));
     private static final RenderType SHARINGAN_THREE = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/sharingan_three.png"));
     private static final RenderType RINNEGAN = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/rinnegan.png"));
-    private static final RenderType SIX_TOMOE_RINNEGAN = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/six_tomoe_rinnegan.png"));
+    //private static final RenderType SIX_TOMOE_RINNEGAN = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/six_tomoe_rinnegan.png"));
 
     public ModEyesLayer(RenderLayerParent<T, M> pRenderer) {
         super(pRenderer);
@@ -50,12 +50,7 @@ public class ModEyesLayer<T extends LivingEntity, M extends PlayerModel<T>> exte
 
         player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             if (cap.hasToggledAbility(AbilityRegistry.RINNEGAN.get())) {
-                if (cap.hasToggledAbility(AbilityRegistry.SHARINGAN.get())) {
-                    this.renderEyes(pMatrixStack, pBuffer, SIX_TOMOE_RINNEGAN);
-                }
-                else {
-                    this.renderEyes(pMatrixStack, pBuffer, RINNEGAN);
-                }
+                this.renderEyes(pMatrixStack, pBuffer, RINNEGAN);
             }
             else if (cap.hasToggledAbility(AbilityRegistry.SHARINGAN.get())) {
                 int level = cap.getSharinganLevel();

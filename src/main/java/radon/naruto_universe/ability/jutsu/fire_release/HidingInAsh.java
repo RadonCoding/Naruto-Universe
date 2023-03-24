@@ -2,6 +2,7 @@ package radon.naruto_universe.ability.jutsu.fire_release;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -15,6 +16,7 @@ import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
+import radon.naruto_universe.client.particle.ParticleRegistry;
 import radon.naruto_universe.client.particle.VaporParticle;
 import radon.naruto_universe.sound.SoundRegistry;
 
@@ -81,7 +83,7 @@ public class HidingInAsh extends Ability {
             cap.delayTickEvent((playerClone1) -> {
                 final float power = this.getPower();
 
-                final int duration = Math.max(1, Math.round(power));
+                final int duration = Math.max(1, Math.round(power * 3.0F));
                 final int cloudSize = Math.round(10.0F + power);
 
                 for (int i = 0; i < duration; i++) {
@@ -110,7 +112,7 @@ public class HidingInAsh extends Ability {
                                 final double offsetY = j * (rand.nextDouble() * (rand.nextBoolean() ? -1 : 1)) * 0.3D;
                                 final double offsetZ = j * (rand.nextDouble() * (rand.nextBoolean() ? -1 : 1)) * 0.3D;
 
-                                serverLevel.sendParticles(playerClone2, new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.SMOKE_COLOR, 10.0F, 0.75F, false, rand.nextInt(90, 180)),
+                                serverLevel.sendParticles(playerClone2, new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.SMOKE_COLOR, 10.0F, 0.75F, false, rand.nextInt(60, 120)),
                                         true, x + offsetX, y + offsetY, z + offsetZ,
                                         0, 1.0D, 2.0D, 1.0D, 0.01D);
                             }
@@ -119,7 +121,7 @@ public class HidingInAsh extends Ability {
                             y += playerClone2.getLookAngle().y();
                             z += playerClone2.getLookAngle().z();
                         }
-                    }, i * 5);
+                    }, i);
                 }
             }, 20);
         });
