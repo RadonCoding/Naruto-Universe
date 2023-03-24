@@ -6,9 +6,16 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.ExplosionDamageCalculator;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
@@ -71,14 +78,14 @@ public class GreatFlame extends Ability {
     }
 
     @Override
-    public void runClient(LocalPlayer player) {
+    public void runClient(LivingEntity owner) {
 
     }
 
     @Override
-    public void runServer(ServerPlayer player) {
-        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            player.level.playSound(null, player.blockPosition(), SoundRegistry.GREAT_FLAME.get(),
+    public void runServer(LivingEntity owner) {
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            owner.level.playSound(null, owner.blockPosition(), SoundRegistry.GREAT_FLAME.get(),
                     SoundSource.PLAYERS, 1.0F, 1.0F);
 
             cap.delayTickEvent((playerClone1) -> {
@@ -108,12 +115,7 @@ public class GreatFlame extends Ability {
                                 entity.setSecondsOnFire(Math.round(power));
                             }
 
-                            BlockPos.betweenClosedStream(bounds).forEach(pos -> {
-                                if (rand.nextInt(5) == 0 && serverLevel.getBlockState(pos).isAir() &&
-                                        serverLevel.getBlockState(pos.below()).isSolidRender(serverLevel, pos.below())) {
-                                    serverLevel.setBlockAndUpdate(pos, BaseFireBlock.getState(serverLevel, pos));
-                                }
-                            });
+                            serverLevel.explode(playerClone2, null, null, x, y, z, power * 0.025F, true, Level.ExplosionInteraction.MOB, false);
 
                             for (int k = 0; k < j; k++) {
                                 final double offsetX = j * (rand.nextDouble() * (rand.nextBoolean() ? -1 : 1)) * 0.3D;

@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import radon.naruto_universe.ability.Ability;
@@ -57,36 +58,36 @@ public class ChakraJump extends Ability {
         return 1.0F;
     }
 
-    private void jump(Player player) {
-        if (!player.isOnGround()) {
+    private void jump(LivingEntity owner) {
+        if (!owner.isOnGround()) {
             return;
         }
 
-        player.level.playSound(null, player.blockPosition(), SoundRegistry.CHAKRA_JUMP.get(), SoundSource.PLAYERS,
+        owner.level.playSound(null, owner.blockPosition(), SoundRegistry.CHAKRA_JUMP.get(), SoundSource.PLAYERS,
                 1.0F, 1.0F);
 
-        float jumpFactor = player.level.getBlockState(player.blockPosition()).getBlock().getJumpFactor();
-        float blockJumpFactor = player.level.getBlockState(new BlockPos(player.getX(), player.getBoundingBox().minY - 0.5000001D, player.getY()))
+        float jumpFactor = owner.level.getBlockState(owner.blockPosition()).getBlock().getJumpFactor();
+        float blockJumpFactor = owner.level.getBlockState(new BlockPos(owner.getX(), owner.getBoundingBox().minY - 0.5000001D, owner.getY()))
                 .getBlock().getJumpFactor();
         float jumpPower = jumpFactor == 1.0F ? blockJumpFactor : jumpFactor;
 
-        double totalJumpPower = jumpPower + player.getJumpBoostPower();
-        Vec3 movement = player.getDeltaMovement();
-        player.setDeltaMovement(movement.x(), totalJumpPower, movement.z());
+        double totalJumpPower = jumpPower + owner.getJumpBoostPower();
+        Vec3 movement = owner.getDeltaMovement();
+        owner.setDeltaMovement(movement.x(), totalJumpPower, movement.z());
 
-        if (player.isSprinting()) {
-            float f = player.getYRot() * ((float) Math.PI / 180.0F);
-            player.setDeltaMovement(player.getDeltaMovement().add(-Mth.sin(f), 0.0D, Mth.cos(f)));
+        if (owner.isSprinting()) {
+            float f = owner.getYRot() * ((float) Math.PI / 180.0F);
+            owner.setDeltaMovement(owner.getDeltaMovement().add(-Mth.sin(f), 0.0D, Mth.cos(f)));
         }
     }
 
     @Override
-    public void runClient(LocalPlayer player) {
-        jump(player);
+    public void runClient(LivingEntity owner) {
+        jump(owner);
     }
 
     @Override
-    public void runServer(ServerPlayer player) {
-        jump(player);
+    public void runServer(LivingEntity owner) {
+        jump(owner);
     }
 }

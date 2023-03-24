@@ -1,5 +1,6 @@
 package radon.naruto_universe.ability.jutsu.fire_release;
 
+import net.minecraft.world.entity.LivingEntity;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
@@ -64,14 +65,14 @@ public class GreatFireball extends Ability {
     }
 
     @Override
-    public void runClient(LocalPlayer player) {
+    public void runClient(LivingEntity owner) {
 
     }
 
     @Override
-    public void runServer(ServerPlayer player) {
-        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            player.level.playSound(null, player.blockPosition(), SoundRegistry.GREAT_FIREBALL.get(),
+    public void runServer(LivingEntity owner) {
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            owner.level.playSound(null, owner.blockPosition(), SoundRegistry.GREAT_FIREBALL.get(),
                     SoundSource.PLAYERS, 1.0F, 1.0F);
 
             cap.delayTickEvent((playerClone) -> {

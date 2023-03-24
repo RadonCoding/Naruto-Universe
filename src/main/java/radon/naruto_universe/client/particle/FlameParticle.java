@@ -23,6 +23,8 @@ public class FlameParticle extends TextureSheetParticle {
         this.gCol = 75.0F / 255.0F;
         this.bCol = 0.0F / 255.0F;
 
+        this.alpha = 0.5F;
+
         this.quadSize = Math.max(3.0F, this.random.nextFloat() * 3.0F);
 
         this.sprites = pSprites;
@@ -32,13 +34,7 @@ public class FlameParticle extends TextureSheetParticle {
     @Override
     public void tick() {
         super.tick();
-
-        this.fadeOut();
         this.setSprite(this.sprites.get(this.random));
-    }
-
-    private void fadeOut() {
-        this.alpha = 1.0F - Mth.clamp(((float) this.age) / (float)this.lifetime, 0.0F, 0.5F);
     }
 
     @Override

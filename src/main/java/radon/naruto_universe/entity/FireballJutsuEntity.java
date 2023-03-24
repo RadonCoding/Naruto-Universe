@@ -132,14 +132,10 @@ public class FireballJutsuEntity extends AbstractHurtingProjectile {
             double offsetY = (this.getBbHeight() / 2.0) + (this.random.nextDouble() * (random.nextBoolean() ? -1 : 1));
             double offsetZ = this.random.nextDouble() * (random.nextBoolean() ? -1 : 1);
 
-            this.level.addAlwaysVisibleParticle(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.FLAME_COLOR, this.getSize(), true, this.random.nextInt(1, 20)),
-                    true,
-                    this.getX() + offsetX,
-                    this.getY() + offsetY,
-                    this.getZ() + offsetZ,
+            this.level.addAlwaysVisibleParticle(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.FLAME_COLOR, this.getSize() * 2.0F, 0.25F,
+                            true, this.random.nextInt(1, 20)), true, this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ,
                     0.0D, 0.0D, 0.0D);
         }
-
     }
 
     @Override

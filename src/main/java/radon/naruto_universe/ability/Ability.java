@@ -1,5 +1,6 @@
 package radon.naruto_universe.ability;
 
+import net.minecraft.world.entity.LivingEntity;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
@@ -127,8 +128,8 @@ public abstract class Ability {
 
     public abstract float getCost();
 
-    public abstract void runClient(LocalPlayer player);
-    public abstract void runServer(ServerPlayer player);
+    public abstract void runClient(LivingEntity owner);
+    public abstract void runServer(LivingEntity owner);
 
     public ResourceLocation getId() {
         return AbilityRegistry.getKey(this);

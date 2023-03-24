@@ -5,6 +5,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
@@ -65,10 +66,10 @@ public class ChakraControl extends Ability implements Ability.Toggled {
                 level.getFluidState(pos).is(Fluids.FLOWING_WATER);
     }
 
-    private void checkWaterWalking(Player player) {
-        if (player.isShiftKeyDown()) return;
+    private void checkWaterWalking(LivingEntity owner) {
+        if (owner.isShiftKeyDown()) return;
 
-        AABB bb = player.getBoundingBox();
+        AABB bb = owner.getBoundingBox();
         AABB feet = new AABB(
                 bb.minX,
                 bb.minY,
@@ -86,64 +87,64 @@ public class ChakraControl extends Ability implements Ability.Toggled {
                 bb.maxZ
         );
 
-        Vec3 movement = player.getDeltaMovement();
+        Vec3 movement = owner.getDeltaMovement();
         double movementY = movement.y();
 
-        if (this.isFluid(player.level, new BlockPos(ankles.maxX, ankles.maxY, ankles.maxZ))) {
+        if (this.isFluid(owner.level, new BlockPos(ankles.maxX, ankles.maxY, ankles.maxZ))) {
             movementY = 0.5D;
         }
-        else if (this.isFluid(player.level, new BlockPos(ankles.minX, ankles.minY, ankles.minZ))) {
+        else if (this.isFluid(owner.level, new BlockPos(ankles.minX, ankles.minY, ankles.minZ))) {
             movementY = 0.25D;
         }
-        else if (movementY < 0.0D && this.isFluid(player.level, new BlockPos(feet.minX, feet.minY, feet.minZ))) {
+        else if (movementY < 0.0D && this.isFluid(owner.level, new BlockPos(feet.minX, feet.minY, feet.minZ))) {
             movementY = 0.1D;
         }
-        else if (movementY < 0.0D && this.isFluid(player.level, new BlockPos(feet.minX, feet.minY - 0.1D, feet.minZ))) {
+        else if (movementY < 0.0D && this.isFluid(owner.level, new BlockPos(feet.minX, feet.minY - 0.1D, feet.minZ))) {
             movementY = 0.0D;
         }
 
         if (movementY != movement.y()) {
-            player.setDeltaMovement(movement.x(), movementY, movement.z());
-            player.setOnGround(true);
-            player.resetFallDistance();
+            owner.setDeltaMovement(movement.x(), movementY, movement.z());
+            owner.setOnGround(true);
+            owner.resetFallDistance();
         }
     }
 
-    private void checkWallClimbing(Player player) {
-        if (!player.isOnGround() && !player.isInWater() && player.level.getBlockState(player.blockPosition().above()).isAir()) {
+    private void checkWallClimbing(LivingEntity owner) {
+        if (!owner.isOnGround() && !owner.isInWater() && owner.level.getBlockState(owner.blockPosition().above()).isAir()) {
             float climbSpeed = 0.2F; // Change this to adjust the climbing speed
 
-            Vec3 motion = player.getDeltaMovement();
+            Vec3 motion = owner.getDeltaMovement();
 
-            player.fallDistance = 0.0F;
+            owner.fallDistance = 0.0F;
 
-            if (player.horizontalCollision) {
-                player.setDeltaMovement(motion.x, climbSpeed, motion.z);
+            if (owner.horizontalCollision) {
+                owner.setDeltaMovement(motion.x, climbSpeed, motion.z);
             }
         }
     }
 
     @Override
-    public void runClient(LocalPlayer player) {
-        this.checkWaterWalking(player);
-        this.checkWallClimbing(player);
+    public void runClient(LivingEntity owner) {
+        this.checkWaterWalking(owner);
+        this.checkWallClimbing(owner);
     }
 
     @Override
-    public void runServer(ServerPlayer player) {
-        this.checkWaterWalking(player);
-        this.checkWallClimbing(player);
+    public void runServer(LivingEntity owner) {
+        this.checkWaterWalking(owner);
+        this.checkWallClimbing(owner);
 
         Random random = new Random();
 
-        ServerLevel serverLevel = player.getLevel();
+        ServerLevel serverLevel = (ServerLevel) owner.getLevel();
 
-        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 0.5F, true, 3),
-                player.getX() + (random.nextGaussian() * 0.1D) + 0.15D, player.getY(), player.getZ() + random.nextGaussian() * 0.1D,
+        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.25F, 0.75F, true, 2),
+                owner.getX() + (random.nextGaussian() * 0.1D) + 0.15D, owner.getY(), owner.getZ() + random.nextGaussian() * 0.1D,
                 0, 0.0D, 0.23D, 0.0D, -0.1D);
 
-        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 0.5F, true, 3),
-                player.getX() + (random.nextGaussian() * 0.1D) - 0.15D, player.getY(), player.getZ() + random.nextGaussian() * 0.1D,
+        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.25F, 0.75F, true, 2),
+                owner.getX() + (random.nextGaussian() * 0.1D) - 0.15D, owner.getY(), owner.getZ() + random.nextGaussian() * 0.1D,
                 0, 0.0D, 0.23D, 0.0D, -0.1D);
     }
 }

@@ -8,6 +8,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.phys.AABB;
 import radon.naruto_universe.ability.Ability;
@@ -71,14 +73,14 @@ public class GreatAnnihilation extends Ability {
     }
 
     @Override
-    public void runClient(LocalPlayer player) {
+    public void runClient(LivingEntity owner) {
 
     }
 
     @Override
-    public void runServer(ServerPlayer player) {
-        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            player.level.playSound(null, player.blockPosition(), SoundRegistry.GREAT_ANNIHILATION.get(),
+    public void runServer(LivingEntity owner) {
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            owner.level.playSound(null, owner.blockPosition(), SoundRegistry.GREAT_ANNIHILATION.get(),
                     SoundSource.PLAYERS, 1.0F, 1.0F);
 
             cap.delayTickEvent((playerClone1) -> {
@@ -108,12 +110,12 @@ public class GreatAnnihilation extends Ability {
                                 entity.setSecondsOnFire(Math.round(power));
                             }
 
-                            BlockPos.betweenClosedStream(bounds).forEach(pos -> {
-                                if (pos.below() != playerClone2.blockPosition() && rand.nextInt(5) == 0 && serverLevel.getBlockState(pos).isAir() &&
-                                        serverLevel.getBlockState(pos.below()).isSolidRender(serverLevel, pos.below())) {
-                                    serverLevel.setBlockAndUpdate(pos, BaseFireBlock.getState(serverLevel, pos));
-                                }
-                            });
+                            for (final Entity entity : serverLevel.getEntities(playerClone2, bounds)) {
+                                entity.hurt(DamageSource.playerAttack(playerClone2), BASE_DAMAGE * power);
+                                entity.setSecondsOnFire(Math.round(power));
+                            }
+
+                            serverLevel.explode(playerClone2, null, null, x, y, z, power * 0.05F, true, Level.ExplosionInteraction.MOB, false);
 
                             for (int k = 0; k < j; k++) {
                                 final double offsetX = j * (rand.nextDouble() * (rand.nextBoolean() ? -1 : 1)) * 0.6D;

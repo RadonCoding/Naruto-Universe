@@ -10,7 +10,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
-// TODO: Make sound effects for all shit
+// TODO: Come up with a system for special abilities that don't use hand signs
 
 @Mod(NarutoUniverse.MOD_ID)
 public class NarutoUniverse {

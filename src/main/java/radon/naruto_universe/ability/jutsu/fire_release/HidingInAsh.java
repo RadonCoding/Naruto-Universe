@@ -7,6 +7,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
@@ -69,10 +70,10 @@ public class HidingInAsh extends Ability {
     }
 
     @Override
-    public void runClient(LocalPlayer player) {}
+    public void runClient(LivingEntity owner) {}
 
     @Override
-    public void runServer(ServerPlayer player) {
+    public void runServer(LivingEntity player) {
         player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             player.level.playSound(null, player.blockPosition(), SoundRegistry.HIDING_IN_ASH.get(),
                     SoundSource.PLAYERS, 1.0F, 1.0F);
@@ -109,7 +110,7 @@ public class HidingInAsh extends Ability {
                                 final double offsetY = j * (rand.nextDouble() * (rand.nextBoolean() ? -1 : 1)) * 0.3D;
                                 final double offsetZ = j * (rand.nextDouble() * (rand.nextBoolean() ? -1 : 1)) * 0.3D;
 
-                                serverLevel.sendParticles(playerClone2, new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.SMOKE_COLOR, 5.0F, false, rand.nextInt(90, 180)),
+                                serverLevel.sendParticles(playerClone2, new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.SMOKE_COLOR, 10.0F, 0.75F, false, rand.nextInt(90, 180)),
                                         true, x + offsetX, y + offsetY, z + offsetZ,
                                         0, 1.0D, 2.0D, 1.0D, 0.01D);
                             }

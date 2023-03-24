@@ -1,5 +1,10 @@
 package radon.naruto_universe.ability.utility;
 
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.sound.SoundRegistry;
@@ -57,12 +62,12 @@ public class Rinnegan extends Ability implements Ability.Toggled {
     }
 
     @Override
-    public void runClient(LocalPlayer player) {
+    public void runClient(LivingEntity owner) {
 
     }
 
     @Override
-    public void runServer(ServerPlayer player) {
+    public void runServer(LivingEntity owner) {
 
     }
 

@@ -1,5 +1,6 @@
 package radon.naruto_universe.sound;
 
+import net.minecraft.client.resources.sounds.Sound;
 import radon.naruto_universe.NarutoUniverse;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;

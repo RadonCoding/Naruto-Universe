@@ -154,10 +154,6 @@ public class ModClientEventHandler {
                 model.leftArm.y = 5.2F;
             }
 
-            if (player.isUsingItem() && player.getMainHandItem().is(ItemRegistry.KUNAI.get())) {
-                // TODO: Animation for throwing kunai :O
-            }
-
             player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                 if (cap.isChannelingAbility(AbilityRegistry.POWER_CHARGE.get())) {
                     model.leftArm.xRot = -1.0F;

@@ -1,5 +1,18 @@
 package radon.naruto_universe;
 
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.INinjaPlayer;
 import radon.naruto_universe.network.PacketHandler;
@@ -21,6 +34,9 @@ import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+
+import java.util.Random;
+import java.util.logging.Level;
 
 @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModEventHandler {
@@ -135,6 +151,55 @@ public class ModEventHandler {
                 NinjaPlayerHandler.attach(event);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onProjectileImpact(final ProjectileImpactEvent event) {
+        if (event.getRayTraceResult() instanceof EntityHitResult result) {
+            final Entity entity = result.getEntity();
+
+            entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+                if (cap.hasToggledAbility(AbilityRegistry.SHARINGAN.get())) {
+                    final Random rand = new Random();
+
+                    if (entity.level instanceof ServerLevel serverLevel) {
+                        serverLevel.sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + (entity.getBbHeight() / 2.0F), entity.getZ(), 0,
+                                0.0D, 0.0D, 0.0D, 0.0D);
+                    }
+
+                    final Vec3 movement = entity.getDeltaMovement();
+                    entity.setDeltaMovement(movement.add(rand.nextDouble(), 0.0D, rand.nextDouble()));
+
+                    entity.hurtMarked = true;
+
+                    event.setCanceled(true);
+                }
+            });
+        }
+    }
+
+    @SubscribeEvent
+    public static void onLivingAttack(final LivingAttackEvent event) {
+        LivingEntity entity = event.getEntity();
+
+        entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            if (cap.hasToggledAbility(AbilityRegistry.SHARINGAN.get())) {
+                if (event.getSource().getEntity() instanceof LivingEntity attacker) {
+                    if (attacker.swinging) {
+                        final Random rand = new Random();
+
+                        if (entity.level instanceof ServerLevel serverLevel) {
+                            serverLevel.sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + (entity.getBbHeight() / 2.0F), entity.getZ(), 0,
+                                    0.0D, 0.0D, 0.0D, 0.0D);
+                        }
+
+                        entity.hurtMarked = true;
+
+                        event.setCanceled(true);
+                    }
+                }
+            }
+        });
     }
 
     @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)

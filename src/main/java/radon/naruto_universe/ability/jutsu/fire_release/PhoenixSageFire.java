@@ -1,5 +1,6 @@
 package radon.naruto_universe.ability.jutsu.fire_release;
 
+import net.minecraft.world.entity.LivingEntity;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
@@ -66,14 +67,14 @@ public class PhoenixSageFire extends Ability {
     }
 
     @Override
-    public void runClient(LocalPlayer player) {
+    public void runClient(LivingEntity owner) {
 
     }
 
     @Override
-    public void runServer(ServerPlayer player) {
-        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            player.level.playSound(null, player.blockPosition(), SoundRegistry.SAGE_FIRE.get(),
+    public void runServer(LivingEntity owner) {
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            owner.level.playSound(null, owner.blockPosition(), SoundRegistry.SAGE_FIRE.get(),
                     SoundSource.PLAYERS, 1.0F, 1.0F);
 
             float power = this.getPower();

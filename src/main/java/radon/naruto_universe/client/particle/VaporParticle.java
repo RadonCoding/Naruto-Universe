@@ -32,23 +32,18 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
         this.gCol = color.y();
         this.bCol = color.z();
 
+        this.alpha = options.opacity() + (this.random.nextFloat() - 0.5F);
+
         this.glow = options.glow();
 
         this.quadSize = Math.max(options.scalar(), this.random.nextFloat() * options.scalar());
         this.sprites = pSprites;
-        this.setSpriteFromAge(this.sprites);
+        this.setSprite(this.sprites.get(this.random));
     }
 
     @Override
     public void tick() {
         super.tick();
-
-        this.fadeOut();
-        this.setSpriteFromAge(this.sprites);
-    }
-
-    private void fadeOut() {
-        this.alpha = 1.0F - Mth.clamp(((float) this.age) / (float)this.lifetime, 0.0F, 0.5F);
     }
 
     @Override
@@ -56,7 +51,7 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
         return this.glow ? ParticleRegistry.ModRenderTypes.GLOW : ParticleRegistry.ModRenderTypes.TRANSLUCENT;
     }
 
-    public record VaporParticleOptions(Vector3f color, float scalar, boolean glow, int lifetime) implements ParticleOptions {
+    public record VaporParticleOptions(Vector3f color, float scalar, float opacity, boolean glow, int lifetime) implements ParticleOptions {
         public static final Vector3f CHAKRA_COLOR = Vec3.fromRGB24(2003199).toVector3f();
         public static final Vector3f FLAME_COLOR = Vec3.fromRGB24(16727040).toVector3f();
         public static final Vector3f SMOKE_COLOR = Vec3.fromRGB24(4342338).toVector3f();
@@ -65,11 +60,11 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
             public @NotNull VaporParticleOptions fromCommand(ParticleType<VaporParticleOptions> type, StringReader reader) throws CommandSyntaxException {
                 Vector3f color = VaporParticleOptions.readColorVector3f(reader);
                 reader.expect(' ');
-                return new VaporParticleOptions(color, reader.readFloat(), reader.readBoolean(), reader.readInt());
+                return new VaporParticleOptions(color, reader.readFloat(), reader.readFloat(), reader.readBoolean(), reader.readInt());
             }
 
             public @NotNull VaporParticleOptions fromNetwork(@NotNull ParticleType<VaporParticleOptions> type, @NotNull FriendlyByteBuf buf) {
-                return new VaporParticleOptions(VaporParticleOptions.readColorFromNetwork(buf), buf.readFloat(), buf.readBoolean(), buf.readInt());
+                return new VaporParticleOptions(VaporParticleOptions.readColorFromNetwork(buf), buf.readFloat(), buf.readFloat(), buf.readBoolean(), buf.readInt());
             }
         };
 
@@ -98,14 +93,15 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
             buf.writeFloat(this.color.y());
             buf.writeFloat(this.color.z());
             buf.writeFloat(this.scalar);
+            buf.writeFloat(this.opacity);
             buf.writeBoolean(this.glow);
             buf.writeInt(this.lifetime);
         }
 
         @Override
         public @NotNull String writeToString() {
-            return String.format(Locale.ROOT, "%s %.2f %.2f %.2f %.2f %b %d", BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()),
-                    this.color.x(), this.color.y(), this.color.z(), this.scalar, this.glow, this.lifetime);
+            return String.format(Locale.ROOT, "%s %.2f %.2f %.2f %.2f %.2f %b %d", BuiltInRegistries.PARTICLE_TYPE.getKey(this.getType()),
+                    this.color.x(), this.color.y(), this.color.z(), this.scalar, this.opacity, this.glow, this.lifetime);
         }
     }
 
