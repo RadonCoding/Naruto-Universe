@@ -1,27 +1,20 @@
 package radon.naruto_universe.entity;
 
-import com.google.common.collect.Lists;
 import net.minecraft.client.renderer.debug.DebugRenderer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
-import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.*;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import org.jetbrains.annotations.NotNull;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import radon.naruto_universe.ModDamageSource;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.particle.ParticleRegistry;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 public class ParticleSpawnerProjectile extends JutsuProjectile {
     private static final EntityDataAccessor<ParticleOptions> DATA_PARTICLE = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.PARTICLE);
@@ -91,26 +84,39 @@ public class ParticleSpawnerProjectile extends JutsuProjectile {
         float range = this.getPower() * f0;
         float radius = this.getRadius() * (this.getPower() * 0.1F) * f0;
 
-        Entity owner = this.getOwner();
+        final Entity owner = this.getOwner();
 
         assert owner != null;
 
         Vec3 look = owner.getLookAngle();
-        double angle = Math.atan(radius / range) * 180.0D / Math.PI;
+        final double angle = Math.atan(radius / range) * 180.0D / Math.PI;
 
-        /*for (EntityHitResult result : this.getEntitiesInCloud(owner, range, radius)) {
-            Entity entity = result.getEntity();
+        Vec3 direction = Vec3.directionFromRotation(owner.getXRot() + (float)((this.random.nextDouble() - 0.5D) * angle * 3.0D),
+                owner.getYRot() + (float)((this.random.nextDouble() - 0.5D) * angle * 3.0D)).scale(range * 0.1D);
 
+        Vec3 center = owner.position().add(direction.scale(range * 0.5));
+
+        // Calculate the corner points of the AABB
+        Vec3 corner1 = center.add(direction.scale(-range)).add(direction.cross(new Vec3(0, 1, 0)).normalize().scale(radius * 5.0F));
+        Vec3 corner2 = center.add(direction.scale(-range)).add(direction.cross(new Vec3(0, -1, 0)).normalize().scale(radius * 5.0F));
+        Vec3 corner3 = center.add(direction.scale(range)).add(direction.cross(new Vec3(0, -1, 0)).normalize().scale(radius * 5.0F));
+        Vec3 corner4 = center.add(direction.scale(range)).add(direction.cross(new Vec3(0, 1, 0)).normalize().scale(radius * 5.0F));
+
+        // Create the AABB using the corner points
+        AABB box = new AABB(corner1, corner2).expandTowards(corner3).expandTowards(corner4);
+
+        if (this.level.isClientSide) {
+            DebugRenderer.renderFilledBox(box, 1.0F, 1.0F, 1.0F, 0.5F);
+        }
+
+        for (Entity entity : this.level.getEntities(null, box)) {
             if (entity instanceof LivingEntity) {
                 entity.hurt(ModDamageSource.jutsu(this, owner), this.getDamage());
             }
             this.onHitEntity(new EntityHitResult(entity));
-        }*/
+        }
 
         for (int i = 0; i < range * radius; i++) {
-            Vec3 direction = Vec3.directionFromRotation(owner.getXRot() + (float)((this.random.nextDouble() - 0.5D) * angle * 3.0D),
-                    owner.getYRot()  + (float)((this.random.nextDouble() - 0.5D) * angle * 3.0D)).scale(range * 0.1D);
-
             this.level.addParticle(this.getParticle(), owner.getX() + look.x(), owner.getEyeY() - 0.2D + look.y(), owner.getZ() + look.z(),
                     direction.x(), direction.y(), direction.z());
         }
