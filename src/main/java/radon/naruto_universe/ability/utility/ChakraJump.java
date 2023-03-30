@@ -28,13 +28,8 @@ public class ChakraJump extends Ability {
     }
 
     @Override
-    public boolean shouldLog() {
+    public boolean shouldLog(LivingEntity entity) {
         return false;
-    }
-
-    @Override
-    public long getCombo() {
-        return -1;
     }
 
     @Override

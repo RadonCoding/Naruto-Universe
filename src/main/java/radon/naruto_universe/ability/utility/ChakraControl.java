@@ -1,10 +1,8 @@
 package radon.naruto_universe.ability.utility;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -18,8 +16,7 @@ import radon.naruto_universe.client.particle.VaporParticle;
 
 import java.util.Random;
 
-public class ChakraControl extends Ability implements Ability.Toggled {
-
+public class ChakraControl extends Ability implements Ability.IToggled {
     @Override
     public NinjaRank getRank() {
         return NinjaRank.ACADEMY_STUDENT;

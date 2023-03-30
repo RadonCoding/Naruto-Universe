@@ -37,6 +37,7 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
         this.glow = options.glow();
 
         this.quadSize = Math.max(options.scalar(), this.random.nextFloat() * options.scalar());
+
         this.sprites = pSprites;
         this.setSprite(this.sprites.get(this.random));
     }
@@ -44,6 +45,8 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
     @Override
     public void tick() {
         super.tick();
+
+        this.setSprite(this.sprites.get(this.random));
     }
 
     @Override

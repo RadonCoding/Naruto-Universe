@@ -17,6 +17,7 @@ import radon.naruto_universe.client.model.ThrownKunaiModel;
 import radon.naruto_universe.client.particle.FlameParticle;
 import radon.naruto_universe.client.particle.ParticleRegistry;
 import radon.naruto_universe.client.render.FireballRenderer;
+import radon.naruto_universe.client.render.EmptyRenderer;
 import radon.naruto_universe.client.render.ThrownKunaiRenderer;
 import radon.naruto_universe.entity.EntityRegistry;
 import radon.naruto_universe.item.ItemRegistry;
@@ -31,7 +32,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -67,13 +67,14 @@ public class ModClientEventHandler {
             AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_HAND_SIGN_THREE, () -> AbilityHandler.handleAbilityKey(3));
             AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_CHAKRA_JUMP, () ->
                 PacketHandler.sendToServer(new TriggerAbilityPacket(AbilityRegistry.CHAKRA_JUMP.getId())));
-
+            AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_ACTIVATE_SPECIAL, SpecialAbilityHandler::triggerSelectedAbility);
             KeyRegistry.register(event);
         }
 
         @SubscribeEvent
         public static void onRegisterGuiOverlays(final RegisterGuiOverlaysEvent event) {
-            event.registerAbove(VanillaGuiOverlay.HOTBAR.id(), "chakra_bar",  ChakraBarOverlay.HUD_CHAKRA_BAR);
+            event.registerAboveAll("chakra_bar",  ChakraBarOverlay.HUD_CHAKRA_BAR);
+            event.registerAboveAll("special_ability", SpecialAbilityHandler.SPECIAL_ABILITY);
         }
 
         @SubscribeEvent
@@ -86,6 +87,7 @@ public class ModClientEventHandler {
         public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(EntityRegistry.FIREBALL_JUTSU.get(), FireballRenderer::new);
             event.registerEntityRenderer(EntityRegistry.THROWN_KUNAI.get(), ThrownKunaiRenderer::new);
+            event.registerEntityRenderer(EntityRegistry.PARTICLE_SPAWNER.get(), EmptyRenderer::new);
         }
 
         @SubscribeEvent

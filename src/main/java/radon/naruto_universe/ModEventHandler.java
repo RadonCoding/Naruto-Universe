@@ -13,6 +13,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
 import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.INinjaPlayer;
 import radon.naruto_universe.network.PacketHandler;
@@ -140,8 +141,9 @@ public class ModEventHandler {
     }
 
     @SubscribeEvent
-    public static void onPlayerTick(final TickEvent.PlayerTickEvent event) {
-        event.player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.tick(event.player, event.side, event.phase));
+    public static void onLivingTick(final LivingEvent.LivingTickEvent event) {
+        final LivingEntity entity = event.getEntity();
+        entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.tick(entity, entity.level.isClientSide));
     }
 
     @SubscribeEvent

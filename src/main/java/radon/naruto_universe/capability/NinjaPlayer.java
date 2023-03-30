@@ -8,21 +8,21 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.fml.LogicalSide;
 import org.apache.commons.compress.utils.Lists;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
-import radon.naruto_universe.network.PacketHandler;
-import radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
 import radon.naruto_universe.sound.SoundRegistry;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public class NinjaPlayer implements INinjaPlayer {
@@ -34,11 +34,12 @@ public class NinjaPlayer implements INinjaPlayer {
     private int sharinganLevel;
     private Vec3 oldPlayerPos;
 
-    private ResourceLocation channeledAbility;
-    private final List<ResourceLocation> toggledAbilities = Lists.newArrayList();
+    private Ability channeledAbility;
+    private final List<Ability> toggledAbilities = Lists.newArrayList();
     private final List<NinjaTrait> traits = Lists.newArrayList();
     private final List<DelayedTickEvent> delayedTickEvents = Lists.newArrayList();
-    private final List<ResourceLocation> unlockedAbilities = Lists.newArrayList();
+    private final List<Ability> unlockedAbilities = Lists.newArrayList();
+    private final List<Ability> specialAbilities = Lists.newArrayList();
 
     // Used for checking if the player's experience has changed
     private float oldExperience;
@@ -61,39 +62,35 @@ public class NinjaPlayer implements INinjaPlayer {
     }
 
     @Override
-    public void tick(Player player, LogicalSide side, TickEvent.Phase phase) {
-        updateChanneledAbilities(player, side);
-        updateToggledAbilities(player, side);
+    public void tick(LivingEntity entity, boolean isClientSide) {
+        updateChanneledAbilities(entity, isClientSide);
+        updateToggledAbilities(entity, isClientSide);
 
-        if (side == LogicalSide.SERVER && player instanceof ServerPlayer serverPlayer) {
-            if (phase == TickEvent.Phase.START) {
-                this.updateTickEvents(serverPlayer);
-
-                if (this.power > 0.0F) {
-                    if (this.powerResetTimer > POWER_RESET_TIME) {
-                        this.power = 0.0F;
-                        this.powerResetTimer = 0;
-                    }
-                    this.powerResetTimer++;
-                }
-            }
+        if (!isClientSide) {
+            this.updateTickEvents(entity);
         }
 
-        if (phase == TickEvent.Phase.START) {
-            Vec3 currentPlayerPos = player.position();
-
-            if (this.oldPlayerPos == currentPlayerPos) {
-                this.addChakra(Math.max(CHAKRA_CHARGE_AMOUNT, this.getRank().ordinal() * CHAKRA_CHARGE_AMOUNT));
-            } else {
-                this.oldPlayerPos = currentPlayerPos;
+        if (this.power > 0.0F) {
+            if (this.powerResetTimer > POWER_RESET_TIME) {
+                this.power = 0.0F;
+                this.powerResetTimer = 0;
             }
+            this.powerResetTimer++;
         }
 
-        this.updateNinjaStats(player);
+        Vec3 currentPlayerPos = entity.position();
+
+        if (this.oldPlayerPos == currentPlayerPos) {
+            this.addChakra(Math.max(CHAKRA_CHARGE_AMOUNT, this.getRank().ordinal() * CHAKRA_CHARGE_AMOUNT));
+        } else {
+            this.oldPlayerPos = currentPlayerPos;
+        }
+
+        this.updateNinjaStats(entity);
     }
 
-    private void updateNinjaStats(Player player) {
-        AttributeInstance speedAttr = player.getAttribute(Attributes.MOVEMENT_SPEED);
+    private void updateNinjaStats(LivingEntity entity) {
+        AttributeInstance speedAttr = entity.getAttribute(Attributes.MOVEMENT_SPEED);
         AttributeModifier speedModifier = new AttributeModifier(MOVEMEMENT_SPEED_UUID, "Movement speed", Math.max(1, this.getRank().ordinal()) * NINJA_SPEED_MULTIPLIER, AttributeModifier.Operation.ADDITION);
 
         if (this.oldExperience != this.experience) {
@@ -115,17 +112,17 @@ public class NinjaPlayer implements INinjaPlayer {
     }
 
     @Override
-    public void delayTickEvent(Consumer<ServerPlayer> task, int delay) {
+    public void delayTickEvent(Consumer<LivingEntity> task, int delay) {
         this.delayedTickEvents.add(new DelayedTickEvent(task, delay));
     }
 
-    private void updateTickEvents(ServerPlayer player) {
+    private void updateTickEvents(LivingEntity entity) {
         final List<DelayedTickEvent> events = new ArrayList<>(this.delayedTickEvents);
 
         for (DelayedTickEvent event : events) {
             event.tick();
 
-            if (event.run(player)) {
+            if (event.run(entity)) {
                 this.delayedTickEvents.remove(event);
             }
         }
@@ -222,52 +219,50 @@ public class NinjaPlayer implements INinjaPlayer {
     }
 
     @Override
-    public void unlockAbility(ResourceLocation key) {
-        this.unlockedAbilities.add(key);
+    public void unlockAbility(Ability ability) {
+        this.unlockedAbilities.add(ability);
     }
 
     @Override
     public boolean hasUnlockedAbility(Ability ability) {
-        ResourceLocation key = AbilityRegistry.getKey(ability);
-        return this.unlockedAbilities.contains(key);
+        return this.unlockedAbilities.contains(ability);
     }
 
     @Override
-    public void enableToggledAbility(Player player, Ability ability) {
-        ResourceLocation key = AbilityRegistry.getKey(ability);
-        this.toggledAbilities.add(key);
+    public void enableToggledAbility(LivingEntity entity, Ability ability) {
+        this.toggledAbilities.add(ability);
 
-        if (ability instanceof Ability.Toggled toggled) {
-            player.level.playSound(null, player.blockPosition(),
+        if (ability instanceof Ability.IToggled toggled) {
+            entity.level.playSound(null, entity.blockPosition(),
                     toggled.getActivationSound(), SoundSource.PLAYERS, 10.0F, 1.0F);
 
-            if (ability.shouldLog()) {
-                player.sendSystemMessage(toggled.getEnableMessage());
+            if (ability.shouldLog(entity)) {
+                entity.sendSystemMessage(toggled.getEnableMessage());
             }
         }
+        this.updateSpecialAbilities();
     }
 
     @Override
-    public void disableToggledAbility(Player player, Ability ability) {
-        ResourceLocation key = AbilityRegistry.getKey(ability);
-        this.toggledAbilities.remove(key);
+    public void disableToggledAbility(LivingEntity entity, Ability ability) {
+        this.toggledAbilities.remove(ability);
 
-        if (ability instanceof Ability.Toggled toggled) {
+        if (ability instanceof Ability.IToggled toggled) {
             if (toggled.getDectivationSound() != null) {
-                player.level.playSound(null, player.blockPosition(),
+                entity.level.playSound(null, entity.blockPosition(),
                         toggled.getDectivationSound(), SoundSource.PLAYERS, 10.0F, 1.0F);
             }
 
-            if (ability.shouldLog()) {
-                player.sendSystemMessage(toggled.getDisableMessage());
+            if (ability.shouldLog(entity)) {
+                entity.sendSystemMessage(toggled.getDisableMessage());
             }
         }
+        this.updateSpecialAbilities();
     }
 
     @Override
     public boolean hasToggledAbility(Ability ability) {
-        ResourceLocation key = AbilityRegistry.getKey(ability);
-        return this.toggledAbilities.contains(key);
+        return this.toggledAbilities.contains(ability);
     }
 
     @Override
@@ -276,66 +271,70 @@ public class NinjaPlayer implements INinjaPlayer {
     }
 
     @Override
-    public void clearToggledDojutsus(Player player, Ability exclude) {
-        for (ResourceLocation key : this.toggledAbilities) {
-            Ability toggled = AbilityRegistry.getValue(key);
-
+    public void clearToggledDojutsus(LivingEntity entity, Ability exclude) {
+        for (Ability toggled : this.toggledAbilities) {
             if (toggled != exclude && toggled.isDojutsu()) {
-                this.disableToggledAbility(player, toggled);
+                this.disableToggledAbility(entity, toggled);
             }
         }
     }
 
-    private void updateToggledAbilities(Player player, LogicalSide side) {
-        Iterator<ResourceLocation> iter = this.toggledAbilities.iterator();
+    private void updateSpecialAbilities() {
+        this.specialAbilities.clear();
+
+        for (Ability toggled : this.toggledAbilities) {
+            if (toggled instanceof Ability.ISpecial special) {
+                this.specialAbilities.addAll(special.getSpecialAbilities());
+            }
+        }
+    }
+
+    @Override
+    public List<Ability> getSpecialAbilities() {
+        return this.specialAbilities;
+    }
+
+    private void updateToggledAbilities(LivingEntity entity, boolean isClientSide) {
+        Iterator<Ability> iter = this.toggledAbilities.iterator();
 
         while (iter.hasNext()) {
-            Ability toggled = AbilityRegistry.getValue(iter.next());
-
-            if (side == LogicalSide.SERVER) {
-                if (player instanceof ServerPlayer serverPlayer) {
-                    if (toggled.checkChakra(serverPlayer)) {
-                        iter.remove();
-                        PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(this.serializeNBT()), serverPlayer);
-                    }
-                    else {
-                        toggled.runServer(serverPlayer);
-                    }
+            Ability toggled = iter.next();
+            if (toggled.checkChakra(entity)) {
+                iter.remove();
+            } else {
+                if (isClientSide) {
+                    toggled.runClient(entity);
                 }
-            }
-            else {
-                if (player instanceof LocalPlayer localPlayer) {
-                    toggled.runClient(localPlayer);
+                else {
+                    toggled.runServer(entity);
                 }
             }
         }
     }
 
     @Override
-    public ResourceLocation getChanneledAbility() {
+    public Ability getChanneledAbility() {
         return this.channeledAbility;
     }
 
     @Override
-    public void setChanneledAbility(Player player, Ability ability) {
-        this.channeledAbility = AbilityRegistry.getKey(ability);
+    public void setChanneledAbility(LivingEntity entity, Ability ability) {
+        this.channeledAbility = ability;
 
-        if (ability instanceof Ability.Channeled channeled) {
-            player.level.playSound(null, player.blockPosition(),
+        if (this.channeledAbility instanceof Ability.IChanneled channeled) {
+            entity.level.playSound(null, entity.blockPosition(),
                     SoundRegistry.ABILITY_ACTIVATE.get(), SoundSource.PLAYERS, 10.0F, 1.0F);
 
-            if (ability.shouldLog()) {
-                player.sendSystemMessage(channeled.getStartMessage());
+            if (this.channeledAbility.shouldLog(entity)) {
+                entity.sendSystemMessage(channeled.getStartMessage());
             }
         }
     }
 
     @Override
-    public void stopChanneledAbility(Player player) {
-        Ability ability = AbilityRegistry.getValue(this.channeledAbility);
-
-        if (ability.shouldLog() && ability instanceof Ability.Channeled channeled) {
-            player.sendSystemMessage(channeled.getStopMessage());
+    public void stopChanneledAbility(LivingEntity entity) {
+        if (this.channeledAbility.shouldLog(entity) && this.channeledAbility instanceof Ability.IChanneled channeled) {
+            entity.sendSystemMessage(channeled.getStopMessage());
         }
         this.channeledAbility = null;
     }
@@ -345,23 +344,16 @@ public class NinjaPlayer implements INinjaPlayer {
         if (this.channeledAbility == null) {
             return false;
         }
-        ResourceLocation key = AbilityRegistry.getKey(ability);
-        return this.channeledAbility.equals(key);
+        return this.channeledAbility == ability;
     }
 
-    private void updateChanneledAbilities(Player player, LogicalSide side) {
-        Ability channeled = AbilityRegistry.getValue(this.channeledAbility);
-
-        if (channeled != null) {
-            if (side == LogicalSide.CLIENT) {
-                if (player instanceof LocalPlayer localPlayer) {
-                    channeled.runClient(localPlayer);
-                }
+    private void updateChanneledAbilities(LivingEntity entity, boolean isClientSide) {
+        if (this.channeledAbility != null) {
+            if (isClientSide) {
+                this.channeledAbility.runClient(entity);
             }
             else {
-                if (player instanceof ServerPlayer serverPlayer) {
-                    channeled.runServer(serverPlayer);
-                }
+                this.channeledAbility.runServer(entity);
             }
         }
     }
@@ -377,26 +369,33 @@ public class NinjaPlayer implements INinjaPlayer {
         nbt.putInt("sharingan_level", this.sharinganLevel);
 
         if (this.channeledAbility != null) {
-            nbt.putString("currently_channeled", this.channeledAbility.toString());
+            nbt.putString("channeled", AbilityRegistry.getKey(this.channeledAbility).toString());
         }
+
+        ListTag specialAbilitiesTag = new ListTag();
+
+        for (Ability ability : this.specialAbilities) {
+            specialAbilitiesTag.add(StringTag.valueOf(AbilityRegistry.getKey(ability).toString()));
+        }
+        nbt.put("special", specialAbilitiesTag);
 
         ListTag toggledAbilitiesTag = new ListTag();
 
-        for (var key : this.toggledAbilities) {
-            toggledAbilitiesTag.add(StringTag.valueOf(key.toString()));
+        for (Ability ability : this.toggledAbilities) {
+            toggledAbilitiesTag.add(StringTag.valueOf(AbilityRegistry.getKey(ability).toString()));
         }
-        nbt.put("currently_toggled", toggledAbilitiesTag);
+        nbt.put("toggled", toggledAbilitiesTag);
 
         ListTag unlockedAbilitiesTag = new ListTag();
 
-        for (var key : this.unlockedAbilities) {
-            unlockedAbilitiesTag.add(StringTag.valueOf(key.toString()));
+        for (Ability ability : this.unlockedAbilities) {
+            unlockedAbilitiesTag.add(StringTag.valueOf(AbilityRegistry.getKey(ability).toString()));
         }
         nbt.put("unlocked", unlockedAbilitiesTag);
 
         ListTag traitsTag = new ListTag();
 
-        for (var trait : this.traits) {
+        for (NinjaTrait trait : this.traits) {
             traitsTag.add(StringTag.valueOf(trait.name()));
         }
         nbt.put("traits", traitsTag);
@@ -413,27 +412,28 @@ public class NinjaPlayer implements INinjaPlayer {
         this.experience = nbt.getFloat("experience");
         this.sharinganLevel = nbt.getInt("sharingan_level");
 
-        this.channeledAbility = new ResourceLocation(nbt.getString("currently_channeled"));
+        if (nbt.contains("currently_channeled")) {
+            this.channeledAbility = AbilityRegistry.getValue(new ResourceLocation(nbt.getString("channeled")));
+        }
 
+        this.specialAbilities.clear();
         this.toggledAbilities.clear();
         this.traits.clear();
 
-        if (nbt.contains("currently_toggled")) {
-            for (var key : nbt.getList("currently_toggled", Tag.TAG_STRING)) {
-                this.toggledAbilities.add(new ResourceLocation(key.getAsString()));
-            }
+        for (Tag key : nbt.getList("special", Tag.TAG_STRING)) {
+            this.specialAbilities.add(AbilityRegistry.getValue(new ResourceLocation(key.getAsString())));
         }
 
-        if (nbt.contains("unlocked")) {
-            for (var key : nbt.getList("unlocked", Tag.TAG_STRING)) {
-                this.unlockedAbilities.add(new ResourceLocation(key.getAsString()));
-            }
+        for (Tag key : nbt.getList("toggled", Tag.TAG_STRING)) {
+            this.toggledAbilities.add(AbilityRegistry.getValue(new ResourceLocation(key.getAsString())));
         }
 
-        if (nbt.contains("traits")) {
-            for (var trait : nbt.getList("traits", Tag.TAG_STRING)) {
-                this.traits.add(NinjaTrait.valueOf(trait.getAsString()));
-            }
+        for (Tag key : nbt.getList("unlocked", Tag.TAG_STRING)) {
+            this.unlockedAbilities.add(AbilityRegistry.getValue(new ResourceLocation(key.getAsString())));
+        }
+
+        for (Tag trait : nbt.getList("traits", Tag.TAG_STRING)) {
+            this.traits.add(NinjaTrait.valueOf(trait.getAsString()));
         }
     }
 }

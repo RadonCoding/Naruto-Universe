@@ -1,24 +1,24 @@
-package radon.naruto_universe.ability.jutsu.fire_release;
+package radon.naruto_universe.ability.jutsu.fire;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.entity.FireballJutsuEntity;
+import radon.naruto_universe.client.particle.VaporParticle;
+import radon.naruto_universe.entity.ParticleSpawnerProjectile;
 import radon.naruto_universe.sound.SoundRegistry;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.Random;
 
-public class GreatFireball extends Ability {
+public class HidingInAsh extends Ability {
     @Override
     public List<NinjaTrait> getRequirements() {
         return List.of(NinjaTrait.FIRE_RELEASE);
@@ -31,7 +31,7 @@ public class GreatFireball extends Ability {
 
     @Override
     public long getCombo() {
-        return 123;
+        return 231;
     }
 
     @Override
@@ -41,13 +41,13 @@ public class GreatFireball extends Ability {
 
     @Override
     public AbilityDisplayInfo getDisplay() {
-        String iconPath = this.getId().getPath();
-        return new AbilityDisplayInfo(iconPath, 2.0F, 2.0F);
+        final String iconPath = this.getId().getPath();
+        return new AbilityDisplayInfo(iconPath, 4.0F, 2.0F);
     }
 
     @Override
     public Ability getParent() {
-        return AbilityRegistry.CHAKRA_CONTROL.get();
+        return AbilityRegistry.PHOENIX_SAGE_FIRE.get();
     }
 
     @Override
@@ -61,26 +61,30 @@ public class GreatFireball extends Ability {
 
     @Override
     public float getCost() {
-        return 25.0F;
+        return 15.0F;
     }
 
     @Override
-    public void runClient(LivingEntity owner) {
-
+    public float getDamage() {
+        return 1.0F;
     }
+
+    @Override
+    public void runClient(LivingEntity owner) {}
 
     @Override
     public void runServer(LivingEntity owner) {
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            owner.level.playSound(null, owner.blockPosition(), SoundRegistry.GREAT_FIREBALL.get(),
+            owner.level.playSound(null, owner.blockPosition(), SoundRegistry.HIDING_IN_ASH.get(),
                     SoundSource.PLAYERS, 1.0F, 1.0F);
 
             cap.delayTickEvent((playerClone) -> {
-                Vec3 look = playerClone.getLookAngle();
-                FireballJutsuEntity fireball = new FireballJutsuEntity(playerClone, look.x(), look.y(), look.z(), 0.5F, this.getPower(), 1.5F, 3.0F);
-                playerClone.level.addFreshEntity(fireball);
-                playerClone.level.playSound(null, playerClone.blockPosition(), SoundEvents.FIRECHARGE_USE,
-                        SoundSource.PLAYERS, 1.0F, 1.0F);
+                final Random rand = new Random();
+                final int lifetime = rand.nextInt(60, 120);
+
+                final Vec3 look = playerClone.getLookAngle();
+                final ParticleOptions particle = new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.SMOKE_COLOR, 10.0F, 0.75F, false, lifetime);
+                owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), NinjaTrait.FIRE_RELEASE, particle, lifetime, 1.0F));
             }, 20);
         });
     }

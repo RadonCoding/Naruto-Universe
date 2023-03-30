@@ -1,20 +1,16 @@
 package radon.naruto_universe.ability;
 
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.network.PacketHandler;
-import radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
 import radon.naruto_universe.sound.SoundRegistry;
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.player.Player;
 
 import java.util.Collections;
 import java.util.List;
@@ -35,8 +31,8 @@ public abstract class Ability {
         return false;
     }
 
-    public boolean shouldLog() {
-        return true;
+    public boolean shouldLog(LivingEntity owner) {
+        return owner.level.isClientSide;
     }
 
     public SoundEvent getActivationSound() {
@@ -48,6 +44,10 @@ public abstract class Ability {
     }
 
     public abstract NinjaRank getRank();
+
+    public float getDamage() {
+        return 0.0F;
+    }
 
     public ActivationType getActivationType() {
         return ActivationType.INSTANT;
@@ -95,32 +95,33 @@ public abstract class Ability {
     }
     public float getPower() { return this.power; }
 
-    public boolean checkChakra(ServerPlayer player) {
+    public boolean checkChakra(LivingEntity entity) {
         AtomicBoolean result = new AtomicBoolean(true);
 
-        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+        entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             float power = cap.getPower();
 
             this.power = power;
 
             if (this.getMinPower() > 0.0F && power < this.getMinPower()) {
-                player.sendSystemMessage(Component.translatable("ability.fail.not_enough_power"));
+                entity.sendSystemMessage(Component.translatable("ability.fail.not_enough_power"));
                 result.set(false);
                 return;
             }
 
-            if (player.getAbilities().instabuild) {
-                return;
+            if (entity instanceof Player player) {
+                if (player.getAbilities().instabuild) {
+                    return;
+                }
             }
 
             float cost = this.getMinPower() > 0.0F ? this.getCost() * power : this.getCost();
 
             if (cap.getChakra() < cost) {
-                player.sendSystemMessage(Component.translatable("ability.fail.not_enough_chakra"));
+                entity.sendSystemMessage(Component.translatable("ability.fail.not_enough_chakra"));
                 result.set(false);
             } else {
                 cap.useChakra(cost);
-                PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
             }
         });
         return !result.get();
@@ -147,7 +148,7 @@ public abstract class Ability {
 
     public ChatFormatting getChatColor() { return ChatFormatting.WHITE; }
 
-    public interface Channeled {
+    public interface IChanneled {
         default Component getStartMessage() {
             Ability ability = (Ability) this;
             ResourceLocation key = ability.getId();
@@ -161,7 +162,7 @@ public abstract class Ability {
         }
     }
 
-    public interface Toggled {
+    public interface IToggled {
         default Component getEnableMessage() {
             Ability ability = (Ability) this;
             ResourceLocation key = ability.getId();
@@ -181,5 +182,9 @@ public abstract class Ability {
         default SoundEvent getDectivationSound() {
             return null;
         }
+    }
+
+    public interface ISpecial {
+        List<Ability> getSpecialAbilities();
     }
 }

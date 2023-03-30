@@ -19,6 +19,8 @@ public class KeyRegistry {
             InputConstants.KEY_J);
     public static final KeyMapping SHOW_DOJUTSU_MENU = createKeyMapping("show_dojutsu_menu",
             InputConstants.KEY_Z);
+    public static final KeyMapping KEY_ACTIVATE_SPECIAL = createKeyMapping("activate_special",
+            InputConstants.KEY_G);
 
     private static KeyMapping createKeyMapping(String name, int keyCode) {
         return new KeyMapping(String.format("key.%s.%s", NarutoUniverse.MOD_ID, name), keyCode, KeyRegistry.KEY_CATEGORY_NARUTO_UNIVERSE);

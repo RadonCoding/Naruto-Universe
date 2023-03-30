@@ -10,57 +10,33 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.particle.VaporParticle;
 
-public class FireballJutsuEntity extends AbstractHurtingProjectile {
-    public static final float INITIAL_SCALE = 0.01F;
-    public static final float SCALAR = 1.0F - INITIAL_SCALE;
-    public static final float SCALE_TIME = 20.0F;
+public class FireballJutsuProjectile extends JutsuProjectile {
+    private static final EntityDataAccessor<Float> DATA_SIZE = SynchedEntityData.defineId(FireballJutsuProjectile.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Integer> DATA_TIME = SynchedEntityData.defineId(FireballJutsuProjectile.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Integer> DATA_LIFE = SynchedEntityData.defineId(FireballJutsuProjectile.class, EntityDataSerializers.INT);
 
-    private static final float BASE_DAMAGE = 10.0F;
-    private static final float BASE_EXPLOSION = 5.0F;
-
-    private static final EntityDataAccessor<Float> DATA_POWER = SynchedEntityData.defineId(FireballJutsuEntity.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Float> DATA_SIZE = SynchedEntityData.defineId(FireballJutsuEntity.class, EntityDataSerializers.FLOAT);
-    private static final EntityDataAccessor<Integer> DATA_TIME = SynchedEntityData.defineId(FireballJutsuEntity.class, EntityDataSerializers.INT);
-    private static final EntityDataAccessor<Integer> DATA_LIFE = SynchedEntityData.defineId(FireballJutsuEntity.class, EntityDataSerializers.INT);
-
-    public FireballJutsuEntity(EntityType<? extends FireballJutsuEntity> pEntityType, Level pLevel) {
-        super(pEntityType, pLevel);
+    public FireballJutsuProjectile(EntityType<? extends FireballJutsuProjectile> pEntityType, Level level) {
+        super(pEntityType, level);
     }
 
-    public FireballJutsuEntity(Player pShooter, double pOffsetX, double pOffsetY, double pOffsetZ, float pInaccuracy, float power, float size, float maxSize) {
-        super(EntityRegistry.FIREBALL_JUTSU.get(), pShooter, pOffsetX, pOffsetY, pOffsetZ, pShooter.level);
+    public FireballJutsuProjectile(LivingEntity pShooter, double pOffsetX, double pOffsetY, double pOffsetZ, float power, float damage, float size, float maxSize) {
+        super(EntityRegistry.FIREBALL_JUTSU.get(), pShooter, pOffsetX, pOffsetY, pOffsetZ, power, damage, NinjaTrait.FIRE_RELEASE);
 
-        this.entityData.set(DATA_POWER, power);
         this.entityData.set(DATA_SIZE, Math.min(maxSize, power * size));
-
-        this.moveTo(pShooter.getX(), pShooter.getEyeY() - 0.2D, pShooter.getZ(), this.getYRot(), this.getXRot());
-        this.reapplyPosition();
-
-        Vec3 movement = new Vec3(pOffsetX, pOffsetY, pOffsetZ).normalize().add(this.random.triangle(0.0D, 0.0172275D * 2.0D),
-                        this.random.triangle(0.0D, 0.0172275D * (double) pInaccuracy),
-                        this.random.triangle(0.0D, 0.0172275D * (double) pInaccuracy));
-        this.setDeltaMovement(movement);
-
-        double d0 = Math.sqrt(pOffsetX * pOffsetX + pOffsetY * pOffsetY + pOffsetZ * pOffsetZ);
-
-        if (d0 != 0.0D) {
-            this.xPower = pOffsetX / d0 * 0.2D;
-            this.yPower = pOffsetY / d0 * 0.2D;
-            this.zPower = pOffsetZ / d0 * 0.2D;
-        }
     }
 
     @Override
     protected void defineSynchedData() {
-        this.entityData.define(DATA_POWER, 0.0F);
+        super.defineSynchedData();
+
         this.entityData.define(DATA_SIZE, 0.0F);
         this.entityData.define(DATA_TIME, 0);
         this.entityData.define(DATA_LIFE, 60);
@@ -68,13 +44,7 @@ public class FireballJutsuEntity extends AbstractHurtingProjectile {
 
     @Override
     public @NotNull EntityDimensions getDimensions(@NotNull Pose pPose) {
-        float scale = Math.min(INITIAL_SCALE + (SCALAR - (SCALAR * ((SCALE_TIME - this.getTime()) / SCALE_TIME))), 1.0F);
-        return EntityDimensions.scalable(this.getSize(), this.getSize())
-                .scale(scale);
-    }
-
-    public float getPower() {
-        return this.entityData.get(DATA_POWER);
+        return EntityDimensions.fixed(this.getSize(), this.getSize());
     }
 
     public float getSize() {
@@ -101,17 +71,17 @@ public class FireballJutsuEntity extends AbstractHurtingProjectile {
     public void tick() {
         super.tick();
 
+        this.refreshDimensions();
+
         int time = this.getTime();
         this.setTime(++time);
-
-        this.refreshDimensions();
 
         int life = this.getLife();
 
         if (this.isInWaterOrRain()) {
             this.setLife(--life);
 
-            if (life-- % 5 == 0) {
+            if (life % 5 == 0) {
                 this.playSound(SoundEvents.FIRE_EXTINGUISH, 1F, 1.0F);
             }
         }
@@ -128,9 +98,9 @@ public class FireballJutsuEntity extends AbstractHurtingProjectile {
         }
 
         for (int i = 0; i < 6; i++) {
-            double offsetX = this.random.nextDouble() * (random.nextBoolean() ? -1 : 1);
-            double offsetY = (this.getBbHeight() / 2.0) + (this.random.nextDouble() * (random.nextBoolean() ? -1 : 1));
-            double offsetZ = this.random.nextDouble() * (random.nextBoolean() ? -1 : 1);
+            double offsetX = (this.random.nextDouble() * 0.5F) * (random.nextBoolean() ? -1 : 1);
+            double offsetY = (this.getBbHeight() / 2.0) + ((this.random.nextDouble() * 0.5F) * (random.nextBoolean() ? -1 : 1));
+            double offsetZ = (this.random.nextDouble() * 0.5F) * (random.nextBoolean() ? -1 : 1);
 
             this.level.addAlwaysVisibleParticle(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.FLAME_COLOR, this.getSize() * 2.0F, 0.25F,
                             true, this.random.nextInt(1, 20)), true, this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ,
@@ -152,9 +122,7 @@ public class FireballJutsuEntity extends AbstractHurtingProjectile {
         super.onHit(pResult);
 
         if (!this.level.isClientSide) {
-            float powerFactor = this.getPower() / 15.0F;
-            float sizeFactor = this.getSize() / 2.0F;
-            float explosion = BASE_EXPLOSION * sizeFactor * powerFactor;
+            float explosion = this.getSize() * this.getPower();
             this.level.explode(this, this.getX(), this.getY(), this.getZ(), explosion,
                     true, Level.ExplosionInteraction.MOB);
             this.discard();
@@ -169,8 +137,7 @@ public class FireballJutsuEntity extends AbstractHurtingProjectile {
             Entity owner = this.getOwner();
 
             if (owner != null) {
-                float sizeFactor = this.getSize() / 2.0F;
-                float damage = BASE_DAMAGE * this.getPower() * sizeFactor;
+                float damage = this.getDamage() * this.getPower() * this.getSize();
                 target.hurt(DamageSource.playerAttack((Player) owner), damage);
                 this.doEnchantDamageEffects((LivingEntity) owner, target);
             }

@@ -11,6 +11,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 // TODO: Come up with a system for special abilities that don't use hand signs
+// Potential idea: Display a wheel type thing in top right where the player can choose a ability using shift + scroll or arrow keys.
+// The wheel will display the next ability above and below as transparent so it's easier to see what's next. The abilities are triggered using the B key which will have the combo of -2 instead of -1 for X
 
 @Mod(NarutoUniverse.MOD_ID)
 public class NarutoUniverse {

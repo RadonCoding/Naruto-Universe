@@ -1,7 +1,10 @@
 package radon.naruto_universe.ability;
 
 import radon.naruto_universe.NarutoUniverse;
-import radon.naruto_universe.ability.jutsu.fire_release.*;
+import radon.naruto_universe.ability.jutsu.fire.*;
+import radon.naruto_universe.ability.special.Amaterasu;
+import radon.naruto_universe.ability.special.Genjutsu;
+import radon.naruto_universe.ability.special.Susanoo;
 import radon.naruto_universe.ability.utility.*;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaTrait;
@@ -45,6 +48,12 @@ public class AbilityRegistry {
             ABILITIES.register("sharingan", Sharingan::new);
     public static final RegistryObject<Ability> RINNEGAN =
             ABILITIES.register("rinnegan", Rinnegan::new);
+    public static final RegistryObject<Ability> GENJUTSU =
+            ABILITIES.register("genjutsu", Genjutsu::new);
+    public static final RegistryObject<Ability> AMATERASU =
+            ABILITIES.register("amaterasu", Amaterasu::new);
+    public static final RegistryObject<Ability> SUSANOO =
+            ABILITIES.register("susanoo", Susanoo::new);
 
     private static final HashMap<Long, ResourceLocation> COMBO_MAP = new HashMap<>();
 
@@ -111,7 +120,6 @@ public class AbilityRegistry {
 
         for (int digit : digits) {
             switch (digit) {
-                case -1 -> result.append((char) KeyRegistry.KEY_CHAKRA_JUMP.getKey().getValue());
                 case 1 -> result.append((char) KeyRegistry.KEY_HAND_SIGN_ONE.getKey().getValue());
                 case 2 -> result.append((char) KeyRegistry.KEY_HAND_SIGN_TWO.getKey().getValue());
                 case 3 -> result.append((char) KeyRegistry.KEY_HAND_SIGN_THREE.getKey().getValue());

@@ -9,7 +9,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
-public class ChakraBarOverlay{
+public class ChakraBarOverlay {
     public static final ResourceLocation TEXTURE = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/overlay/chakra_bar.png");
 
     public static final IGuiOverlay HUD_CHAKRA_BAR = (gui, poseStack, partialTicks, width, height) -> {

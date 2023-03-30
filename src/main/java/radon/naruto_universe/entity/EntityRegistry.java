@@ -19,9 +19,14 @@ import java.util.function.Function;
 public class EntityRegistry {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, NarutoUniverse.MOD_ID);
 
-    public static final RegistryObject<EntityType<FireballJutsuEntity>> FIREBALL_JUTSU = ENTITIES.register("fireball_jutsu", () ->
-            EntityType.Builder.<FireballJutsuEntity>of(FireballJutsuEntity::new, MobCategory.MISC)
+    public static final RegistryObject<EntityType<FireballJutsuProjectile>> FIREBALL_JUTSU = ENTITIES.register("fireball_jutsu", () ->
+            EntityType.Builder.<FireballJutsuProjectile>of(FireballJutsuProjectile::new, MobCategory.MISC)
                     .build(new ResourceLocation(NarutoUniverse.MOD_ID, "fireball_jutsu")
+                            .toString()));
+
+    public static final RegistryObject<EntityType<ParticleSpawnerProjectile>> PARTICLE_SPAWNER = ENTITIES.register("particle_spawner", () ->
+            EntityType.Builder.<ParticleSpawnerProjectile>of(ParticleSpawnerProjectile::new, MobCategory.MISC)
+                    .build(new ResourceLocation(NarutoUniverse.MOD_ID, "particle_spawner")
                             .toString()));
 
     public static final RegistryObject<EntityType<ThrownKunaiEntity>> THROWN_KUNAI = ENTITIES.register("thrown_kunai", () ->

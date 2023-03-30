@@ -34,6 +34,8 @@ public class ParticleRegistry {
             });
     public static final RegistryObject<SimpleParticleType> FLAME = PARTICLES.register("flame", () ->
             new SimpleParticleType(false));
+    public static final RegistryObject<SimpleParticleType> EMPTY = PARTICLES.register("empty", () ->
+            new SimpleParticleType(false));
 
     public static class ModRenderTypes {
         public static final ParticleRenderType GLOW = new ParticleRenderType() {
@@ -67,8 +69,6 @@ public class ParticleRegistry {
                 RenderSystem.depthMask(false);
                 RenderSystem.enableCull();
                 RenderSystem.enableDepthTest();
-                RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
-                        GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
                 RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
                 buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
             }

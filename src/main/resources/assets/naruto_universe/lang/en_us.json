@@ -5,7 +5,8 @@
   "key.naruto_universe.hand_sign_three": "Hand Sign Three",
   "key.naruto_universe.chakra_jump": "Chakra Jump",
   "key.naruto_universe.open_ninja_screen": "Open Ninja Screen",
-  "key.naruto_universe.show_dojutsu_screen": "Show Dojutsu Screen",
+  "key.naruto_universe.show_dojutsu_menu": "Show Dojutsu Menu",
+  "key.naruto_universe.activate_special": "Activate Special Ability",
 
   "sounds.naruto_universe.hand_sign": "Hand Sign",
   "sounds.naruto_universe.ability_activate": "Ability Activate",
@@ -52,6 +53,10 @@
   "naruto_universe:rinnegan.enable": "Activated rinnegan",
   "naruto_universe:rinnegan.disable": "Deactivated rinnegan",
 
+  "naruto_universe:genjutsu.name": "Genjutsu",
+  "naruto_universe:amaterasu.name": "Amaterasu",
+  "naruto_universe:susanoo.name": "Susanoo",
+
   "gui.ninja": "Ninja",
   "gui.tab.info": "Info",
   "gui.tab.ability": "Abilities",
@@ -84,5 +89,10 @@
   "chat_text.power": "Power: %.1f",
   "ability.fail.not_enough_power": "You need to charge more power",
 
-  "item_group.naruto_universe.tab": "Naruto Universe"
+  "item_group.naruto_universe.tab": "Naruto Universe",
+
+  "death.attack.kunai": "%1$s was stabbed by %2$s",
+  "death.attack.kunai.item": "%1$s was stabbed by %2$s with %3$s",
+
+  "death.attack.jutsu": "%1$s was killed by %2$s using jutsu"
 }

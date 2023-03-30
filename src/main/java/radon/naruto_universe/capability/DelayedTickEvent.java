@@ -1,14 +1,15 @@
 package radon.naruto_universe.capability;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
 
 import java.util.function.Consumer;
 
 public class DelayedTickEvent {
-    private final Consumer<ServerPlayer> task;
+    private final Consumer<LivingEntity> task;
     private int delay;
 
-    public DelayedTickEvent(Consumer<ServerPlayer> task, int delay) {
+    public DelayedTickEvent(Consumer<LivingEntity> task, int delay) {
         this.task = task;
         this.delay = delay;
     }
@@ -17,9 +18,9 @@ public class DelayedTickEvent {
         delay--;
     }
 
-    public boolean run(ServerPlayer player) {
+    public boolean run(LivingEntity entity) {
         if (delay <= 0) {
-            task.accept(player);
+            task.accept(entity);
             return true;
         }
         return false;

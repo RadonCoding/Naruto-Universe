@@ -1,10 +1,6 @@
 package radon.naruto_universe.ability.utility;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.sound.SoundRegistry;
@@ -12,14 +8,11 @@ import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.NinjaTrait;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 
-import java.util.Arrays;
 import java.util.List;
 
-public class Rinnegan extends Ability implements Ability.Toggled {
+public class Rinnegan extends Ability implements Ability.IToggled {
     @Override
     public boolean isDojutsu() {
         return true;

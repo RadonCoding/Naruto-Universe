@@ -38,7 +38,7 @@ public class UnlockAbilityC2SPacket {
                 Ability ability = AbilityRegistry.getValue(this.key);
 
                 if (ability.checkRequirements(player)) {
-                    cap.unlockAbility(this.key);
+                    cap.unlockAbility(ability);
                     PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
                 }
             });

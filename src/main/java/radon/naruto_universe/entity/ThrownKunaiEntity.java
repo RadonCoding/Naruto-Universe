@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
+import radon.naruto_universe.ModDamageSource;
 import radon.naruto_universe.item.ItemRegistry;
 import radon.naruto_universe.sound.SoundRegistry;
 
@@ -85,10 +86,10 @@ public class ThrownKunaiEntity extends AbstractArrow {
         }
 
         Entity owner = this.getOwner();
-        DamageSource damagesource = DamageSource.trident(this, owner == null ? this : owner);
+        DamageSource source = ModDamageSource.kunai(this, owner == null ? this : owner);
         this.dealtDamage = true;
 
-        if (target.hurt(damagesource, damage)) {
+        if (target.hurt(source, damage)) {
             if (target.getType() == EntityType.ENDERMAN) {
                 return;
             }

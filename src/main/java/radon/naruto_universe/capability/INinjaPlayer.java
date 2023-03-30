@@ -1,5 +1,6 @@
 package radon.naruto_universe.capability;
 
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.event.TickEvent;
 import radon.naruto_universe.ability.Ability;
 import net.minecraft.nbt.CompoundTag;
@@ -9,15 +10,16 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.INBTSerializable;
 import net.minecraftforge.fml.LogicalSide;
 
+import java.util.List;
 import java.util.function.Consumer;
 
 public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
-    void tick(Player player, LogicalSide side, TickEvent.Phase phase);
+    void tick(LivingEntity entity, boolean isClientSide);
 
     void generateShinobi(Player player);
     void setPowerResetTimer(int value);
 
-    void delayTickEvent(Consumer<ServerPlayer> task, int delay);
+    void delayTickEvent(Consumer<LivingEntity> task, int delay);
 
     int getSharinganLevel();
     void levelUpSharingan();
@@ -43,17 +45,18 @@ public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
     void addTrait(NinjaTrait trait);
     boolean hasTrait(NinjaTrait trait);
 
-    void unlockAbility(ResourceLocation key);
+    void unlockAbility(Ability key);
     boolean hasUnlockedAbility(Ability ability);
 
-    void enableToggledAbility(Player player, Ability ability);
-    void disableToggledAbility(Player player, Ability ability);
+    void enableToggledAbility(LivingEntity entity, Ability ability);
+    void disableToggledAbility(LivingEntity entity, Ability ability);
     boolean hasToggledAbility(Ability ability);
     void clearToggledAbilities();
-    void clearToggledDojutsus(Player player, Ability exclude);
+    void clearToggledDojutsus(LivingEntity entity, Ability exclude);
+    List<Ability> getSpecialAbilities();
     
-    ResourceLocation getChanneledAbility();
-    void setChanneledAbility(Player player, Ability ability);
-    void stopChanneledAbility(Player player);
+    Ability getChanneledAbility();
+    void setChanneledAbility(LivingEntity entity, Ability ability);
+    void stopChanneledAbility(LivingEntity entity);
     boolean isChannelingAbility(Ability ability);
 }

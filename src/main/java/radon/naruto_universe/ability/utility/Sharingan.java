@@ -1,24 +1,18 @@
 package radon.naruto_universe.ability.utility;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.client.particle.VaporParticle;
 import radon.naruto_universe.sound.SoundRegistry;
 
 import java.util.List;
-import java.util.Random;
 
-public class Sharingan extends Ability implements Ability.Toggled {
+public class Sharingan extends Ability implements Ability.IToggled, Ability.ISpecial {
     @Override
     public boolean isDojutsu() {
         return true;
@@ -78,5 +72,10 @@ public class Sharingan extends Ability implements Ability.Toggled {
     @Override
     public SoundEvent getDectivationSound() {
         return SoundRegistry.SHARINGAN_DEACTIVATE.get();
+    }
+
+    @Override
+    public List<Ability> getSpecialAbilities() {
+        return List.of(AbilityRegistry.GENJUTSU.get(), AbilityRegistry.AMATERASU.get(), AbilityRegistry.SUSANOO.get());
     }
 }

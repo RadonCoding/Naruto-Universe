@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.NinjaTrait;
+import radon.naruto_universe.client.KeyRegistry;
 import radon.naruto_universe.client.gui.tab.AbilityTab;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.UnlockAbilityC2SPacket;
@@ -85,7 +86,13 @@ public class AbilityWidget extends GuiComponent {
 
         if (this.ability.getCombo() != 0) {
             component.append(Component.literal("Combo: "));
-            component.append(AbilityRegistry.getStringFromCombo(this.ability.getCombo()));
+
+            if (this.ability == AbilityRegistry.CHAKRA_JUMP.get()) {
+                component.append(String.valueOf((char) KeyRegistry.KEY_CHAKRA_JUMP.getKey().getValue()));
+            }
+            else {
+                component.append(AbilityRegistry.getStringFromCombo(this.ability.getCombo()));
+            }
         }
 
         this.description = Language.getInstance().getVisualOrder(this.findOptimalLines(ComponentUtils.mergeStyles(component.copy(),

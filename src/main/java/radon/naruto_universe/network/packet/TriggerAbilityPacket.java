@@ -7,6 +7,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityRegistry;
@@ -29,6 +30,34 @@ public class TriggerAbilityPacket {
 
     public void encode(FriendlyByteBuf buf) {
         buf.writeResourceLocation(this.key);
+    }
+
+    private void setChanneledAbility(Player player, Ability ability) {
+        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            if (ability instanceof Ability.IChanneled) {
+                if (cap.getChanneledAbility() != ability) {
+                    cap.setChanneledAbility(player, ability);
+                } else {
+                    cap.stopChanneledAbility(player);
+                }
+            }
+        });
+    }
+
+    private void setToggledAbility(Player player, Ability ability) {
+        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            if (ability instanceof Ability.IToggled) {
+                if (!cap.hasToggledAbility(ability)) {
+                    cap.enableToggledAbility(player, ability);
+                } else {
+                    cap.disableToggledAbility(player, ability);
+                }
+
+                if (ability.isDojutsu()) {
+                    cap.clearToggledDojutsus(player, ability);
+                }
+            }
+        });
     }
 
     public void handle(Supplier<NetworkEvent.Context> supplier) {
@@ -64,10 +93,12 @@ public class TriggerAbilityPacket {
                 }
             });
 
+            LocalPlayer localPlayer = Minecraft.getInstance().player;
+
+            assert localPlayer != null;
             assert ability != null;
 
             if (ability.getActivationType() == Ability.ActivationType.INSTANT) {
-                LocalPlayer localPlayer = Minecraft.getInstance().player;
                 ability.runClient(localPlayer);
 
                 ctx.enqueueWork(() -> {
@@ -81,50 +112,30 @@ public class TriggerAbilityPacket {
                     if (sound != null) {
                         serverPlayer.level.playSound(null, serverPlayer.blockPosition(), sound, SoundSource.PLAYERS, 10.0F, 1.0F);
                     }
-
-                    if (ability.shouldLog()) {
-                        serverPlayer.sendSystemMessage(ability.getChatMessage());
-                    }
                 });
+
+                if (ability.shouldLog(localPlayer)) {
+                    localPlayer.sendSystemMessage(ability.getChatMessage());
+                }
             } else if (ability.getActivationType() == Ability.ActivationType.CHANNELED) {
+                this.setChanneledAbility(localPlayer, ability);
+
                 ctx.enqueueWork(() -> {
-                    ServerPlayer player = ctx.getSender();
+                    ServerPlayer serverPlayer = ctx.getSender();
 
-                    assert player != null;
+                    assert serverPlayer != null;
 
-                    player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                        ResourceLocation key = AbilityRegistry.getKey(ability);
-
-                        if (ability instanceof Ability.Channeled) {
-                            if (cap.getChanneledAbility() != key) {
-                                cap.setChanneledAbility(player, ability);
-                            } else {
-                                cap.stopChanneledAbility(player);
-                            }
-                        }
-                        PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
-                    });
+                    this.setChanneledAbility(serverPlayer, ability);
                 });
             } else if (ability.getActivationType() == Ability.ActivationType.TOGGLED) {
+                this.setToggledAbility(localPlayer, ability);
+
                 ctx.enqueueWork(() -> {
-                    ServerPlayer player = ctx.getSender();
+                    ServerPlayer serverPlayer = ctx.getSender();
 
-                    assert player != null;
+                    assert serverPlayer != null;
 
-                    player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                        if (ability instanceof Ability.Toggled) {
-                            if (!cap.hasToggledAbility(ability)) {
-                                cap.enableToggledAbility(player, ability);
-                            } else {
-                                cap.disableToggledAbility(player, ability);
-                            }
-
-                            if (ability.isDojutsu()) {
-                                cap.clearToggledDojutsus(player, ability);
-                            }
-                        }
-                        PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
-                    });
+                    this.setToggledAbility(serverPlayer, ability);
                 });
             }
         }
