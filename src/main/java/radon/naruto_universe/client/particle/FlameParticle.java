@@ -2,9 +2,7 @@ package radon.naruto_universe.client.particle;
 
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
 
 public class FlameParticle extends TextureSheetParticle {
@@ -23,7 +21,7 @@ public class FlameParticle extends TextureSheetParticle {
         this.gCol = 75.0F / 255.0F;
         this.bCol = 0.0F / 255.0F;
 
-        this.alpha = 1.0F - (this.random.nextFloat() - 0.5F);
+        this.alpha = 1.0F - (this.random.nextFloat() - 0.75F);
 
         this.quadSize = Math.max(1.5F, this.random.nextFloat() * 1.5F);
 
@@ -39,7 +37,7 @@ public class FlameParticle extends TextureSheetParticle {
 
     @Override
     public @NotNull ParticleRenderType getRenderType() {
-        return ParticleRegistry.ModRenderTypes.GLOW;
+        return NarutoParticles.ModRenderTypes.GLOW;
     }
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {

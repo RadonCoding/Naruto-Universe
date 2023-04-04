@@ -5,14 +5,14 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.client.particle.ParticleRegistry;
+import radon.naruto_universe.client.particle.NarutoParticles;
 import radon.naruto_universe.entity.ParticleSpawnerProjectile;
-import radon.naruto_universe.sound.SoundRegistry;
+import radon.naruto_universe.sound.NarutoSounds;
 
 import java.util.List;
 import java.util.Random;
@@ -29,11 +29,6 @@ public class GreatAnnihilation extends Ability {
     }
 
     @Override
-    public long getCombo() {
-        return 323;
-    }
-
-    @Override
     public NinjaTrait getRelease() {
         return NinjaTrait.FIRE_RELEASE;
     }
@@ -46,12 +41,7 @@ public class GreatAnnihilation extends Ability {
 
     @Override
     public Ability getParent() {
-        return AbilityRegistry.GREAT_FLAME.get();
-    }
-
-    @Override
-    public float getMinPower() {
-        return 0.1F;
+        return NarutoAbilities.GREAT_FLAME.get();
     }
 
     public ChatFormatting getChatColor() {
@@ -59,13 +49,18 @@ public class GreatAnnihilation extends Ability {
     }
 
     @Override
-    public float getCost() {
-        return 35.0F;
+    public float getDamage() {
+        return 5.0F;
     }
 
     @Override
-    public float getDamage() {
-        return 3.0F;
+    public float getCost() {
+        return 25.0F;
+    }
+
+    @Override
+    public boolean hasCombo() {
+        return true;
     }
 
     @Override
@@ -76,7 +71,7 @@ public class GreatAnnihilation extends Ability {
     @Override
     public void runServer(LivingEntity owner) {
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            owner.level.playSound(null, owner.blockPosition(), SoundRegistry.GREAT_ANNIHILATION.get(),
+            owner.level.playSound(null, owner.blockPosition(), NarutoSounds.GREAT_ANNIHILATION.get(),
                     SoundSource.PLAYERS, 1.0F, 1.0F);
 
             cap.delayTickEvent((playerClone) -> {
@@ -84,8 +79,9 @@ public class GreatAnnihilation extends Ability {
                 final int lifetime = rand.nextInt(60, 120);
 
                 final Vec3 look = playerClone.getLookAngle();
-                owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), NinjaTrait.FIRE_RELEASE, ParticleRegistry.FLAME.get(), lifetime, 2.5F));
-            }, 20);
+                owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(),
+                        NinjaTrait.FIRE_RELEASE, NarutoParticles.FLAME.get(), lifetime, 15.0F, 10.0F));
+            }, 2 * 20);
         });
     }
 }

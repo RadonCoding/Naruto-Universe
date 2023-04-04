@@ -10,7 +10,7 @@ import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.sound.SoundRegistry;
+import radon.naruto_universe.sound.NarutoSounds;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,7 +36,7 @@ public abstract class Ability {
     }
 
     public SoundEvent getActivationSound() {
-        return SoundRegistry.ABILITY_ACTIVATE.get();
+        return NarutoSounds.ABILITY_ACTIVATE.get();
     }
 
     public List<NinjaTrait> getRequirements() {
@@ -45,16 +45,8 @@ public abstract class Ability {
 
     public abstract NinjaRank getRank();
 
-    public float getDamage() {
-        return 0.0F;
-    }
-
     public ActivationType getActivationType() {
         return ActivationType.INSTANT;
-    }
-
-    public long getCombo() {
-        return 0;
     }
 
     public NinjaTrait getRelease() {
@@ -69,7 +61,7 @@ public abstract class Ability {
     }
 
     public boolean checkRequirements(Player player) {
-        if (player.getAbilities().instabuild || AbilityRegistry.checkRequirements(player, this)) {
+        if (player.getAbilities().instabuild || NarutoAbilities.checkRequirements(player, this)) {
             return true;
         }
         player.sendSystemMessage(Component.translatable("ability.fail.not_skilled_enough", this.getRank().getIdentifier()));
@@ -80,11 +72,11 @@ public abstract class Ability {
         if (player.getAbilities().instabuild) {
             return true;
         }
-        return AbilityRegistry.checkRequirements(player, this);
+        return NarutoAbilities.checkRequirements(player, this);
     }
 
     public boolean isUnlocked(Player player) {
-        return AbilityRegistry.isUnlocked(player, this);
+        return NarutoAbilities.isUnlocked(player, this);
     }
 
     public abstract AbilityDisplayInfo getDisplay();
@@ -127,13 +119,24 @@ public abstract class Ability {
         return !result.get();
     }
 
-    public abstract float getCost();
+
+    public float getDamage() {
+        return 0.0F;
+    }
+
+    public float getCost() {
+        return 0.0F;
+    }
 
     public abstract void runClient(LivingEntity owner);
     public abstract void runServer(LivingEntity owner);
 
+    public boolean hasCombo() {
+        return false;
+    }
+
     public ResourceLocation getId() {
-        return AbilityRegistry.getKey(this);
+        return NarutoAbilities.getKey(this);
     }
 
     public Component getName() {
@@ -176,7 +179,7 @@ public abstract class Ability {
         }
 
         default SoundEvent getActivationSound() {
-            return SoundRegistry.ABILITY_ACTIVATE.get();
+            return NarutoSounds.ABILITY_ACTIVATE.get();
         }
 
         default SoundEvent getDectivationSound() {

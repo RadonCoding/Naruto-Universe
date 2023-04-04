@@ -10,11 +10,14 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import radon.naruto_universe.ability.Ability;
+import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.client.particle.VaporParticle;
 
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChakraControl extends Ability implements Ability.IToggled {
     @Override
@@ -28,11 +31,6 @@ public class ChakraControl extends Ability implements Ability.IToggled {
     }
 
     @Override
-    public long getCombo() {
-        return 2;
-    }
-
-    @Override
     public boolean isUnlocked(Player player) {
         return true;
     }
@@ -40,12 +38,12 @@ public class ChakraControl extends Ability implements Ability.IToggled {
     @Override
     public AbilityDisplayInfo getDisplay() {
         String iconPath = this.getId().getPath();
-        return new AbilityDisplayInfo(iconPath, 0.0F, 0.0F);
+        return new AbilityDisplayInfo(iconPath, 2.0F, 0.0F);
     }
 
     @Override
     public Ability getParent() {
-        return null;
+        return NarutoAbilities.POWER_CHARGE.get();
     }
 
     @Override
@@ -58,9 +56,35 @@ public class ChakraControl extends Ability implements Ability.IToggled {
         return 0.001F;
     }
 
-    private boolean isFluid(Level level, BlockPos pos) {
+    @Override
+    public boolean hasCombo() {
+        return true;
+    }
+
+    private static boolean isFluid(Level level, BlockPos pos) {
         return level.getFluidState(pos).is(Fluids.WATER) ||
                 level.getFluidState(pos).is(Fluids.FLOWING_WATER);
+    }
+
+    public static boolean isWaterWalking(LivingEntity entity) {
+        if (entity.isShiftKeyDown()) return false;
+
+        AtomicBoolean result = new AtomicBoolean(false);
+        entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            if (cap.hasToggledAbility(NarutoAbilities.CHAKRA_CONTROL.get())) {
+                AABB bb = entity.getBoundingBox();
+                AABB feet = new AABB(
+                        bb.minX,
+                        bb.minY,
+                        bb.minZ,
+                        bb.maxX,
+                        bb.minY,
+                        bb.maxZ
+                );
+                result.set(isFluid(entity.level, new BlockPos(feet.minX, feet.minY - 0.1D, feet.minZ)));
+            }
+        });
+        return result.get();
     }
 
     private void checkWaterWalking(LivingEntity owner) {
@@ -87,16 +111,16 @@ public class ChakraControl extends Ability implements Ability.IToggled {
         Vec3 movement = owner.getDeltaMovement();
         double movementY = movement.y();
 
-        if (this.isFluid(owner.level, new BlockPos(ankles.maxX, ankles.maxY, ankles.maxZ))) {
+        if (isFluid(owner.level, new BlockPos(ankles.maxX, ankles.maxY, ankles.maxZ))) {
             movementY = 0.5D;
         }
-        else if (this.isFluid(owner.level, new BlockPos(ankles.minX, ankles.minY, ankles.minZ))) {
+        else if (isFluid(owner.level, new BlockPos(ankles.minX, ankles.minY, ankles.minZ))) {
             movementY = 0.25D;
         }
-        else if (movementY < 0.0D && this.isFluid(owner.level, new BlockPos(feet.minX, feet.minY, feet.minZ))) {
+        else if (movementY < 0.0D && isFluid(owner.level, new BlockPos(feet.minX, feet.minY, feet.minZ))) {
             movementY = 0.1D;
         }
-        else if (movementY < 0.0D && this.isFluid(owner.level, new BlockPos(feet.minX, feet.minY - 0.1D, feet.minZ))) {
+        else if (movementY < 0.0D && isFluid(owner.level, new BlockPos(feet.minX, feet.minY - 0.1D, feet.minZ))) {
             movementY = 0.0D;
         }
 
@@ -136,11 +160,11 @@ public class ChakraControl extends Ability implements Ability.IToggled {
 
         ServerLevel serverLevel = (ServerLevel) owner.getLevel();
 
-        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.25F, 0.75F, true, 2),
+        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.25F, 1.0F, true, 3),
                 owner.getX() + (random.nextGaussian() * 0.1D) + 0.15D, owner.getY(), owner.getZ() + random.nextGaussian() * 0.1D,
                 0, 0.0D, 0.23D, 0.0D, -0.1D);
 
-        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.25F, 0.75F, true, 2),
+        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.25F, 1.0F, true, 3),
                 owner.getX() + (random.nextGaussian() * 0.1D) - 0.15D, owner.getY(), owner.getZ() + random.nextGaussian() * 0.1D,
                 0, 0.0D, 0.23D, 0.0D, -0.1D);
     }

@@ -6,7 +6,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.CreativeModeTabEvent;
 import radon.naruto_universe.NarutoUniverse;
-import radon.naruto_universe.ability.AbilityRegistry;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.client.event.PlayerModelEvent;
 import radon.naruto_universe.client.gui.DojutsuScreen;
@@ -15,12 +15,12 @@ import radon.naruto_universe.client.layer.ModEyesLayer;
 import radon.naruto_universe.client.gui.overlay.ChakraBarOverlay;
 import radon.naruto_universe.client.model.ThrownKunaiModel;
 import radon.naruto_universe.client.particle.FlameParticle;
-import radon.naruto_universe.client.particle.ParticleRegistry;
+import radon.naruto_universe.client.particle.NarutoParticles;
 import radon.naruto_universe.client.render.FireballRenderer;
 import radon.naruto_universe.client.render.EmptyRenderer;
 import radon.naruto_universe.client.render.ThrownKunaiRenderer;
-import radon.naruto_universe.entity.EntityRegistry;
-import radon.naruto_universe.item.ItemRegistry;
+import radon.naruto_universe.entity.NarutoEntities;
+import radon.naruto_universe.item.NarutoItems;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.client.particle.VaporParticle;
 import net.minecraft.client.Minecraft;
@@ -42,7 +42,7 @@ import radon.naruto_universe.network.packet.TriggerAbilityPacket;
 public class ModClientEventHandler {
     @SubscribeEvent
     public static void onClientSetup(final FMLClientSetupEvent event) {
-        ItemProperties.register(ItemRegistry.KUNAI.get(), new ResourceLocation("throwing"),
+        ItemProperties.register(NarutoItems.KUNAI.get(), new ResourceLocation("throwing"),
                 (pStack,  pLevel, pEntity, pSeed) -> pEntity != null && pEntity.isUsingItem() && pEntity.getUseItem() == pStack ? 1.0F : 0.0F);
     }
 
@@ -52,10 +52,10 @@ public class ModClientEventHandler {
         public static void onCreativeTabRegister(final CreativeModeTabEvent.Register event) {
             event.registerCreativeModeTab(new ResourceLocation(NarutoUniverse.MOD_ID, "tab"), builder -> {
                 builder.title(Component.translatable(String.format("item_group.%s.%s", NarutoUniverse.MOD_ID, "tab")))
-                        .icon(() -> new ItemStack(ItemRegistry.KUNAI.get()))
+                        .icon(() -> new ItemStack(NarutoItems.KUNAI.get()))
                         .displayItems((pEnabledFeatures, pOutput, pDisplayOperatorCreativeTab) -> {
-                            pOutput.accept(new ItemStack(ItemRegistry.KUNAI.get()));
-                            pOutput.accept(new ItemStack(ItemRegistry.AKATSUKI_CLOAK.get()));
+                            pOutput.accept(new ItemStack(NarutoItems.KUNAI.get()));
+                            pOutput.accept(new ItemStack(NarutoItems.AKATSUKI_CLOAK.get()));
                         });
             });
         }
@@ -66,7 +66,7 @@ public class ModClientEventHandler {
             AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_HAND_SIGN_TWO, () -> AbilityHandler.handleAbilityKey(2));
             AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_HAND_SIGN_THREE, () -> AbilityHandler.handleAbilityKey(3));
             AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_CHAKRA_JUMP, () ->
-                PacketHandler.sendToServer(new TriggerAbilityPacket(AbilityRegistry.CHAKRA_JUMP.getId())));
+                PacketHandler.sendToServer(new TriggerAbilityPacket(NarutoAbilities.CHAKRA_JUMP.getId())));
             AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_ACTIVATE_SPECIAL, SpecialAbilityHandler::triggerSelectedAbility);
             KeyRegistry.register(event);
         }
@@ -79,15 +79,15 @@ public class ModClientEventHandler {
 
         @SubscribeEvent
         public static void onRegisterParticleProviders(final RegisterParticleProvidersEvent event) {
-            event.register(ParticleRegistry.VAPOR.get(), VaporParticle.Provider::new);
-            event.register(ParticleRegistry.FLAME.get(), FlameParticle.Provider::new);
+            event.register(NarutoParticles.VAPOR.get(), VaporParticle.Provider::new);
+            event.register(NarutoParticles.FLAME.get(), FlameParticle.Provider::new);
         }
 
         @SubscribeEvent
         public static void onRegisterRenderers(final EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(EntityRegistry.FIREBALL_JUTSU.get(), FireballRenderer::new);
-            event.registerEntityRenderer(EntityRegistry.THROWN_KUNAI.get(), ThrownKunaiRenderer::new);
-            event.registerEntityRenderer(EntityRegistry.PARTICLE_SPAWNER.get(), EmptyRenderer::new);
+            event.registerEntityRenderer(NarutoEntities.FIREBALL_JUTSU.get(), FireballRenderer::new);
+            event.registerEntityRenderer(NarutoEntities.THROWN_KUNAI.get(), ThrownKunaiRenderer::new);
+            event.registerEntityRenderer(NarutoEntities.PARTICLE_SPAWNER.get(), EmptyRenderer::new);
         }
 
         @SubscribeEvent
@@ -122,7 +122,7 @@ public class ModClientEventHandler {
         public static void onSetupPlayerAngles(PlayerModelEvent.SetupAngles.Post event) {
             LocalPlayer player = Minecraft.getInstance().player;
 
-            PlayerModel model = event.getModelPlayer();
+            PlayerModel<Player> model = event.getModelPlayer();
 
             assert player != null;
 
@@ -146,18 +146,18 @@ public class ModClientEventHandler {
                     model.leftArm.xRot = 1.6F;
                 }
 
-                model.rightLeg.z = 4.0F;
-                model.leftLeg.z = 4.0F;
-                model.rightLeg.y = 12.2F;
-                model.leftLeg.y = 12.2F;
                 model.head.y = 4.2F;
                 model.body.y = 3.2F;
                 model.rightArm.y = 5.2F;
                 model.leftArm.y = 5.2F;
+                model.rightLeg.y = 12.2F;
+                model.leftLeg.y = 12.2F;
+                model.rightLeg.z = 4.0F;
+                model.leftLeg.z = 4.0F;
             }
 
             player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                if (cap.isChannelingAbility(AbilityRegistry.POWER_CHARGE.get())) {
+                if (cap.isChannelingAbility(NarutoAbilities.POWER_CHARGE.get())) {
                     model.leftArm.xRot = -1.0F;
                     model.leftArm.yRot = 0.6F;
 

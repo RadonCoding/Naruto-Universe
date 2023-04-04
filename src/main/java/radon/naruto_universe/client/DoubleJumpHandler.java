@@ -2,6 +2,7 @@ package radon.naruto_universe.client;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.ParticleTypes;
+import radon.naruto_universe.ability.utility.ChakraControl;
 
 public class DoubleJumpHandler {
     private static boolean hasJumped = false;
@@ -16,7 +17,7 @@ public class DoubleJumpHandler {
     }
 
     public static void tick(LocalPlayer player) {
-        if (hasJumped && player.isOnGround()) {
+        if (hasJumped && (ChakraControl.isWaterWalking(player) || player.isOnGround())) {
             hasJumped = false;
         }
     }

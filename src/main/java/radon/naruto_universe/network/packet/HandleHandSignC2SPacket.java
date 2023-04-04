@@ -1,7 +1,7 @@
 package radon.naruto_universe.network.packet;
 
 import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.sound.SoundRegistry;
+import radon.naruto_universe.sound.NarutoSounds;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -38,9 +38,9 @@ public class HandleHandSignC2SPacket {
             });
 
             SoundEvent sound = switch (this.handSign) {
-                case 1 -> SoundRegistry.HAND_SIGN_ONE.get();
-                case 2 -> SoundRegistry.HAND_SIGN_TWO.get();
-                case 3 -> SoundRegistry.HAND_SIGN_THREE.get();
+                case 1 -> NarutoSounds.HAND_SIGN_ONE.get();
+                case 2 -> NarutoSounds.HAND_SIGN_TWO.get();
+                case 3 -> NarutoSounds.HAND_SIGN_THREE.get();
                 default -> null;
             };
 

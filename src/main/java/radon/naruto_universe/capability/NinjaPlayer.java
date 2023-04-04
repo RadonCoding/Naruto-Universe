@@ -1,12 +1,10 @@
 package radon.naruto_universe.capability;
 
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -16,8 +14,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.compress.utils.Lists;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
-import radon.naruto_universe.sound.SoundRegistry;
+import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.config.ConfigHolder;
+import radon.naruto_universe.sound.NarutoSounds;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -44,15 +43,6 @@ public class NinjaPlayer implements INinjaPlayer {
     // Used for checking if the player's experience has changed
     private float oldExperience;
 
-    public static final int POWER_RESET_TIME = 15;
-    public static final float CHAKRA_CHARGE_AMOUNT = 0.05F;
-    public static final float POWER_CHARGE_AMOUNT = 0.01F;
-    public static final float CHAKRA_MINIMUM = 100.0F;
-    public static final float CHAKRA_MULTIPLIER = 0.5F;
-    public static final float MINIMUM_ABILITY_POWER = 10.0F;
-
-    public static final double NINJA_SPEED_MULTIPLIER = 0.1D;
-
     private static final UUID MOVEMEMENT_SPEED_UUID = UUID.fromString("E8A3EE4A-B07F-48E4-A072-DAB79F4C35F1");
 
     public NinjaPlayer() {
@@ -71,7 +61,7 @@ public class NinjaPlayer implements INinjaPlayer {
         }
 
         if (this.power > 0.0F) {
-            if (this.powerResetTimer > POWER_RESET_TIME) {
+            if (this.powerResetTimer > ConfigHolder.SERVER.powerResetTime.get()) {
                 this.power = 0.0F;
                 this.powerResetTimer = 0;
             }
@@ -81,17 +71,17 @@ public class NinjaPlayer implements INinjaPlayer {
         Vec3 currentPlayerPos = entity.position();
 
         if (this.oldPlayerPos == currentPlayerPos) {
-            this.addChakra(Math.max(CHAKRA_CHARGE_AMOUNT, this.getRank().ordinal() * CHAKRA_CHARGE_AMOUNT));
+            this.addChakra(this.getRank().ordinal() * ConfigHolder.SERVER.chakraRegenAmount.get());
         } else {
             this.oldPlayerPos = currentPlayerPos;
         }
-
         this.updateNinjaStats(entity);
     }
 
     private void updateNinjaStats(LivingEntity entity) {
         AttributeInstance speedAttr = entity.getAttribute(Attributes.MOVEMENT_SPEED);
-        AttributeModifier speedModifier = new AttributeModifier(MOVEMEMENT_SPEED_UUID, "Movement speed", Math.max(1, this.getRank().ordinal()) * NINJA_SPEED_MULTIPLIER, AttributeModifier.Operation.ADDITION);
+        AttributeModifier speedModifier = new AttributeModifier(MOVEMEMENT_SPEED_UUID, "Movement speed",
+                this.getRank().ordinal() * ConfigHolder.SERVER.ninjaSpeed.get(), AttributeModifier.Operation.ADDITION);
 
         if (this.oldExperience != this.experience) {
             this.oldExperience = this.experience;
@@ -154,7 +144,7 @@ public class NinjaPlayer implements INinjaPlayer {
 
     @Override
     public float getMaxPower() {
-        return Math.max(MINIMUM_ABILITY_POWER, this.getRank().getExperience() / 100.0F);
+        return (float) Math.min(ConfigHolder.SERVER.maximumPower.get(), Math.max(ConfigHolder.SERVER.minimumPower.get(), this.experience / 100.0F));
     }
 
     @Override
@@ -180,7 +170,7 @@ public class NinjaPlayer implements INinjaPlayer {
 
     @Override
     public float getMaxChakra() {
-        return Math.max(CHAKRA_MINIMUM, this.experience * CHAKRA_MULTIPLIER);
+        return this.experience * ConfigHolder.SERVER.chakraMultiplier.get();
     }
 
     @Override
@@ -323,7 +313,7 @@ public class NinjaPlayer implements INinjaPlayer {
 
         if (this.channeledAbility instanceof Ability.IChanneled channeled) {
             entity.level.playSound(null, entity.blockPosition(),
-                    SoundRegistry.ABILITY_ACTIVATE.get(), SoundSource.PLAYERS, 10.0F, 1.0F);
+                    NarutoSounds.ABILITY_ACTIVATE.get(), SoundSource.PLAYERS, 10.0F, 1.0F);
 
             if (this.channeledAbility.shouldLog(entity)) {
                 entity.sendSystemMessage(channeled.getStartMessage());
@@ -369,27 +359,27 @@ public class NinjaPlayer implements INinjaPlayer {
         nbt.putInt("sharingan_level", this.sharinganLevel);
 
         if (this.channeledAbility != null) {
-            nbt.putString("channeled", AbilityRegistry.getKey(this.channeledAbility).toString());
+            nbt.putString("channeled", NarutoAbilities.getKey(this.channeledAbility).toString());
         }
 
         ListTag specialAbilitiesTag = new ListTag();
 
         for (Ability ability : this.specialAbilities) {
-            specialAbilitiesTag.add(StringTag.valueOf(AbilityRegistry.getKey(ability).toString()));
+            specialAbilitiesTag.add(StringTag.valueOf(NarutoAbilities.getKey(ability).toString()));
         }
         nbt.put("special", specialAbilitiesTag);
 
         ListTag toggledAbilitiesTag = new ListTag();
 
         for (Ability ability : this.toggledAbilities) {
-            toggledAbilitiesTag.add(StringTag.valueOf(AbilityRegistry.getKey(ability).toString()));
+            toggledAbilitiesTag.add(StringTag.valueOf(NarutoAbilities.getKey(ability).toString()));
         }
         nbt.put("toggled", toggledAbilitiesTag);
 
         ListTag unlockedAbilitiesTag = new ListTag();
 
         for (Ability ability : this.unlockedAbilities) {
-            unlockedAbilitiesTag.add(StringTag.valueOf(AbilityRegistry.getKey(ability).toString()));
+            unlockedAbilitiesTag.add(StringTag.valueOf(NarutoAbilities.getKey(ability).toString()));
         }
         nbt.put("unlocked", unlockedAbilitiesTag);
 
@@ -413,7 +403,7 @@ public class NinjaPlayer implements INinjaPlayer {
         this.sharinganLevel = nbt.getInt("sharingan_level");
 
         if (nbt.contains("currently_channeled")) {
-            this.channeledAbility = AbilityRegistry.getValue(new ResourceLocation(nbt.getString("channeled")));
+            this.channeledAbility = NarutoAbilities.getValue(new ResourceLocation(nbt.getString("channeled")));
         }
 
         this.specialAbilities.clear();
@@ -421,15 +411,15 @@ public class NinjaPlayer implements INinjaPlayer {
         this.traits.clear();
 
         for (Tag key : nbt.getList("special", Tag.TAG_STRING)) {
-            this.specialAbilities.add(AbilityRegistry.getValue(new ResourceLocation(key.getAsString())));
+            this.specialAbilities.add(NarutoAbilities.getValue(new ResourceLocation(key.getAsString())));
         }
 
         for (Tag key : nbt.getList("toggled", Tag.TAG_STRING)) {
-            this.toggledAbilities.add(AbilityRegistry.getValue(new ResourceLocation(key.getAsString())));
+            this.toggledAbilities.add(NarutoAbilities.getValue(new ResourceLocation(key.getAsString())));
         }
 
         for (Tag key : nbt.getList("unlocked", Tag.TAG_STRING)) {
-            this.unlockedAbilities.add(AbilityRegistry.getValue(new ResourceLocation(key.getAsString())));
+            this.unlockedAbilities.add(NarutoAbilities.getValue(new ResourceLocation(key.getAsString())));
         }
 
         for (Tag trait : nbt.getList("traits", Tag.TAG_STRING)) {

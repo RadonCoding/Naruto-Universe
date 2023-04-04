@@ -1,20 +1,17 @@
 package radon.naruto_universe;
 
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
-import radon.naruto_universe.ability.AbilityRegistry;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.INinjaPlayer;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
@@ -27,7 +24,6 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -37,14 +33,13 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import java.util.Random;
-import java.util.logging.Level;
 
 @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class ModEventHandler {
     @SubscribeEvent
     public static void onCommonSetup(final FMLCommonSetupEvent event) {
         PacketHandler.register();
-        AbilityRegistry.registerCombos();
+        NarutoAbilities.registerCombos();
     }
 
     @SubscribeEvent
@@ -161,7 +156,7 @@ public class ModEventHandler {
             final Entity entity = result.getEntity();
 
             entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                if (cap.hasToggledAbility(AbilityRegistry.SHARINGAN.get())) {
+                if (cap.hasToggledAbility(NarutoAbilities.SHARINGAN.get())) {
                     final Random rand = new Random();
 
                     if (entity.level instanceof ServerLevel serverLevel) {
@@ -201,7 +196,7 @@ public class ModEventHandler {
         LivingEntity entity = event.getEntity();
 
         entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            if (cap.hasToggledAbility(AbilityRegistry.SHARINGAN.get())) {
+            if (cap.hasToggledAbility(NarutoAbilities.SHARINGAN.get())) {
                 if (event.getSource().getEntity() instanceof LivingEntity attacker) {
                     if (attacker.swinging) {
                         final Random rand = new Random();

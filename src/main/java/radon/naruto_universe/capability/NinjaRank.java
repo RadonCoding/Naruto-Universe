@@ -22,7 +22,7 @@ public enum NinjaRank {
     }
 
     public float getExperience() {
-            return this.experience;
+        return this.experience;
     }
 
     public static NinjaRank getRank(float experience) {

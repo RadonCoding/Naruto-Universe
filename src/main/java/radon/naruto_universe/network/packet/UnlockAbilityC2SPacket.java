@@ -1,8 +1,8 @@
 package radon.naruto_universe.network.packet;
 
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -35,7 +35,7 @@ public class UnlockAbilityC2SPacket {
             assert player != null;
 
             player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                Ability ability = AbilityRegistry.getValue(this.key);
+                Ability ability = NarutoAbilities.getValue(this.key);
 
                 if (ability.checkRequirements(player)) {
                     cap.unlockAbility(ability);

@@ -4,11 +4,11 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.sound.SoundRegistry;
+import radon.naruto_universe.sound.NarutoSounds;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ public class Sharingan extends Ability implements Ability.IToggled, Ability.ISpe
 
     @Override
     public Ability getParent() {
-        return AbilityRegistry.POWER_CHARGE.get();
+        return NarutoAbilities.POWER_CHARGE.get();
     }
 
     @Override
@@ -66,16 +66,16 @@ public class Sharingan extends Ability implements Ability.IToggled, Ability.ISpe
 
     @Override
     public SoundEvent getActivationSound() {
-        return SoundRegistry.SHARINGAN_ACTIVATE.get();
+        return NarutoSounds.SHARINGAN_ACTIVATE.get();
     }
 
     @Override
     public SoundEvent getDectivationSound() {
-        return SoundRegistry.SHARINGAN_DEACTIVATE.get();
+        return NarutoSounds.SHARINGAN_DEACTIVATE.get();
     }
 
     @Override
     public List<Ability> getSpecialAbilities() {
-        return List.of(AbilityRegistry.GENJUTSU.get(), AbilityRegistry.AMATERASU.get(), AbilityRegistry.SUSANOO.get());
+        return List.of(NarutoAbilities.GENJUTSU.get(), NarutoAbilities.AMATERASU.get(), NarutoAbilities.SUSANOO.get());
     }
 }

@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.entity.ThrownKunaiEntity;
-import radon.naruto_universe.sound.SoundRegistry;
+import radon.naruto_universe.sound.NarutoSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -70,7 +70,7 @@ public class KunaiItem extends Item implements Vanishable {
                     }
 
                     pLevel.addFreshEntity(thrownKunai);
-                    pLevel.playSound(null, thrownKunai, SoundRegistry.KUNAI_THROW.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
+                    pLevel.playSound(null, thrownKunai, NarutoSounds.KUNAI_THROW.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
 
                     if (!player.getAbilities().instabuild) {
                         player.getInventory().removeItem(pStack);

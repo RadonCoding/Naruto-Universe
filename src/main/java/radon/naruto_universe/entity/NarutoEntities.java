@@ -16,7 +16,7 @@ import radon.naruto_universe.NarutoUniverse;
 
 import java.util.function.Function;
 
-public class EntityRegistry {
+public class NarutoEntities {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, NarutoUniverse.MOD_ID);
 
     public static final RegistryObject<EntityType<FireballJutsuProjectile>> FIREBALL_JUTSU = ENTITIES.register("fireball_jutsu", () ->

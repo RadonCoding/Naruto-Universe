@@ -6,7 +6,7 @@ import net.minecraftforge.fml.common.Mod;
 import radon.naruto_universe.NarutoUniverse;
 
 @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID)
-public class CommandRegistry {
+public class NarutoCommands {
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         SetRankCommand.register(event.getDispatcher());

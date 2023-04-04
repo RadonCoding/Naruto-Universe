@@ -1,11 +1,14 @@
 package radon.naruto_universe;
 
-import radon.naruto_universe.ability.AbilityRegistry;
+import net.minecraftforge.fml.ModLoadingContext;
+import net.minecraftforge.fml.config.ModConfig;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.client.ModClientEventHandler;
-import radon.naruto_universe.client.particle.ParticleRegistry;
-import radon.naruto_universe.entity.EntityRegistry;
-import radon.naruto_universe.item.ItemRegistry;
-import radon.naruto_universe.sound.SoundRegistry;
+import radon.naruto_universe.client.particle.NarutoParticles;
+import radon.naruto_universe.config.ConfigHolder;
+import radon.naruto_universe.entity.NarutoEntities;
+import radon.naruto_universe.item.NarutoItems;
+import radon.naruto_universe.sound.NarutoSounds;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -20,14 +23,18 @@ public class NarutoUniverse {
 
     public NarutoUniverse()
     {
+        final ModLoadingContext ctx = ModLoadingContext.get();
+        ctx.registerConfig(ModConfig.Type.CLIENT, ConfigHolder.CLIENT_SPEC);
+        ctx.registerConfig(ModConfig.Type.COMMON, ConfigHolder.SERVER_SPEC);
+
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        EntityRegistry.ENTITIES.register(bus);
-        SoundRegistry.SOUNDS.register(bus);
-        ParticleRegistry.PARTICLES.register(bus);
-        ItemRegistry.ITEMS.register(bus);
+        NarutoEntities.ENTITIES.register(bus);
+        NarutoSounds.SOUNDS.register(bus);
+        NarutoParticles.PARTICLES.register(bus);
+        NarutoItems.ITEMS.register(bus);
 
-        AbilityRegistry.ABILITIES.register(bus);
+        NarutoAbilities.ABILITIES.register(bus);
         bus.addListener(ModEventHandler::onCommonSetup);
         bus.addListener(ModClientEventHandler::onClientSetup);
     }

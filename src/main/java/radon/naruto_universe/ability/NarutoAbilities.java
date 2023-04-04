@@ -1,5 +1,6 @@
 package radon.naruto_universe.ability;
 
+import com.google.common.collect.Maps;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.jutsu.fire.*;
 import radon.naruto_universe.ability.special.Amaterasu;
@@ -17,32 +18,32 @@ import net.minecraftforge.registries.RegistryBuilder;
 import net.minecraftforge.registries.RegistryObject;
 import org.apache.commons.compress.utils.Lists;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class AbilityRegistry {
+public class NarutoAbilities {
     public static final DeferredRegister<Ability> ABILITIES = DeferredRegister.create(
             new ResourceLocation(NarutoUniverse.MOD_ID, "ability"), NarutoUniverse.MOD_ID);
     public static final Supplier<IForgeRegistry<Ability>> ABILITY_REGISTRY =
             ABILITIES.makeRegistry(RegistryBuilder::new);
 
-    public static final RegistryObject<Ability> CHAKRA_CONTROL =
-            ABILITIES.register("chakra_control", ChakraControl::new);
-    public static final RegistryObject<Ability> POWER_CHARGE =
+    public static final RegistryObject<PowerCharge> POWER_CHARGE =
             ABILITIES.register("power_charge", PowerCharge::new);
-    public static final RegistryObject<Ability> CHAKRA_JUMP =
+    public static final RegistryObject<ChakraControl> CHAKRA_CONTROL =
+            ABILITIES.register("chakra_control", ChakraControl::new);
+    public static final RegistryObject<ChakraJump> CHAKRA_JUMP =
             ABILITIES.register("chakra_jump", ChakraJump::new);
-    public static final RegistryObject<Ability> GREAT_FIREBALL =
+    public static final RegistryObject<GreatFireball> GREAT_FIREBALL =
             ABILITIES.register("great_fireball", GreatFireball::new);
-    public static final RegistryObject<Ability> PHOENIX_SAGE_FIRE =
+    public static final RegistryObject<PhoenixSageFire> PHOENIX_SAGE_FIRE =
             ABILITIES.register("phoenix_sage_fire", PhoenixSageFire::new);
-    public static final RegistryObject<Ability> HIDING_IN_ASH =
+    public static final RegistryObject<HidingInAsh> HIDING_IN_ASH =
             ABILITIES.register("hiding_in_ash", HidingInAsh::new);
-    public static final RegistryObject<Ability> GREAT_FLAME =
+    public static final RegistryObject<GreatFlame> GREAT_FLAME =
             ABILITIES.register("great_flame", GreatFlame::new);
-    public static final RegistryObject<Ability> GREAT_ANNIHILATION =
+    public static final RegistryObject<GreatAnnihilation> GREAT_ANNIHILATION =
             ABILITIES.register("great_annihilation", GreatAnnihilation::new);
     public static final RegistryObject<Ability> SHARINGAN =
             ABILITIES.register("sharingan", Sharingan::new);
@@ -55,13 +56,80 @@ public class AbilityRegistry {
     public static final RegistryObject<Ability> SUSANOO =
             ABILITIES.register("susanoo", Susanoo::new);
 
-    private static final HashMap<Long, ResourceLocation> COMBO_MAP = new HashMap<>();
+    private static final HashMap<Long, ResourceLocation> COMBO_MAP = Maps.newLinkedHashMap();
+
+    public static class ComboGenerator implements Iterator<Long> {
+        private final List<Long> elements;
+        private int[] currentIndices;
+
+        public ComboGenerator(List<Long> elements) {
+            this.elements = elements;
+            this.currentIndices = new int[elements.size()];
+            Arrays.fill(this.currentIndices, -1);
+            next();
+        }
+
+        @Override
+        public boolean hasNext() {
+            for (int i = 0; i < this.currentIndices.length; i++) {
+                if (this.currentIndices[i] < this.elements.size() - 1) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public Long next() {
+            long combo = 0;
+
+            for (int i = this.currentIndices.length - 1; i >= 0; i--) {
+                if (this.currentIndices[i] >= 0) {
+                    combo *= 10;
+                    combo += this.elements.get(this.currentIndices[i]);
+                }
+            }
+
+            for (int i = 0; i < this.currentIndices.length; i++) {
+                if (this.currentIndices[i] < this.elements.size() - 1) {
+                    this.currentIndices[i]++;
+                    break;
+                } else {
+                    this.currentIndices[i] = 0;
+                }
+            }
+            return combo;
+        }
+    }
+
 
     public static void registerCombos() {
-        for (RegistryObject<Ability> ability : ABILITIES.getEntries()) {
-            ABILITY_REGISTRY.get().getResourceKey(ability.get()).ifPresent(key ->
-                COMBO_MAP.put(ability.get().getCombo(), key.location()));
+        List<Long> keys = Arrays.asList(1L, 2L, 3L);
+        ComboGenerator gen = new ComboGenerator(keys);
+
+        for (RegistryObject<Ability> entry : ABILITIES.getEntries()) {
+            Ability ability = entry.get();
+
+            if (!ability.hasCombo()) {
+                continue;
+            }
+
+            assert entry.getKey() != null;
+
+            long nxt = gen.next();
+            System.out.println(nxt);
+
+            COMBO_MAP.put(nxt, entry.getKey().location());
         }
+    }
+
+    public static long getCombo(Ability ability) {
+        for (Map.Entry<Long, ResourceLocation> entry : COMBO_MAP.entrySet()) {
+            if (entry.getValue() == ability.getId()) {
+                return entry.getKey();
+            }
+        }
+        return 0;
     }
 
     public static Ability getAbility(long combo) {
@@ -129,11 +197,11 @@ public class AbilityRegistry {
     }
 
     public static ResourceLocation getKey(Ability ability) {
-        return AbilityRegistry.ABILITY_REGISTRY.get().getKey(ability);
+        return NarutoAbilities.ABILITY_REGISTRY.get().getKey(ability);
     }
 
     public static Ability getValue(ResourceLocation key) {
-        return AbilityRegistry.ABILITY_REGISTRY.get().getValue(key);
+        return NarutoAbilities.ABILITY_REGISTRY.get().getValue(key);
     }
 
     public static boolean isUnlocked(Player player, Ability ability) {

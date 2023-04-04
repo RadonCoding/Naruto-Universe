@@ -13,7 +13,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.particle.VaporParticle;
@@ -28,7 +27,7 @@ public class FireballJutsuProjectile extends JutsuProjectile {
     }
 
     public FireballJutsuProjectile(LivingEntity pShooter, double pOffsetX, double pOffsetY, double pOffsetZ, float power, float damage, float size, float maxSize) {
-        super(EntityRegistry.FIREBALL_JUTSU.get(), pShooter, pOffsetX, pOffsetY, pOffsetZ, power, damage, NinjaTrait.FIRE_RELEASE);
+        super(NarutoEntities.FIREBALL_JUTSU.get(), pShooter, pOffsetX, pOffsetY, pOffsetZ, power, damage, NinjaTrait.FIRE_RELEASE);
 
         this.entityData.set(DATA_SIZE, Math.min(maxSize, power * size));
     }

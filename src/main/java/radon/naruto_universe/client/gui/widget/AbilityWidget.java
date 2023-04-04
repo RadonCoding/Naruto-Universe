@@ -3,7 +3,7 @@ package radon.naruto_universe.client.gui.widget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.KeyRegistry;
 import radon.naruto_universe.client.gui.tab.AbilityTab;
@@ -84,14 +84,14 @@ public class AbilityWidget extends GuiComponent {
         component.append("\n");
         component.append("\n");
 
-        if (this.ability.getCombo() != 0) {
+        if (NarutoAbilities.getCombo(ability) != 0) {
             component.append(Component.literal("Combo: "));
 
-            if (this.ability == AbilityRegistry.CHAKRA_JUMP.get()) {
+            if (this.ability == NarutoAbilities.CHAKRA_JUMP.get()) {
                 component.append(String.valueOf((char) KeyRegistry.KEY_CHAKRA_JUMP.getKey().getValue()));
             }
             else {
-                component.append(AbilityRegistry.getStringFromCombo(this.ability.getCombo()));
+                component.append(NarutoAbilities.getStringFromCombo(NarutoAbilities.getCombo(ability)));
             }
         }
 
@@ -207,7 +207,7 @@ public class AbilityWidget extends GuiComponent {
         if (this.unlockable && !this.unlocked) {
             assert this.mc.player != null;
             this.mc.player.playSound(SoundEvents.PLAYER_LEVELUP, 1.0F, 1.0F);
-            PacketHandler.sendToServer(new UnlockAbilityC2SPacket(AbilityRegistry.getKey(this.ability)));
+            PacketHandler.sendToServer(new UnlockAbilityC2SPacket(NarutoAbilities.getKey(this.ability)));
             this.update();
         }
     }

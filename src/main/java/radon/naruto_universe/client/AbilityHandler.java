@@ -1,9 +1,9 @@
 package radon.naruto_universe.client;
 
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.HandleHandSignC2SPacket;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -93,7 +93,7 @@ public class AbilityHandler {
         ticksPassed = 0;
 
         LocalPlayer player = Minecraft.getInstance().player;
-        currentAbility = AbilityRegistry.getUnlockedAbility(player, currentCombo);
+        currentAbility = NarutoAbilities.getUnlockedAbility(player, currentCombo);
 
         PacketHandler.sendToServer(new HandleHandSignC2SPacket(i));
     }

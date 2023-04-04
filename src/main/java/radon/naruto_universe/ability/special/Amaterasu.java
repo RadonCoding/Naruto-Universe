@@ -22,11 +22,6 @@ public class Amaterasu extends Ability {
     }
 
     @Override
-    public float getCost() {
-        return 0;
-    }
-
-    @Override
     public void runClient(LivingEntity owner) {
 
     }

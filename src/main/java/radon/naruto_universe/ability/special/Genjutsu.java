@@ -22,11 +22,6 @@ public class Genjutsu extends Ability {
     }
 
     @Override
-    public float getCost() {
-        return 100.0F;
-    }
-
-    @Override
     public void runClient(LivingEntity owner) {
 
     }

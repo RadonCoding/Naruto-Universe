@@ -10,9 +10,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.network.NetworkEvent;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.network.PacketHandler;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -63,7 +62,7 @@ public class TriggerAbilityPacket {
     public void handle(Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
 
-        Ability ability = AbilityRegistry.getValue(this.key);
+        Ability ability = NarutoAbilities.getValue(this.key);
 
         AtomicBoolean canceled = new AtomicBoolean(false);
 

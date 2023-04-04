@@ -2,13 +2,13 @@ package radon.naruto_universe.ability.jutsu.fire;
 
 import net.minecraft.world.entity.LivingEntity;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.entity.FireballJutsuProjectile;
-import radon.naruto_universe.sound.SoundRegistry;
+import radon.naruto_universe.sound.NarutoSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -28,11 +28,6 @@ public class GreatFireball extends Ability {
     }
 
     @Override
-    public long getCombo() {
-        return 123;
-    }
-
-    @Override
     public NinjaTrait getRelease() {
         return NinjaTrait.FIRE_RELEASE;
     }
@@ -45,12 +40,7 @@ public class GreatFireball extends Ability {
 
     @Override
     public Ability getParent() {
-        return AbilityRegistry.CHAKRA_CONTROL.get();
-    }
-
-    @Override
-    public float getMinPower() {
-        return 0.1F;
+        return NarutoAbilities.POWER_CHARGE.get();
     }
 
     public ChatFormatting getChatColor() {
@@ -58,13 +48,18 @@ public class GreatFireball extends Ability {
     }
 
     @Override
-    public float getCost() {
-        return 25.0F;
+    public float getDamage() {
+        return 10.0F;
     }
 
     @Override
-    public float getDamage() {
-        return 5.0F;
+    public float getCost() {
+        return 15.0F;
+    }
+
+    @Override
+    public boolean hasCombo() {
+        return true;
     }
 
     @Override
@@ -75,7 +70,7 @@ public class GreatFireball extends Ability {
     @Override
     public void runServer(LivingEntity owner) {
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            owner.level.playSound(null, owner.blockPosition(), SoundRegistry.GREAT_FIREBALL.get(),
+            owner.level.playSound(null, owner.blockPosition(), NarutoSounds.GREAT_FIREBALL.get(),
                     SoundSource.PLAYERS, 1.0F, 1.0F);
 
             cap.delayTickEvent((playerClone) -> {

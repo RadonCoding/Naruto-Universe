@@ -1,11 +1,11 @@
 package radon.naruto_universe.ability.utility;
 
 import net.minecraft.world.entity.LivingEntity;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.sound.SoundRegistry;
+import radon.naruto_universe.sound.NarutoSounds;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
 import radon.naruto_universe.capability.NinjaTrait;
 import net.minecraft.ChatFormatting;
 import net.minecraft.sounds.SoundEvent;
@@ -46,12 +46,12 @@ public class Rinnegan extends Ability implements Ability.IToggled {
 
     @Override
     public Ability getParent() {
-        return AbilityRegistry.SHARINGAN.get();
+        return NarutoAbilities.SHARINGAN.get();
     }
 
     @Override
     public float getCost() {
-        return 0.025F;
+        return 0.05F;
     }
 
     @Override
@@ -66,7 +66,7 @@ public class Rinnegan extends Ability implements Ability.IToggled {
 
     @Override
     public SoundEvent getActivationSound() {
-        return SoundRegistry.RINNEGAN_ACTIVATE.get();
+        return NarutoSounds.RINNEGAN_ACTIVATE.get();
     }
 }
 

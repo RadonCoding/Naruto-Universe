@@ -7,7 +7,6 @@ import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
@@ -36,7 +35,7 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
 
         this.glow = options.glow();
 
-        this.quadSize = Math.max(options.scalar(), this.random.nextFloat() * options.scalar());
+        this.quadSize = Math.max(options.scalar(), (this.random.nextFloat() - 0.5F) * options.scalar());
 
         this.sprites = pSprites;
         this.setSprite(this.sprites.get(this.random));
@@ -51,7 +50,7 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
 
     @Override
     public @NotNull ParticleRenderType getRenderType() {
-        return this.glow ? ParticleRegistry.ModRenderTypes.GLOW : ParticleRegistry.ModRenderTypes.TRANSLUCENT;
+        return this.glow ? NarutoParticles.ModRenderTypes.GLOW : NarutoParticles.ModRenderTypes.TRANSLUCENT;
     }
 
     public record VaporParticleOptions(Vector3f color, float scalar, float opacity, boolean glow, int lifetime) implements ParticleOptions {
@@ -73,7 +72,7 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
 
         @Override
         public @NotNull ParticleType<?> getType() {
-            return ParticleRegistry.VAPOR.get();
+            return NarutoParticles.VAPOR.get();
         }
 
         public static Vector3f readColorVector3f(StringReader reader) throws CommandSyntaxException {

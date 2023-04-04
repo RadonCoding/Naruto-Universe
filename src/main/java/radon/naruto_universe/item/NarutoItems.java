@@ -13,7 +13,7 @@ import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.item.armor.AkatsukiCloakItem;
 import radon.naruto_universe.item.armor.ModArmorMaterial;
 
-public class ItemRegistry {
+public class NarutoItems {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, NarutoUniverse.MOD_ID);
 
     public static final RegistryObject<KunaiItem> KUNAI = ITEMS.register("kunai",

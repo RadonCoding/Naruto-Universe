@@ -8,7 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import org.apache.commons.compress.utils.Lists;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.TriggerAbilityPacket;
@@ -43,7 +43,7 @@ public class SpecialAbilityHandler {
         Ability ability = _abilities.get(selected);
 
         if (ability != null) {
-            PacketHandler.sendToServer(new TriggerAbilityPacket(AbilityRegistry.getKey(ability)));
+            PacketHandler.sendToServer(new TriggerAbilityPacket(NarutoAbilities.getKey(ability)));
         }
     }
 

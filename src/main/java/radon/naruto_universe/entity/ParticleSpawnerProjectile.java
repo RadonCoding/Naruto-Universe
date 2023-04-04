@@ -1,38 +1,36 @@
 package radon.naruto_universe.entity;
 
-import net.minecraft.client.renderer.debug.DebugRenderer;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.ModDamageSource;
 import radon.naruto_universe.capability.NinjaTrait;
-import radon.naruto_universe.client.particle.ParticleRegistry;
+import radon.naruto_universe.client.particle.NarutoParticles;
 
 public class ParticleSpawnerProjectile extends JutsuProjectile {
     private static final EntityDataAccessor<ParticleOptions> DATA_PARTICLE = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.PARTICLE);
     private static final EntityDataAccessor<Integer> DATA_LIFETIME = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_TICKS = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Float> DATA_RANGE = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> DATA_RADIUS = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.FLOAT);
 
     public ParticleSpawnerProjectile(EntityType<? extends ParticleSpawnerProjectile> pEntityType, Level level) {
         super(pEntityType, level);
     }
 
-    public ParticleSpawnerProjectile(LivingEntity pShooter, double pOffsetX, double pOffsetY, double pOffsetZ, float power, float damage, NinjaTrait release, ParticleOptions particle, int lifetime, float radius) {
-        super(EntityRegistry.PARTICLE_SPAWNER.get(), pShooter, pOffsetX, pOffsetY, pOffsetZ, power, damage, release);
-
-        this.setInvisible(true);
+    public ParticleSpawnerProjectile(LivingEntity pShooter, double pOffsetX, double pOffsetY, double pOffsetZ, float power, float damage, NinjaTrait release, ParticleOptions particle, int lifetime, float range, float radius) {
+        super(NarutoEntities.PARTICLE_SPAWNER.get(), pShooter, pOffsetX, pOffsetY, pOffsetZ, power, damage, release);
 
         this.entityData.set(DATA_PARTICLE, particle);
         this.entityData.set(DATA_LIFETIME, lifetime);
+        this.entityData.set(DATA_RANGE, range);
         this.entityData.set(DATA_RADIUS, radius);
     }
 
@@ -40,9 +38,10 @@ public class ParticleSpawnerProjectile extends JutsuProjectile {
     protected void defineSynchedData() {
         super.defineSynchedData();
 
-        this.entityData.define(DATA_PARTICLE, ParticleRegistry.EMPTY.get());
+        this.entityData.define(DATA_PARTICLE, NarutoParticles.EMPTY.get());
         this.entityData.define(DATA_LIFETIME, 0);
         this.entityData.define(DATA_TICKS, 0);
+        this.entityData.define(DATA_RANGE, 0.0F);
         this.entityData.define(DATA_RADIUS, 0.0F);
     }
 
@@ -66,8 +65,16 @@ public class ParticleSpawnerProjectile extends JutsuProjectile {
         return this.entityData.get(DATA_LIFETIME);
     }
 
+    private float getRange() {
+        return this.entityData.get(DATA_RANGE);
+    }
     private float getRadius() {
         return this.entityData.get(DATA_RADIUS);
+    }
+
+    @Override
+    public @NotNull EntityDimensions getDimensions(@NotNull Pose pPose) {
+        return EntityDimensions.fixed(0.0F, 0.0F);
     }
 
     @Override
@@ -81,8 +88,8 @@ public class ParticleSpawnerProjectile extends JutsuProjectile {
         }
 
         float f0 = 1.0F - (float) ticks / this.getLifetime();
-        float range = this.getPower() * f0;
-        float radius = this.getRadius() * (this.getPower() * 0.1F) * f0;
+        float range = Math.max(2.5F ,this.getRange() * (this.getPower() * 0.1F) * f0);
+        float radius = Math.max(1.25F, this.getRadius() * (this.getPower() * 0.1F) * f0);
 
         final Entity owner = this.getOwner();
 
@@ -91,35 +98,33 @@ public class ParticleSpawnerProjectile extends JutsuProjectile {
         Vec3 look = owner.getLookAngle();
         final double angle = Math.atan(radius / range) * 180.0D / Math.PI;
 
-        Vec3 direction = Vec3.directionFromRotation(owner.getXRot() + (float)((this.random.nextDouble() - 0.5D) * angle * 3.0D),
-                owner.getYRot() + (float)((this.random.nextDouble() - 0.5D) * angle * 3.0D)).scale(range * 0.1D);
-
-        Vec3 center = owner.position().add(direction.scale(range * 0.5));
-
-        // Calculate the corner points of the AABB
-        Vec3 corner1 = center.add(direction.scale(-range)).add(direction.cross(new Vec3(0, 1, 0)).normalize().scale(radius * 5.0F));
-        Vec3 corner2 = center.add(direction.scale(-range)).add(direction.cross(new Vec3(0, -1, 0)).normalize().scale(radius * 5.0F));
-        Vec3 corner3 = center.add(direction.scale(range)).add(direction.cross(new Vec3(0, -1, 0)).normalize().scale(radius * 5.0F));
-        Vec3 corner4 = center.add(direction.scale(range)).add(direction.cross(new Vec3(0, 1, 0)).normalize().scale(radius * 5.0F));
-
-        // Create the AABB using the corner points
-        AABB box = new AABB(corner1, corner2).expandTowards(corner3).expandTowards(corner4);
-
-        if (this.level.isClientSide) {
-            DebugRenderer.renderFilledBox(box, 1.0F, 1.0F, 1.0F, 0.5F);
-        }
+        AABB box = new AABB(owner.getX() - range, owner.getY() - radius, owner.getZ() - range, owner.getX() + range,
+                owner.getY() + radius, owner.getZ() + range);
 
         for (Entity entity : this.level.getEntities(null, box)) {
             if (entity instanceof LivingEntity) {
-                entity.hurt(ModDamageSource.jutsu(this, owner), this.getDamage());
+                Vec3 direction = entity.position().subtract(owner.position()).normalize();
+                double angleBetween = Math.toDegrees(Math.acos(look.dot(direction) / (look.length() * direction.length())));
+
+                if (angleBetween <= angle) {
+                    entity.hurt(ModDamageSource.jutsu(this, owner), this.getDamage());
+
+                    if (this.getRelease() == NinjaTrait.FIRE_RELEASE) {
+                        entity.setSecondsOnFire(Math.round(this.getPower()));
+                    }
+                }
             }
             this.onHitEntity(new EntityHitResult(entity));
         }
 
         for (int i = 0; i < range * radius; i++) {
-            this.level.addParticle(this.getParticle(), owner.getX() + look.x(), owner.getEyeY() - 0.2D + look.y(), owner.getZ() + look.z(),
-                    direction.x(), direction.y(), direction.z());
+            Vec3 direction = Vec3.directionFromRotation(owner.getXRot() + (float)((this.random.nextDouble() - 0.5D) * angle * 1.5D),
+                    owner.getYRot() + (float)((this.random.nextDouble() - 0.5D) * angle * 2.0D)).scale(range * 0.1D);
+            Vec3 pos = new Vec3(owner.getX() + look.x(), owner.getEyeY() - 0.2D + look.y(), owner.getZ() + look.z());
+            this.level.addParticle(this.getParticle(), pos.x(), pos.y(), pos.z(), direction.x(), direction.y(), direction.z());
         }
+
         this.setTicks(++ticks);
+        this.setDeltaMovement(Vec3.ZERO);
     }
 }

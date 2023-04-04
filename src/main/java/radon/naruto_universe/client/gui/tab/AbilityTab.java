@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.mojang.blaze3d.vertex.PoseStack;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.client.gui.NinjaScreen;
 import radon.naruto_universe.client.gui.widget.AbilityWidget;
 import net.minecraft.client.Minecraft;
@@ -37,7 +37,7 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
     public AbilityTab(NinjaScreen screen, Minecraft mc, int index) {
         super(screen, mc, TITLE, ICON, NinjaTabType.ABOVE, index);
 
-        for (RegistryObject<Ability> obj : AbilityRegistry.ABILITIES.getEntries()) {
+        for (RegistryObject<Ability> obj : NarutoAbilities.ABILITIES.getEntries()) {
             this.addAbility(obj.get());
         }
     }

@@ -13,7 +13,7 @@ import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import radon.naruto_universe.capability.NinjaTrait;
-import radon.naruto_universe.client.particle.ParticleRegistry;
+import radon.naruto_universe.client.particle.NarutoParticles;
 
 public class JutsuProjectile extends AbstractHurtingProjectile {
     private static final EntityDataAccessor<Float> DATA_POWER = SynchedEntityData.defineId(JutsuProjectile.class, EntityDataSerializers.FLOAT);
@@ -71,7 +71,7 @@ public class JutsuProjectile extends AbstractHurtingProjectile {
 
     @Override
     protected ParticleOptions getTrailParticle() {
-        return ParticleRegistry.EMPTY.get();
+        return NarutoParticles.EMPTY.get();
     }
 
     @Override

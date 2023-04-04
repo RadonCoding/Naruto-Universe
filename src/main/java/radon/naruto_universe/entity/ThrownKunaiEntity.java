@@ -16,13 +16,13 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.ModDamageSource;
-import radon.naruto_universe.item.ItemRegistry;
-import radon.naruto_universe.sound.SoundRegistry;
+import radon.naruto_universe.item.NarutoItems;
+import radon.naruto_universe.sound.NarutoSounds;
 
 import javax.annotation.Nullable;
 
 public class ThrownKunaiEntity extends AbstractArrow {
-    private ItemStack kunaiItem = new ItemStack(ItemRegistry.KUNAI.get());
+    private ItemStack kunaiItem = new ItemStack(NarutoItems.KUNAI.get());
     private boolean dealtDamage;
 
     public ThrownKunaiEntity(EntityType<? extends ThrownKunaiEntity> pEntityType, Level pLevel) {
@@ -30,7 +30,7 @@ public class ThrownKunaiEntity extends AbstractArrow {
     }
 
     public ThrownKunaiEntity(Level pLevel, LivingEntity pShooter, ItemStack pStack) {
-        super(EntityRegistry.THROWN_KUNAI.get(), pShooter, pLevel);
+        super(NarutoEntities.THROWN_KUNAI.get(), pShooter, pLevel);
         this.kunaiItem = pStack.copy();
     }
 
@@ -73,7 +73,7 @@ public class ThrownKunaiEntity extends AbstractArrow {
 
     @Override
     protected @NotNull SoundEvent getDefaultHitGroundSoundEvent() {
-        return SoundRegistry.KUNAI_HIT.get();
+        return NarutoSounds.KUNAI_HIT.get();
     }
 
     @Override
@@ -103,7 +103,7 @@ public class ThrownKunaiEntity extends AbstractArrow {
             }
         }
 
-        this.playSound(SoundRegistry.KUNAI_HIT.get(), 1.0F, 1.0F);
+        this.playSound(NarutoSounds.KUNAI_HIT.get(), 1.0F, 1.0F);
         this.discard();
     }
 

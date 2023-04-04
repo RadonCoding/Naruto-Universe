@@ -10,7 +10,7 @@ import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.AbilityRegistry;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.TriggerAbilityPacket;
@@ -34,7 +34,7 @@ public class DojutsuScreen extends Screen {
         super.init();
 
         assert this.minecraft != null;
-        this.abilities.addAll(AbilityRegistry.getDojutsuAbilities(this.minecraft.player));
+        this.abilities.addAll(NarutoAbilities.getDojutsuAbilities(this.minecraft.player));
 
         if (this.abilities.isEmpty()) {
             this.onClose();

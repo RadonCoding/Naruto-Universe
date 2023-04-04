@@ -9,9 +9,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.serialization.Codec;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
-import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -21,7 +19,7 @@ import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.NarutoUniverse;
 
-public class ParticleRegistry {
+public class NarutoParticles {
     public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES,
             NarutoUniverse.MOD_ID);
 
@@ -67,6 +65,7 @@ public class ParticleRegistry {
             @Override
             public void begin(BufferBuilder buffer, TextureManager manager) {
                 RenderSystem.depthMask(false);
+                RenderSystem.enableBlend();
                 RenderSystem.enableCull();
                 RenderSystem.enableDepthTest();
                 RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
@@ -78,6 +77,7 @@ public class ParticleRegistry {
                 tesselator.end();
                 RenderSystem.disableDepthTest();
                 RenderSystem.disableCull();
+                RenderSystem.enableBlend();
                 RenderSystem.depthMask(true);
             }
         };
