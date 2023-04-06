@@ -1,13 +1,14 @@
 package radon.naruto_universe.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.event.CreativeModeTabEvent;
 import radon.naruto_universe.NarutoUniverse;
+import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.client.event.PlayerModelEvent;
 import radon.naruto_universe.client.gui.DojutsuScreen;
 import radon.naruto_universe.client.gui.NinjaScreen;
@@ -27,7 +28,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
@@ -35,17 +35,9 @@ import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import radon.naruto_universe.network.packet.TriggerAbilityPacket;
+import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;
 
-@Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-public class ModClientEventHandler {
-    @SubscribeEvent
-    public static void onClientSetup(final FMLClientSetupEvent event) {
-        ItemProperties.register(NarutoItems.KUNAI.get(), new ResourceLocation("throwing"),
-                (pStack,  pLevel, pEntity, pSeed) -> pEntity != null && pEntity.isUsingItem() && pEntity.getUseItem() == pStack ? 1.0F : 0.0F);
-    }
-
+public class ClientEventHandler {
     @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ClientModEvents {
         @SubscribeEvent
@@ -62,12 +54,16 @@ public class ModClientEventHandler {
 
         @SubscribeEvent
         public static void onRegisterKeyMappings(final RegisterKeyMappingsEvent event) {
-            AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_HAND_SIGN_ONE, () -> AbilityHandler.handleAbilityKey(1));
-            AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_HAND_SIGN_TWO, () -> AbilityHandler.handleAbilityKey(2));
-            AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_HAND_SIGN_THREE, () -> AbilityHandler.handleAbilityKey(3));
-            AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_CHAKRA_JUMP, () ->
-                PacketHandler.sendToServer(new TriggerAbilityPacket(NarutoAbilities.CHAKRA_JUMP.getId())));
-            AbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_ACTIVATE_SPECIAL, SpecialAbilityHandler::triggerSelectedAbility);
+            ClientAbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_HAND_SIGN_ONE, () -> ClientAbilityHandler.handleAbilityKey(1));
+            ClientAbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_HAND_SIGN_TWO, () -> ClientAbilityHandler.handleAbilityKey(2));
+            ClientAbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_HAND_SIGN_THREE, () -> ClientAbilityHandler.handleAbilityKey(3));
+            ClientAbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_CHAKRA_JUMP, () -> {
+                Ability ability = NarutoAbilities.CHAKRA_JUMP.get();
+                PacketHandler.sendToServer(new TriggerAbilityC2SPacket(ability.getId()));
+                ClientAbilityHandler.triggerAbility(ability);
+            });
+            ClientAbilityHandler.registerKeyMapping(event, KeyRegistry.OPEN_NINJA_SCREEN, () -> Minecraft.getInstance().setScreen(new NinjaScreen()));
+            ClientAbilityHandler.registerKeyMapping(event, KeyRegistry.KEY_ACTIVATE_SPECIAL, SpecialAbilityHandler::triggerSelectedAbility);
             KeyRegistry.register(event);
         }
 
@@ -105,7 +101,7 @@ public class ModClientEventHandler {
         }
     }
 
-    @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, value = Dist.CLIENT)
+    @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     public static class ClientForgeEvents {
         @SubscribeEvent
         public static void onClientTick(final TickEvent.ClientTickEvent event) {
@@ -114,57 +110,22 @@ public class ModClientEventHandler {
 
             if (event.phase != TickEvent.Phase.START || player == null) return;
 
-            AbilityHandler.tick(player);
+            ClientAbilityHandler.tick(player);
             DoubleJumpHandler.tick(player);
         }
 
         @SubscribeEvent
         public static void onSetupPlayerAngles(PlayerModelEvent.SetupAngles.Post event) {
-            LocalPlayer player = Minecraft.getInstance().player;
+            AnimationHandler.animate(event.getEntity(), event.getModelPlayer());
+        }
 
-            PlayerModel<Player> model = event.getModelPlayer();
+        @SubscribeEvent
+        public static void onRenderLiving(final RenderLivingEvent.Pre<?, ?> event) {
+            LivingEntity entity = event.getEntity();
 
-            assert player != null;
-
-            if (player.isSprinting() && !player.isSwimming() && !player.getAbilities().flying) {
-                model.body.xRot = 0.5F;
-
-                boolean rotateLeftArm = true, rotateRightArm = true;
-
-                if (player.isUsingItem()) {
-                    rotateRightArm = player.getUsedItemHand() != InteractionHand.MAIN_HAND;
-                    rotateLeftArm = player.getUsedItemHand() != InteractionHand.OFF_HAND;
-                } else if (player.swinging) {
-                    rotateRightArm = player.swingingArm != InteractionHand.MAIN_HAND;
-                    rotateLeftArm = player.swingingArm != InteractionHand.OFF_HAND;
-                }
-
-                if (rotateRightArm) {
-                    model.rightArm.xRot = 1.6F;
-                }
-                if (rotateLeftArm) {
-                    model.leftArm.xRot = 1.6F;
-                }
-
-                model.head.y = 4.2F;
-                model.body.y = 3.2F;
-                model.rightArm.y = 5.2F;
-                model.leftArm.y = 5.2F;
-                model.rightLeg.y = 12.2F;
-                model.leftLeg.y = 12.2F;
-                model.rightLeg.z = 4.0F;
-                model.leftLeg.z = 4.0F;
+            if (event.getRenderer().getModel() instanceof HumanoidModel<?> model) {
+                AnimationHandler.animate(entity, model);
             }
-
-            player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                if (cap.isChannelingAbility(NarutoAbilities.POWER_CHARGE.get())) {
-                    model.leftArm.xRot = -1.0F;
-                    model.leftArm.yRot = 0.6F;
-
-                    model.rightArm.xRot = -1.0F;
-                    model.rightArm.yRot = -0.6F;
-                }
-            });
         }
 
         @SubscribeEvent
@@ -176,14 +137,20 @@ public class ModClientEventHandler {
                 DoubleJumpHandler.run(mc.player);
             }
 
-            if (KeyRegistry.OPEN_NINJA_SCREEN.isDown()) {
-                mc.setScreen(new NinjaScreen());
-            }
+            if (event.getAction() == InputConstants.PRESS) {
+                if (event.getKey() == InputConstants.KEY_UP) {
+                    SpecialAbilityHandler.scroll(1);
+                } else if (event.getKey() == InputConstants.KEY_DOWN) {
+                    SpecialAbilityHandler.scroll(-1);
+                }
 
-            if (event.getAction() == InputConstants.PRESS && KeyRegistry.SHOW_DOJUTSU_MENU.isDown()) {
-                mc.setScreen(new DojutsuScreen());
-            } else if (event.getKey() == KeyRegistry.SHOW_DOJUTSU_MENU.getKey().getValue() && event.getAction() == InputConstants.RELEASE && mc.screen instanceof DojutsuScreen) {
-                mc.screen.onClose();
+                if (KeyRegistry.SHOW_DOJUTSU_MENU.isDown()) {
+                    mc.setScreen(new DojutsuScreen());
+                }
+            } else if (event.getAction() == InputConstants.RELEASE) {
+                if (event.getKey() == KeyRegistry.SHOW_DOJUTSU_MENU.getKey().getValue() && mc.screen instanceof DojutsuScreen) {
+                    mc.screen.onClose();
+                }
             }
         }
     }

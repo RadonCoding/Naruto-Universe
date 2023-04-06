@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
+import radon.naruto_universe.client.NarutoRenderTypes;
 import radon.naruto_universe.entity.NarutoEntities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
@@ -19,11 +20,11 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 
 public class ModEyesLayer<T extends LivingEntity, M extends PlayerModel<T>> extends EyesLayer<T, M> {
-    private static final RenderType BACKGROUND = NarutoEntities.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/background.png"));
-    private static final RenderType SHARINGAN_ONE = NarutoEntities.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/sharingan_one.png"));
-    private static final RenderType SHARINGAN_TWO = NarutoEntities.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/sharingan_two.png"));
-    private static final RenderType SHARINGAN_THREE = NarutoEntities.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/sharingan_three.png"));
-    private static final RenderType RINNEGAN = NarutoEntities.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/rinnegan.png"));
+    private static final RenderType BACKGROUND = NarutoRenderTypes.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/background.png"));
+    private static final RenderType SHARINGAN_ONE = NarutoRenderTypes.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/sharingan_one.png"));
+    private static final RenderType SHARINGAN_TWO = NarutoRenderTypes.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/sharingan_two.png"));
+    private static final RenderType SHARINGAN_THREE = NarutoRenderTypes.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/sharingan_three.png"));
+    private static final RenderType RINNEGAN = NarutoRenderTypes.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/rinnegan.png"));
     //private static final RenderType SIX_TOMOE_RINNEGAN = EntityRegistry.ModRenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID, "textures/eyes/six_tomoe_rinnegan.png"));
 
     public ModEyesLayer(RenderLayerParent<T, M> pRenderer) {

@@ -13,13 +13,14 @@ import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import radon.naruto_universe.NarutoUniverse;
+import radon.naruto_universe.client.NarutoRenderTypes;
 import radon.naruto_universe.entity.NarutoEntities;
 import radon.naruto_universe.entity.FireballJutsuProjectile;
 import radon.naruto_universe.util.HelperMethods;
 
 public class FireballRenderer extends EntityRenderer<FireballJutsuProjectile> {
     private static final ResourceLocation TEXTURE = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/entity/fireball.png");
-    private static final RenderType RENDER_TYPE = NarutoEntities.ModRenderType.glow(TEXTURE);
+    private static final RenderType RENDER_TYPE = NarutoRenderTypes.glow(TEXTURE);
 
     public FireballRenderer(EntityRendererProvider.Context renderManager) {
         super(renderManager);

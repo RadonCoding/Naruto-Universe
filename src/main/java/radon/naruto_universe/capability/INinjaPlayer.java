@@ -1,14 +1,10 @@
 package radon.naruto_universe.capability;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraftforge.event.TickEvent;
 import radon.naruto_universe.ability.Ability;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.INBTSerializable;
-import net.minecraftforge.fml.LogicalSide;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -59,4 +55,7 @@ public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
     void setChanneledAbility(LivingEntity entity, Ability ability);
     void stopChanneledAbility(LivingEntity entity);
     boolean isChannelingAbility(Ability ability);
+
+    void setMovementSpeed(double movementSpeed);
+    double getMovementSpeed();
 }

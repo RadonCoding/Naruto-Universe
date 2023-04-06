@@ -12,8 +12,9 @@ import org.joml.Matrix4f;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
+import radon.naruto_universe.client.ClientAbilityHandler;
 import radon.naruto_universe.network.PacketHandler;
-import radon.naruto_universe.network.packet.TriggerAbilityPacket;
+import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;
 import radon.naruto_universe.util.HelperMethods;
 
 import java.util.List;
@@ -80,7 +81,8 @@ public class DojutsuScreen extends Screen {
     public void onClose() {
         if (this.hovered != -1) {
             Ability ability = this.abilities.get(this.hovered);
-            PacketHandler.sendToServer(new TriggerAbilityPacket(ability.getId()));
+            PacketHandler.sendToServer(new TriggerAbilityC2SPacket(ability.getId()));
+            ClientAbilityHandler.triggerAbility(ability);
         }
         super.onClose();
     }

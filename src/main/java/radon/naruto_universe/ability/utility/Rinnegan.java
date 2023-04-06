@@ -35,8 +35,7 @@ public class Rinnegan extends Ability implements Ability.IToggled {
 
     @Override
     public AbilityDisplayInfo getDisplay() {
-        String iconPath = this.getId().getPath();
-        return new AbilityDisplayInfo(iconPath, 7.0F, 0.0F);
+        return new AbilityDisplayInfo(this.getId().getPath(), 7.0F, 0.0F);
     }
 
     @Override

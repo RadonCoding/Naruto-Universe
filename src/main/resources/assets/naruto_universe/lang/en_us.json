@@ -57,6 +57,9 @@
   "naruto_universe:amaterasu.name": "Amaterasu",
   "naruto_universe:susanoo.name": "Susanoo",
 
+  "naruto_universe:lariat.name": "Lariat",
+  "naruto_universe:lariat.desc": "High speed melee attack which is triggered when the player is moving at a very fast speed and punches a entity.",
+
   "gui.ninja": "Ninja",
   "gui.tab.info": "Info",
   "gui.tab.ability": "Abilities",

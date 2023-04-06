@@ -73,5 +73,10 @@
     "sounds": [
       "naruto_universe:kunai_hit"
     ]
+  },
+  "lariat": {
+    "sounds": [
+      "naruto_universe:lariat"
+    ]
   }
 }

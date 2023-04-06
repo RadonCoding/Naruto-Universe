@@ -75,8 +75,8 @@ public abstract class Ability {
         return NarutoAbilities.checkRequirements(player, this);
     }
 
-    public boolean isUnlocked(Player player) {
-        return NarutoAbilities.isUnlocked(player, this);
+    public boolean isUnlocked(LivingEntity owner) {
+        return NarutoAbilities.isUnlocked(owner, this);
     }
 
     public abstract AbilityDisplayInfo getDisplay();
@@ -98,25 +98,21 @@ public abstract class Ability {
             if (this.getMinPower() > 0.0F && power < this.getMinPower()) {
                 entity.sendSystemMessage(Component.translatable("ability.fail.not_enough_power"));
                 result.set(false);
-                return;
             }
+            else {
+                if (!(entity instanceof Player player && player.getAbilities().instabuild)) {
+                    float cost = this.getMinPower() > 0.0F ? this.getCost() * power : this.getCost();
 
-            if (entity instanceof Player player) {
-                if (player.getAbilities().instabuild) {
-                    return;
+                    if (cap.getChakra() < cost) {
+                        entity.sendSystemMessage(Component.translatable("ability.fail.not_enough_chakra"));
+                        result.set(false);
+                    } else {
+                        cap.useChakra(cost);
+                    }
                 }
             }
-
-            float cost = this.getMinPower() > 0.0F ? this.getCost() * power : this.getCost();
-
-            if (cap.getChakra() < cost) {
-                entity.sendSystemMessage(Component.translatable("ability.fail.not_enough_chakra"));
-                result.set(false);
-            } else {
-                cap.useChakra(cost);
-            }
         });
-        return !result.get();
+        return result.get();
     }
 
 

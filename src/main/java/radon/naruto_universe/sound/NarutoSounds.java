@@ -69,4 +69,8 @@ public class NarutoSounds {
     public static final RegistryObject<SoundEvent> KUNAI_HIT =
             SOUNDS.register("kunai_hit", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
                     "kunai_hit")));
+
+    public static final RegistryObject<SoundEvent> LARIAT =
+            SOUNDS.register("lariat", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
+                    "lariat")));
 }

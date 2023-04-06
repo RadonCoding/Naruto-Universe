@@ -117,7 +117,7 @@ public class ParticleSpawnerProjectile extends JutsuProjectile {
             this.onHitEntity(new EntityHitResult(entity));
         }
 
-        for (int i = 0; i < range * radius; i++) {
+        for (int i = 0; i < (range * radius) * 0.5F; i++) {
             Vec3 direction = Vec3.directionFromRotation(owner.getXRot() + (float)((this.random.nextDouble() - 0.5D) * angle * 1.5D),
                     owner.getYRot() + (float)((this.random.nextDouble() - 0.5D) * angle * 2.0D)).scale(range * 0.1D);
             Vec3 pos = new Vec3(owner.getX() + look.x(), owner.getEyeY() - 0.2D + look.y(), owner.getZ() + look.z());

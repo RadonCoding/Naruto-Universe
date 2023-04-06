@@ -73,6 +73,9 @@ public class AbilityWidget extends GuiComponent {
         component.append(Component.literal("Requirements: "));
         component.append("\n");
 
+        component.append(this.ability.getRelease().getIdentifier());
+        component.append("\n");
+
         if (!requirements.isEmpty()) {
             for (NinjaTrait requirement : requirements) {
                 component.append(requirement.getIdentifier());

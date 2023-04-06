@@ -1,8 +1,10 @@
 package radon.naruto_universe.ability;
 
 import com.google.common.collect.Maps;
+import net.minecraft.world.entity.LivingEntity;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.jutsu.fire.*;
+import radon.naruto_universe.ability.jutsu.lightning.Lariat;
 import radon.naruto_universe.ability.special.Amaterasu;
 import radon.naruto_universe.ability.special.Genjutsu;
 import radon.naruto_universe.ability.special.Susanoo;
@@ -55,12 +57,14 @@ public class NarutoAbilities {
             ABILITIES.register("amaterasu", Amaterasu::new);
     public static final RegistryObject<Ability> SUSANOO =
             ABILITIES.register("susanoo", Susanoo::new);
+    public static final RegistryObject<Ability> LARIAT =
+            ABILITIES.register("lariat", Lariat::new);
 
     private static final HashMap<Long, ResourceLocation> COMBO_MAP = Maps.newLinkedHashMap();
 
     public static class ComboGenerator implements Iterator<Long> {
         private final List<Long> elements;
-        private int[] currentIndices;
+        private final int[] currentIndices;
 
         public ComboGenerator(List<Long> elements) {
             this.elements = elements;
@@ -71,8 +75,8 @@ public class NarutoAbilities {
 
         @Override
         public boolean hasNext() {
-            for (int i = 0; i < this.currentIndices.length; i++) {
-                if (this.currentIndices[i] < this.elements.size() - 1) {
+            for (int currentIndex : this.currentIndices) {
+                if (currentIndex < this.elements.size() - 1) {
                     return true;
                 }
             }
@@ -117,8 +121,6 @@ public class NarutoAbilities {
             assert entry.getKey() != null;
 
             long nxt = gen.next();
-            System.out.println(nxt);
-
             COMBO_MAP.put(nxt, entry.getKey().location());
         }
     }
@@ -172,6 +174,34 @@ public class NarutoAbilities {
         return result.get();
     }
 
+    public static void setChanneledAbility(LivingEntity owner, Ability ability) {
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            if (ability instanceof Ability.IChanneled) {
+                if (cap.getChanneledAbility() != ability) {
+                    cap.setChanneledAbility(owner, ability);
+                } else {
+                    cap.stopChanneledAbility(owner);
+                }
+            }
+        });
+    }
+
+    public static void setToggledAbility(LivingEntity owner, Ability ability) {
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            if (ability instanceof Ability.IToggled) {
+                if (!cap.hasToggledAbility(ability)) {
+                    cap.enableToggledAbility(owner, ability);
+                } else {
+                    cap.disableToggledAbility(owner, ability);
+                }
+
+                if (ability.isDojutsu()) {
+                    cap.clearToggledDojutsus(owner, ability);
+                }
+            }
+        });
+    }
+
     private static void collectDigits(long num, List<Integer> digits) {
         if (num / 10 > 0) {
             collectDigits(num / 10, digits);
@@ -204,10 +234,10 @@ public class NarutoAbilities {
         return NarutoAbilities.ABILITY_REGISTRY.get().getValue(key);
     }
 
-    public static boolean isUnlocked(Player player, Ability ability) {
+    public static boolean isUnlocked(LivingEntity owner, Ability ability) {
         AtomicBoolean result = new AtomicBoolean(false);
 
-        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             if (cap.hasUnlockedAbility(ability)) {
                 result.set(true);
             }

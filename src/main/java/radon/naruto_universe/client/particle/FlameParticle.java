@@ -4,6 +4,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
 import org.jetbrains.annotations.NotNull;
+import radon.naruto_universe.NarutoParticleRenderTypes;
 
 public class FlameParticle extends TextureSheetParticle {
     private final SpriteSet sprites;
@@ -21,7 +22,7 @@ public class FlameParticle extends TextureSheetParticle {
         this.gCol = 75.0F / 255.0F;
         this.bCol = 0.0F / 255.0F;
 
-        this.alpha = 1.0F - (this.random.nextFloat() - 0.75F);
+        this.alpha = 1.0F - (this.random.nextFloat() - 0.25F);
 
         this.quadSize = Math.max(1.5F, this.random.nextFloat() * 1.5F);
 
@@ -37,7 +38,7 @@ public class FlameParticle extends TextureSheetParticle {
 
     @Override
     public @NotNull ParticleRenderType getRenderType() {
-        return NarutoParticles.ModRenderTypes.GLOW;
+        return NarutoParticleRenderTypes.GLOW;
     }
 
     public static class Provider implements ParticleProvider<SimpleParticleType> {

@@ -7,10 +7,7 @@ import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 import radon.naruto_universe.NarutoUniverse;
-import radon.naruto_universe.network.packet.HandleHandSignC2SPacket;
-import radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
-import radon.naruto_universe.network.packet.TriggerAbilityPacket;
-import radon.naruto_universe.network.packet.UnlockAbilityC2SPacket;
+import radon.naruto_universe.network.packet.*;
 
 public class PacketHandler {
     private static SimpleChannel INSTANCE;
@@ -32,10 +29,10 @@ public class PacketHandler {
                 .encoder(HandleHandSignC2SPacket::encode)
                 .consumerMainThread(HandleHandSignC2SPacket::handle)
                 .add();
-        INSTANCE.messageBuilder(TriggerAbilityPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(TriggerAbilityPacket::new)
-                .encoder(TriggerAbilityPacket::encode)
-                .consumerMainThread(TriggerAbilityPacket::handle)
+        INSTANCE.messageBuilder(TriggerAbilityC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(TriggerAbilityC2SPacket::new)
+                .encoder(TriggerAbilityC2SPacket::encode)
+                .consumerMainThread(TriggerAbilityC2SPacket::handle)
                 .add();
         INSTANCE.messageBuilder(SyncNinjaPlayerS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(SyncNinjaPlayerS2CPacket::new)
@@ -46,6 +43,11 @@ public class PacketHandler {
                 .decoder(UnlockAbilityC2SPacket::new)
                 .encoder(UnlockAbilityC2SPacket::encode)
                 .consumerMainThread(UnlockAbilityC2SPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(SetMovementSpeedC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(SetMovementSpeedC2SPacket::new)
+                .encoder(SetMovementSpeedC2SPacket::encode)
+                .consumerMainThread(SetMovementSpeedC2SPacket::handle)
                 .add();
     }
 

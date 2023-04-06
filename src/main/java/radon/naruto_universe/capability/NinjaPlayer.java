@@ -15,7 +15,6 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.compress.utils.Lists;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.config.ConfigHolder;
 import radon.naruto_universe.sound.NarutoSounds;
 
 import java.util.ArrayList;
@@ -33,6 +32,9 @@ public class NinjaPlayer implements INinjaPlayer {
     private int sharinganLevel;
     private Vec3 oldPlayerPos;
 
+    // Used for storing the player's movement speed from client for some abilities
+    private double movementSpeed;
+
     private Ability channeledAbility;
     private final List<Ability> toggledAbilities = Lists.newArrayList();
     private final List<NinjaTrait> traits = Lists.newArrayList();
@@ -44,6 +46,13 @@ public class NinjaPlayer implements INinjaPlayer {
     private float oldExperience;
 
     private static final UUID MOVEMEMENT_SPEED_UUID = UUID.fromString("E8A3EE4A-B07F-48E4-A072-DAB79F4C35F1");
+    public static final int POWER_RESET_TIME = 20;
+    public static final float CHAKRA_REGEN_AMOUNT = 0.05F;
+    public static final float NINJA_SPEED = 0.1F;
+    public static final float POWER_AMOUNT = 10.0F;
+    public static final float MAX_POWER = 30.0F;
+    public static final float POWER_CHARGE_AMOUNT = 0.01F;
+    public static final float CHAKRA_AMOUNT = 100.0F;
 
     public NinjaPlayer() {
         this.power = 0.0F;
@@ -61,7 +70,7 @@ public class NinjaPlayer implements INinjaPlayer {
         }
 
         if (this.power > 0.0F) {
-            if (this.powerResetTimer > ConfigHolder.SERVER.powerResetTime.get()) {
+            if (this.powerResetTimer > POWER_RESET_TIME) {
                 this.power = 0.0F;
                 this.powerResetTimer = 0;
             }
@@ -71,7 +80,7 @@ public class NinjaPlayer implements INinjaPlayer {
         Vec3 currentPlayerPos = entity.position();
 
         if (this.oldPlayerPos == currentPlayerPos) {
-            this.addChakra(this.getRank().ordinal() * ConfigHolder.SERVER.chakraRegenAmount.get());
+            this.addChakra(Math.max(CHAKRA_REGEN_AMOUNT, this.getRank().ordinal() * CHAKRA_REGEN_AMOUNT));
         } else {
             this.oldPlayerPos = currentPlayerPos;
         }
@@ -81,7 +90,7 @@ public class NinjaPlayer implements INinjaPlayer {
     private void updateNinjaStats(LivingEntity entity) {
         AttributeInstance speedAttr = entity.getAttribute(Attributes.MOVEMENT_SPEED);
         AttributeModifier speedModifier = new AttributeModifier(MOVEMEMENT_SPEED_UUID, "Movement speed",
-                this.getRank().ordinal() * ConfigHolder.SERVER.ninjaSpeed.get(), AttributeModifier.Operation.ADDITION);
+                this.getRank().ordinal() * NINJA_SPEED, AttributeModifier.Operation.ADDITION);
 
         if (this.oldExperience != this.experience) {
             this.oldExperience = this.experience;
@@ -144,7 +153,7 @@ public class NinjaPlayer implements INinjaPlayer {
 
     @Override
     public float getMaxPower() {
-        return (float) Math.min(ConfigHolder.SERVER.maximumPower.get(), Math.max(ConfigHolder.SERVER.minimumPower.get(), this.experience / 100.0F));
+        return Math.min(MAX_POWER, Math.max(POWER_AMOUNT, this.experience / 100.0F));
     }
 
     @Override
@@ -170,7 +179,7 @@ public class NinjaPlayer implements INinjaPlayer {
 
     @Override
     public float getMaxChakra() {
-        return this.experience * ConfigHolder.SERVER.chakraMultiplier.get();
+        return Math.max(CHAKRA_AMOUNT, CHAKRA_AMOUNT * (this.experience / 100.0F));
     }
 
     @Override
@@ -262,11 +271,14 @@ public class NinjaPlayer implements INinjaPlayer {
 
     @Override
     public void clearToggledDojutsus(LivingEntity entity, Ability exclude) {
+        List<Ability> remove = Lists.newArrayList();
+
         for (Ability toggled : this.toggledAbilities) {
             if (toggled != exclude && toggled.isDojutsu()) {
-                this.disableToggledAbility(entity, toggled);
+                remove.add(toggled);
             }
         }
+        remove.forEach(x -> this.disableToggledAbility(entity, x));
     }
 
     private void updateSpecialAbilities() {
@@ -289,7 +301,7 @@ public class NinjaPlayer implements INinjaPlayer {
 
         while (iter.hasNext()) {
             Ability toggled = iter.next();
-            if (toggled.checkChakra(entity)) {
+            if (!toggled.checkChakra(entity)) {
                 iter.remove();
             } else {
                 if (isClientSide) {
@@ -335,6 +347,16 @@ public class NinjaPlayer implements INinjaPlayer {
             return false;
         }
         return this.channeledAbility == ability;
+    }
+
+    @Override
+    public void setMovementSpeed(double movementSpeed) {
+        this.movementSpeed = movementSpeed;
+    }
+
+    @Override
+    public double getMovementSpeed() {
+        return this.movementSpeed;
     }
 
     private void updateChanneledAbilities(LivingEntity entity, boolean isClientSide) {

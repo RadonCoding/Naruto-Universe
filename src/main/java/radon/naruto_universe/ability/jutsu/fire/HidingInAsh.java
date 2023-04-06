@@ -20,11 +20,6 @@ import java.util.Random;
 
 public class HidingInAsh extends Ability {
     @Override
-    public List<NinjaTrait> getRequirements() {
-        return List.of(NinjaTrait.FIRE_RELEASE);
-    }
-
-    @Override
     public NinjaRank getRank() {
         return NinjaRank.CHUNIN;
     }
@@ -37,7 +32,7 @@ public class HidingInAsh extends Ability {
     @Override
     public AbilityDisplayInfo getDisplay() {
         final String iconPath = this.getId().getPath();
-        return new AbilityDisplayInfo(iconPath, 4.0F, 2.0F);
+        return new AbilityDisplayInfo(this.getId().getPath(), 4.0F, 2.0F);
     }
 
     @Override
@@ -65,6 +60,11 @@ public class HidingInAsh extends Ability {
     }
 
     @Override
+    public float getMinPower() {
+        return 0.1F;
+    }
+
+    @Override
     public void runClient(LivingEntity owner) {}
 
     @Override
@@ -75,11 +75,11 @@ public class HidingInAsh extends Ability {
 
             cap.delayTickEvent((playerClone) -> {
                 final Random rand = new Random();
-                final int lifetime = rand.nextInt(60, 120);
+                final int lifetime = rand.nextInt(80, 120);
 
                 final Vec3 look = playerClone.getLookAngle();
                 final ParticleOptions particle = new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.SMOKE_COLOR, 10.0F, 1.0F, false, lifetime);
-                owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), NinjaTrait.FIRE_RELEASE, particle, lifetime, 7.5F, 10.0F));
+                owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), NinjaTrait.FIRE_RELEASE, particle, lifetime, 5.0F, 7.5F));
             }, 20);
         });
     }

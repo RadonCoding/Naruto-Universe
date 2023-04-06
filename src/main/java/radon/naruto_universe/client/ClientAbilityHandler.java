@@ -10,11 +10,11 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import org.apache.commons.compress.utils.Lists;
-import radon.naruto_universe.network.packet.TriggerAbilityPacket;
+import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;
 
 import java.util.List;
 
-public class AbilityHandler {
+public class ClientAbilityHandler {
     private static int ticksPassed;
     private static long currentCombo;
     private static final long MAX_COMBO_VALUE = 10 * 10; // Max 10 hand signs
@@ -49,7 +49,8 @@ public class AbilityHandler {
         if (possiblyChanneling) {
             if (lastKeyIsHeld && currentKey.currentTickCount() >= MAX_TICKS) {
                 if (!isCurrentlyChargingAbility) {
-                    PacketHandler.sendToServer(new TriggerAbilityPacket(currentAbility.getId()));
+                    PacketHandler.sendToServer(new TriggerAbilityC2SPacket(currentAbility.getId()));
+                    ClientAbilityHandler.triggerAbility(currentAbility);
                 }
                 isCurrentlyChargingAbility = true;
             } else if (!lastKeyIsHeld) {
@@ -57,7 +58,8 @@ public class AbilityHandler {
                 currentKey.consumeReleaseDuration();
 
                 if (isCurrentlyChargingAbility) {
-                    PacketHandler.sendToServer(new TriggerAbilityPacket(currentAbility.getId()));
+                    PacketHandler.sendToServer(new TriggerAbilityC2SPacket(currentAbility.getId()));
+                    ClientAbilityHandler.triggerAbility(currentAbility);
                     resetAbilityCasting();
                 }
                 else if (ticksPassed > MAX_TICKS) {
@@ -69,7 +71,8 @@ public class AbilityHandler {
         } else {
             if (ticksPassed > MAX_TICKS) {
                 if (currentAbility != null) {
-                    PacketHandler.sendToServer(new TriggerAbilityPacket(currentAbility.getId()));
+                    PacketHandler.sendToServer(new TriggerAbilityC2SPacket(currentAbility.getId()));
+                    ClientAbilityHandler.triggerAbility(currentAbility);
                 }
                 else {
                     player.sendSystemMessage(Component.translatable("ability.fail.not_found"));
@@ -114,5 +117,27 @@ public class AbilityHandler {
     public static void registerKeyMapping(RegisterKeyMappingsEvent event, KeyMapping key, Runnable onClick) {
         event.register(key);
         registerListener(key, onClick);
+    }
+
+    public static void triggerAbility(Ability ability) {
+        LocalPlayer owner = Minecraft.getInstance().player;
+
+        assert owner != null;
+
+        if (!ability.isUnlocked(owner) || !ability.checkChakra(owner)) {
+            return;
+        }
+
+        if (ability.getActivationType() == Ability.ActivationType.INSTANT) {
+            ability.runClient(owner);
+
+            if (ability.shouldLog(owner)) {
+                owner.sendSystemMessage(ability.getChatMessage());
+            }
+        } else if (ability.getActivationType() == Ability.ActivationType.CHANNELED) {
+            NarutoAbilities.setChanneledAbility(owner, ability);
+        } else if (ability.getActivationType() == Ability.ActivationType.TOGGLED) {
+            NarutoAbilities.setToggledAbility(owner, ability);
+        }
     }
 }

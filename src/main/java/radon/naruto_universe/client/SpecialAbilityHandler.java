@@ -11,7 +11,7 @@ import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.network.PacketHandler;
-import radon.naruto_universe.network.packet.TriggerAbilityPacket;
+import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;
 
 import java.util.List;
 
@@ -43,7 +43,8 @@ public class SpecialAbilityHandler {
         Ability ability = _abilities.get(selected);
 
         if (ability != null) {
-            PacketHandler.sendToServer(new TriggerAbilityPacket(NarutoAbilities.getKey(ability)));
+            PacketHandler.sendToServer(new TriggerAbilityC2SPacket(ability.getId()));
+            ClientAbilityHandler.triggerAbility(ability);
         }
     }
 

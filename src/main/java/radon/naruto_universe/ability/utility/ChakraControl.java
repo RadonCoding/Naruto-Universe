@@ -31,14 +31,13 @@ public class ChakraControl extends Ability implements Ability.IToggled {
     }
 
     @Override
-    public boolean isUnlocked(Player player) {
+    public boolean isUnlocked(LivingEntity owner) {
         return true;
     }
 
     @Override
     public AbilityDisplayInfo getDisplay() {
-        String iconPath = this.getId().getPath();
-        return new AbilityDisplayInfo(iconPath, 2.0F, 0.0F);
+        return new AbilityDisplayInfo(this.getId().getPath(), 2.0F, 0.0F);
     }
 
     @Override

@@ -18,11 +18,6 @@ import java.util.List;
 
 public class PhoenixSageFire extends Ability {
     @Override
-    public List<NinjaTrait> getRequirements() {
-        return List.of(NinjaTrait.FIRE_RELEASE);
-    }
-
-    @Override
     public NinjaRank getRank() {
         return NinjaRank.CHUNIN;
     }
@@ -34,8 +29,7 @@ public class PhoenixSageFire extends Ability {
 
     @Override
     public AbilityDisplayInfo getDisplay() {
-        String iconPath = this.getId().getPath();
-        return new AbilityDisplayInfo(iconPath, 3.0F, 2.0F);
+        return new AbilityDisplayInfo(this.getId().getPath(), 3.0F, 2.0F);
     }
 
     @Override
@@ -60,6 +54,11 @@ public class PhoenixSageFire extends Ability {
     @Override
     public boolean hasCombo() {
         return true;
+    }
+
+    @Override
+    public float getMinPower() {
+        return 0.1F;
     }
 
     @Override

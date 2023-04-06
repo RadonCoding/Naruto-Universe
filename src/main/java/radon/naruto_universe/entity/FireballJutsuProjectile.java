@@ -14,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.NotNull;
+import radon.naruto_universe.ModDamageSource;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.particle.VaporParticle;
 
@@ -121,7 +122,9 @@ public class FireballJutsuProjectile extends JutsuProjectile {
         super.onHit(pResult);
 
         if (!this.level.isClientSide) {
-            float explosion = this.getSize() * this.getPower();
+            float power = this.getPower() * 0.25F;
+            float size = this.getSize() * 0.75F;
+            float explosion = size * power;
             this.level.explode(this, this.getX(), this.getY(), this.getZ(), explosion,
                     true, Level.ExplosionInteraction.MOB);
             this.discard();
@@ -133,12 +136,14 @@ public class FireballJutsuProjectile extends JutsuProjectile {
 
         if (!this.level.isClientSide) {
             Entity target = pResult.getEntity();
-            Entity owner = this.getOwner();
+            LivingEntity owner = (LivingEntity) this.getOwner();
 
             if (owner != null) {
-                float damage = this.getDamage() * this.getPower() * this.getSize();
-                target.hurt(DamageSource.playerAttack((Player) owner), damage);
-                this.doEnchantDamageEffects((LivingEntity) owner, target);
+                float power = this.getPower() * 0.75F;
+                float size = this.getSize() * 0.5F;
+                float damage = this.getDamage() * power * size;
+                target.hurt(ModDamageSource.jutsu(owner, this), damage);
+                this.doEnchantDamageEffects(owner, target);
             }
         }
     }
