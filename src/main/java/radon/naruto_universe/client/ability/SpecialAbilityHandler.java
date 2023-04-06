@@ -1,4 +1,4 @@
-package radon.naruto_universe.client;
+package radon.naruto_universe.client.ability;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
@@ -8,7 +8,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import org.apache.commons.compress.utils.Lists;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;

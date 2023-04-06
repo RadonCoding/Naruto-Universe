@@ -1,13 +1,14 @@
 package radon.naruto_universe.ability;
 
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
+import radon.naruto_universe.capability.INinjaPlayer;
+import radon.naruto_universe.capability.NinjaPlayerHandler;
 
 public class AbilityHandler {
     public static void triggerAbility(LivingEntity owner, Ability ability) {
-        if (!ability.isUnlocked(owner) || !ability.checkChakra(owner)) {
+        if (!ability.isUnlocked(owner) || ability.checkChakra(owner) != Ability.FailStatus.SUCCESS) {
             return;
         }
 
@@ -23,6 +24,10 @@ public class AbilityHandler {
             NarutoAbilities.setChanneledAbility(owner, ability);
         } else if (ability.getActivationType() == Ability.ActivationType.TOGGLED) {
             NarutoAbilities.setToggledAbility(owner, ability);
+        }
+
+        if (ability.getMinPower() > 0.0F) {
+            owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(INinjaPlayer::resetPower);
         }
     }
 }

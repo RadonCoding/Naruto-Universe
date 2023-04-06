@@ -14,13 +14,19 @@ import radon.naruto_universe.sound.NarutoSounds;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class Ability {
     public enum ActivationType {
         INSTANT,
         TOGGLED,
         CHANNELED
+    }
+
+    public enum FailStatus {
+        SUCCESS,
+        NO_POWER,
+        NO_CHAKRA
     }
 
     // Used for storing the power that was used to activate the jutsu
@@ -87,25 +93,23 @@ public abstract class Ability {
     }
     public float getPower() { return this.power; }
 
-    public boolean checkChakra(LivingEntity entity) {
-        AtomicBoolean result = new AtomicBoolean(true);
+    public FailStatus checkChakra(LivingEntity entity) {
+        AtomicReference<FailStatus> result = new AtomicReference<>(FailStatus.SUCCESS);
 
         entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             float power = cap.getPower();
 
             this.power = power;
 
-            if (this.getMinPower() > 0.0F && power < this.getMinPower()) {
-                entity.sendSystemMessage(Component.translatable("ability.fail.not_enough_power"));
-                result.set(false);
+            if (this.getMinPower() > 0.0F && this.power < this.getMinPower()) {
+                result.set(FailStatus.NO_POWER);
             }
             else {
                 if (!(entity instanceof Player player && player.getAbilities().instabuild)) {
                     float cost = this.getMinPower() > 0.0F ? this.getCost() * power : this.getCost();
 
                     if (cap.getChakra() < cost) {
-                        entity.sendSystemMessage(Component.translatable("ability.fail.not_enough_chakra"));
-                        result.set(false);
+                        result.set(FailStatus.NO_CHAKRA);
                     } else {
                         cap.useChakra(cost);
                     }
@@ -114,7 +118,6 @@ public abstract class Ability {
         });
         return result.get();
     }
-
 
     public float getDamage() {
         return 0.0F;

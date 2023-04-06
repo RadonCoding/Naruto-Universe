@@ -75,11 +75,11 @@ public class HidingInAsh extends Ability {
 
             cap.delayTickEvent((playerClone) -> {
                 final Random rand = new Random();
-                final int lifetime = rand.nextInt(80, 120);
+                final int lifetime = rand.nextInt(60, 120);
 
                 final Vec3 look = playerClone.getLookAngle();
                 final ParticleOptions particle = new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.SMOKE_COLOR, 10.0F, 1.0F, false, lifetime);
-                owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), NinjaTrait.FIRE_RELEASE, particle, lifetime, 5.0F, 7.5F));
+                owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), NinjaTrait.FIRE_RELEASE, particle, lifetime, 10.0F, 7.5F));
             }, 20);
         });
     }

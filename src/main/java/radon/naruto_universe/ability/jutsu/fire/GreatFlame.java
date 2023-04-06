@@ -75,7 +75,7 @@ public class GreatFlame extends Ability {
 
             cap.delayTickEvent((playerClone) -> {
                 final Random rand = new Random();
-                final int lifetime = rand.nextInt(60, 120);
+                final int lifetime = rand.nextInt(30, 60);
 
                 final Vec3 look = playerClone.getLookAngle();
                 owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), NinjaTrait.FIRE_RELEASE, NarutoParticles.FLAME.get(), lifetime, 10.0F, 5.0F));

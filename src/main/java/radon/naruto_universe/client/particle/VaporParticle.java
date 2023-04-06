@@ -1,9 +1,7 @@
 package radon.naruto_universe.client.particle;
 
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.*;
@@ -12,7 +10,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
-import radon.naruto_universe.NarutoParticleRenderTypes;
 
 import java.util.Locale;
 

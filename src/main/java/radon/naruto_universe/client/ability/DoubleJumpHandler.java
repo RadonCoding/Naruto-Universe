@@ -1,4 +1,4 @@
-package radon.naruto_universe.client;
+package radon.naruto_universe.client.ability;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.particles.ParticleTypes;

@@ -106,50 +106,6 @@ public class Sharingan extends Ability implements Ability.IToggled, Ability.ISpe
         }
     }
 
-    @SubscribeEvent
-    public static void onLivingAttack(final LivingAttackEvent event) {
-        if (!event.getSource().msgId.equals("mob") && !event.getSource().msgId.equals("player")) {
-            return;
-        }
-
-        LivingEntity entity = event.getEntity();
-
-        if (event.getSource().getEntity() instanceof LivingEntity attacker) {
-            entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                if (cap.hasToggledAbility(NarutoAbilities.SHARINGAN.get())) {
-                    final Random rand = new Random();
-
-                    if (entity.level.isClientSide) {
-                        ServerLevel level = (ServerLevel) attacker.level;
-                        level.sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + (entity.getBbHeight() / 2.0F), entity.getZ(), 0,
-                                0.0D, 0.0D, 0.0D, 0.0D);
-                    }
-
-                    BlockPos pos = entity.blockPosition();
-                    double diffX = entity.getX() - pos.getX();
-                    double diffZ = entity.getZ() - pos.getZ();
-
-                    Vec3 movement = entity.getDeltaMovement();
-
-                    if (diffX <= 0.1D) {
-                        movement = new Vec3(rand.nextDouble(), 0.0D, movement.z());
-                    } else if (diffX >= 0.9D) {
-                        movement = new Vec3(-rand.nextDouble(), 0.0D, movement.z());
-                    } else if (diffZ <= 0.1D) {
-                        movement = new Vec3(movement.x(), 0.0D, rand.nextDouble());
-                    } else if (diffZ >= 0.9D) {
-                        movement = new Vec3(movement.x(), 0.0D, -rand.nextDouble());
-                    } else {
-                        movement = new Vec3(rand.nextDouble() * 2.0D - 1.0D, 0.0D, rand.nextDouble() * 2.0D - 1.0D);
-                    }
-
-                    entity.setDeltaMovement(movement);
-                    event.setCanceled(true);
-                }
-            });
-        }
-    }
-
     @Override
     public void runClient(LivingEntity owner) {
 

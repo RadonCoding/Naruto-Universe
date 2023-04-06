@@ -7,7 +7,6 @@ import net.minecraftforge.network.NetworkEvent;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.AbilityHandler;
 import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.client.ClientAbilityHandler;
 
 import java.util.function.Supplier;
 

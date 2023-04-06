@@ -87,15 +87,13 @@ public class AbilityWidget extends GuiComponent {
         component.append("\n");
         component.append("\n");
 
-        if (NarutoAbilities.getCombo(ability) != 0) {
+        if (this.ability == NarutoAbilities.CHAKRA_JUMP.get()) {
             component.append(Component.literal("Combo: "));
-
-            if (this.ability == NarutoAbilities.CHAKRA_JUMP.get()) {
-                component.append(String.valueOf((char) KeyRegistry.KEY_CHAKRA_JUMP.getKey().getValue()));
-            }
-            else {
-                component.append(NarutoAbilities.getStringFromCombo(NarutoAbilities.getCombo(ability)));
-            }
+            component.append(String.valueOf((char) KeyRegistry.KEY_CHAKRA_JUMP.getKey().getValue()));
+        }
+        else if (this.ability.hasCombo()) {
+            component.append(Component.literal("Combo: "));
+            component.append(NarutoAbilities.getStringFromCombo(NarutoAbilities.getCombo(ability)));
         }
 
         this.description = Language.getInstance().getVisualOrder(this.findOptimalLines(ComponentUtils.mergeStyles(component.copy(),

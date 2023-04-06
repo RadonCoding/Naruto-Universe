@@ -33,9 +33,7 @@ public class HandleHandSignC2SPacket {
 
             assert player != null;
 
-            player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                cap.setPowerResetTimer(0);
-            });
+            player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.setPowerResetTimer(0));
 
             SoundEvent sound = switch (this.handSign) {
                 case 1 -> NarutoSounds.HAND_SIGN_ONE.get();
@@ -49,8 +47,6 @@ public class HandleHandSignC2SPacket {
             player.level.playSound(null, player.blockPosition(),
                     sound, SoundSource.PLAYERS, 10.0F, 1.0F);
         });
-
         ctx.setPacketHandled(true);
-
     }
 }

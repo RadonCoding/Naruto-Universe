@@ -12,7 +12,7 @@ import org.joml.Matrix4f;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.client.ClientAbilityHandler;
+import radon.naruto_universe.client.ability.ClientAbilityHandler;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;
 import radon.naruto_universe.util.HelperMethods;

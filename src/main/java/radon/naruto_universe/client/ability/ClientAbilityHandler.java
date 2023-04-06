@@ -1,6 +1,9 @@
-package radon.naruto_universe.client;
+package radon.naruto_universe.client.ability;
 
 import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.capability.INinjaPlayer;
+import radon.naruto_universe.capability.NinjaPlayerHandler;
+import radon.naruto_universe.client.AbilityKeyMapping;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.HandleHandSignC2SPacket;
 import radon.naruto_universe.ability.Ability;
@@ -98,6 +101,10 @@ public class ClientAbilityHandler {
         LocalPlayer player = Minecraft.getInstance().player;
         currentAbility = NarutoAbilities.getUnlockedAbility(player, currentCombo);
 
+        assert player != null;
+
+        // Reset the power reset timer on client too
+        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.setPowerResetTimer(0));
         PacketHandler.sendToServer(new HandleHandSignC2SPacket(i));
     }
 
@@ -124,7 +131,15 @@ public class ClientAbilityHandler {
 
         assert owner != null;
 
-        if (!ability.isUnlocked(owner) || !ability.checkChakra(owner)) {
+        Ability.FailStatus status;
+
+        if (!ability.isUnlocked(owner)) {
+            return;
+        } else if ((status = ability.checkChakra(owner)) != Ability.FailStatus.SUCCESS) {
+            switch (status) {
+                case NO_CHAKRA -> owner.sendSystemMessage(Component.translatable("ability.fail.not_enough_chakra"));
+                case NO_POWER -> owner.sendSystemMessage(Component.translatable("ability.fail.not_enough_power"));
+            }
             return;
         }
 
@@ -138,6 +153,10 @@ public class ClientAbilityHandler {
             NarutoAbilities.setChanneledAbility(owner, ability);
         } else if (ability.getActivationType() == Ability.ActivationType.TOGGLED) {
             NarutoAbilities.setToggledAbility(owner, ability);
+        }
+
+        if (ability.getMinPower() > 0.0F) {
+            owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(INinjaPlayer::resetPower);
         }
     }
 }

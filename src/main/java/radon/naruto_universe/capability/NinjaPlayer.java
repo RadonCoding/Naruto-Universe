@@ -48,7 +48,7 @@ public class NinjaPlayer implements INinjaPlayer {
     private static final UUID MOVEMEMENT_SPEED_UUID = UUID.fromString("E8A3EE4A-B07F-48E4-A072-DAB79F4C35F1");
     public static final int POWER_RESET_TIME = 20;
     public static final float CHAKRA_REGEN_AMOUNT = 0.05F;
-    public static final float NINJA_SPEED = 0.1F;
+    public static final float NINJA_SPEED = 0.15F;
     public static final float POWER_AMOUNT = 10.0F;
     public static final float MAX_POWER = 30.0F;
     public static final float POWER_CHARGE_AMOUNT = 0.01F;
@@ -71,6 +71,12 @@ public class NinjaPlayer implements INinjaPlayer {
 
         if (this.power > 0.0F) {
             if (this.powerResetTimer > POWER_RESET_TIME) {
+                if (isClientSide) {
+                    System.out.println("RESETTING POWER ON CLIENT");
+                }
+                else {
+                    System.out.println("RESETTING POWER ON SERVER");
+                }
                 this.power = 0.0F;
                 this.powerResetTimer = 0;
             }
@@ -143,6 +149,11 @@ public class NinjaPlayer implements INinjaPlayer {
     @Override
     public float getPower() {
         return this.power;
+    }
+
+    @Override
+    public void resetPower() {
+        this.power = 0.0F;
     }
 
     @Override
@@ -301,7 +312,7 @@ public class NinjaPlayer implements INinjaPlayer {
 
         while (iter.hasNext()) {
             Ability toggled = iter.next();
-            if (!toggled.checkChakra(entity)) {
+            if (toggled.checkChakra(entity) != Ability.FailStatus.SUCCESS) {
                 iter.remove();
             } else {
                 if (isClientSide) {
@@ -375,7 +386,7 @@ public class NinjaPlayer implements INinjaPlayer {
         CompoundTag nbt = new CompoundTag();
         nbt.putLong("current_combo", this.currentCombo);
         nbt.putFloat("power", this.power);
-        nbt.putFloat("power_reset_timer", this.powerResetTimer);
+        nbt.putInt("power_reset_timer", this.powerResetTimer);
         nbt.putFloat("chakra", this.chakra);
         nbt.putFloat("experience", this.experience);
         nbt.putInt("sharingan_level", this.sharinganLevel);

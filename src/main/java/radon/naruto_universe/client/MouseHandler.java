@@ -6,6 +6,7 @@ import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import radon.naruto_universe.NarutoUniverse;
+import radon.naruto_universe.client.ability.SpecialAbilityHandler;
 
 @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class MouseHandler {

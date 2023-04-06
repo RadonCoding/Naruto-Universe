@@ -21,6 +21,7 @@ public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
     void levelUpSharingan();
 
     float getPower();
+    void resetPower();
     void addPower(float amount);
     float getMaxPower();
 

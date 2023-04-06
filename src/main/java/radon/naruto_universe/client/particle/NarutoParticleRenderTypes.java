@@ -1,4 +1,4 @@
-package radon.naruto_universe;
+package radon.naruto_universe.client.particle;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -35,10 +35,9 @@ public class NarutoParticleRenderTypes {
 
     public static final ParticleRenderType TRANSLUCENT = new ParticleRenderType() {
         @Override
-        public void begin(BufferBuilder buffer, @NotNull TextureManager manager) {
+        public void begin(BufferBuilder buffer, TextureManager manager) {
             RenderSystem.depthMask(false);
             RenderSystem.enableDepthTest();
-            RenderSystem.depthFunc(519);
             RenderSystem.enableBlend();
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
@@ -48,7 +47,6 @@ public class NarutoParticleRenderTypes {
         public void end(Tesselator tesselator) {
             tesselator.end();
             RenderSystem.disableDepthTest();
-            RenderSystem.depthFunc(515);
         }
     };
 }
