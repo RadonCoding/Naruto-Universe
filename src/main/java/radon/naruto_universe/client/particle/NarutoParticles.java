@@ -9,18 +9,18 @@ import net.minecraftforge.registries.RegistryObject;
 import radon.naruto_universe.NarutoUniverse;
 
 public class NarutoParticles {
-    public static final DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES,
+    public static DeferredRegister<ParticleType<?>> PARTICLES = DeferredRegister.create(ForgeRegistries.PARTICLE_TYPES,
             NarutoUniverse.MOD_ID);
 
-    public static final RegistryObject<ParticleType<VaporParticle.VaporParticleOptions>> VAPOR = PARTICLES.register("vapor", () ->
+    public static RegistryObject<ParticleType<VaporParticle.VaporParticleOptions>> VAPOR = PARTICLES.register("vapor", () ->
             new ParticleType<>(false, VaporParticle.VaporParticleOptions.DESERIALIZER) {
                 @Override
                 public Codec<VaporParticle.VaporParticleOptions> codec() {
                     return null;
                 }
             });
-    public static final RegistryObject<SimpleParticleType> FLAME = PARTICLES.register("flame", () ->
+    public static RegistryObject<SimpleParticleType> FLAME = PARTICLES.register("flame", () ->
             new SimpleParticleType(false));
-    public static final RegistryObject<SimpleParticleType> EMPTY = PARTICLES.register("empty", () ->
+    public static RegistryObject<SimpleParticleType> EMPTY = PARTICLES.register("empty", () ->
             new SimpleParticleType(false));
 }

@@ -19,8 +19,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
-import org.apache.commons.compress.utils.Lists;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AbilityWidget extends GuiComponent {
@@ -30,7 +30,7 @@ public class AbilityWidget extends GuiComponent {
     private final Ability ability;
 
     private AbilityWidget parent;
-    private final List<AbilityWidget> children = Lists.newArrayList();
+    private final List<AbilityWidget> children = new ArrayList<>();
 
     private final int x;
     private final int y;
@@ -51,7 +51,7 @@ public class AbilityWidget extends GuiComponent {
     public AbilityWidget(AbilityTab tab, Minecraft mc, Ability ability) {
         this.tab = tab;
         this.ability = ability;
-        this.display = ability.getDisplay();
+        this.display = ability.getDisplay(mc.player);
         this.x = Mth.floor(this.display.getX() * 28.0F);
         this.y = Mth.floor(this.display.getY() * 27.0F);
         this.mc = mc;
@@ -68,13 +68,14 @@ public class AbilityWidget extends GuiComponent {
         component.append("\n");
         component.append("\n");
 
-        List<NinjaTrait> requirements = this.ability.getRequirements();
+        List<NinjaTrait> requirements = new ArrayList<>(this.ability.getRequirements());
 
         component.append(Component.literal("Requirements: "));
         component.append("\n");
 
-        component.append(this.ability.getRelease().getIdentifier());
-        component.append("\n");
+        if (this.ability.getRelease() != NinjaTrait.NONE) {
+            requirements.add(this.ability.getRelease());
+        }
 
         if (!requirements.isEmpty()) {
             for (NinjaTrait requirement : requirements) {
@@ -84,20 +85,22 @@ public class AbilityWidget extends GuiComponent {
         else {
             component.append("None");
         }
-        component.append("\n");
-        component.append("\n");
 
         if (this.ability == NarutoAbilities.CHAKRA_JUMP.get()) {
+            component.append("\n");
+            component.append("\n");
             component.append(Component.literal("Combo: "));
             component.append(String.valueOf((char) KeyRegistry.KEY_CHAKRA_JUMP.getKey().getValue()));
         }
         else if (this.ability.hasCombo()) {
+            component.append("\n");
+            component.append("\n");
             component.append(Component.literal("Combo: "));
             component.append(NarutoAbilities.getStringFromCombo(NarutoAbilities.getCombo(ability)));
         }
 
-        this.description = Language.getInstance().getVisualOrder(this.findOptimalLines(ComponentUtils.mergeStyles(component.copy(),
-                Style.EMPTY), len));
+        this.description = Language.getInstance().getVisualOrder(this.splitComponent(ComponentUtils.mergeStyles(component.copy(),
+                Style.EMPTY)));
 
         for (FormattedCharSequence sequence : this.description) {
             len = Math.max(len, this.mc.font.width(sequence));
@@ -115,26 +118,27 @@ public class AbilityWidget extends GuiComponent {
         this.frame = this.unlockable ? (this.unlocked ? AbilityFrameType.UNLOCKED : AbilityFrameType.UNLOCKABLE) : AbilityFrameType.NORMAL;
     }
 
-    private List<FormattedText> findOptimalLines(Component pComponent, int pMaxWidth) {
-        StringSplitter stringsplitter = this.mc.font.getSplitter();
-        List<FormattedText> list = null;
+    private List<FormattedText> splitComponent(Component pComponent) {
+        StringSplitter splitter = this.mc.font.getSplitter();
+        List<FormattedText> lines = null;
         float f = Float.MAX_VALUE;
 
         for (int i : TEST_SPLIT_OFFSETS) {
-            List<FormattedText> list1 = stringsplitter.splitLines(pComponent, pMaxWidth - i, Style.EMPTY);
-            float f1 = Math.abs(getMaxWidth(stringsplitter, list1) - (float)pMaxWidth);
+            int MAX_LINE_WIDTH = 200;
+            List<FormattedText> tmp = splitter.splitLines(pComponent, MAX_LINE_WIDTH - i, Style.EMPTY);
+            float f1 = Math.abs(getMaxWidth(splitter, tmp) - (float) MAX_LINE_WIDTH);
 
             if (f1 <= 10.0F) {
-                return list1;
+                return tmp;
             }
 
             if (f1 < f) {
                 f = f1;
-                list = list1;
+                lines = tmp;
             }
         }
 
-        return list;
+        return lines;
     }
 
     private static float getMaxWidth(StringSplitter pManager, List<FormattedText> pText) {
@@ -283,7 +287,7 @@ public class AbilityWidget extends GuiComponent {
 
         RenderSystem.enableBlend();
         RenderSystem.setShaderTexture(0, this.display.getIcon());
-        this.blit(pPoseStack, pX + this.x + 8, pY + this.y + 5, 0, 0, 16, 16, 16, 16);
+        blit(pPoseStack, pX + this.x + 8, pY + this.y + 5, 0, 0, 16, 16, 16, 16);
         RenderSystem.disableBlend();
     }
 
@@ -319,9 +323,9 @@ public class AbilityWidget extends GuiComponent {
     private AbilityWidget getFirstVisibleParent(Ability ability) {
         do {
             ability = ability.getParent();
-        } while (ability != null && ability.getDisplay() == null);
+        } while (ability != null && ability.getDisplay(this.mc.player) == null);
 
-        return ability != null && ability.getDisplay() != null ? this.tab.getAbility(ability) : null;
+        return ability != null && ability.getDisplay(this.mc.player) != null ? this.tab.getAbility(ability) : null;
     }
 
     public void attachToParent() {

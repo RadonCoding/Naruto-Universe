@@ -1,6 +1,7 @@
 package radon.naruto_universe.ability.jutsu.fire;
 
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.fml.LogicalSide;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
@@ -28,7 +29,7 @@ public class PhoenixSageFire extends Ability {
     }
 
     @Override
-    public AbilityDisplayInfo getDisplay() {
+    public AbilityDisplayInfo getDisplay(LivingEntity owner) {
         return new AbilityDisplayInfo(this.getId().getPath(), 3.0F, 2.0F);
     }
 
@@ -47,7 +48,7 @@ public class PhoenixSageFire extends Ability {
     }
 
     @Override
-    public float getCost() {
+    public float getCost(LivingEntity owner) {
         return 10.0F;
     }
 
@@ -76,13 +77,13 @@ public class PhoenixSageFire extends Ability {
             int count = Math.min(10, Math.round(power / 0.1F));
 
             for (int i = 0; i < count; i++) {
-                cap.delayTickEvent((playerClone) -> {
-                    Vec3 look = playerClone.getLookAngle();
-                    FireballJutsuProjectile fireball = new FireballJutsuProjectile(playerClone, look.x(), look.y(), look.z(), power, this.getDamage(), 0.5F, 1.0F);
-                    playerClone.level.addFreshEntity(fireball);
-                    playerClone.level.playSound(null, playerClone.blockPosition(), SoundEvents.FIRECHARGE_USE,
+                cap.delayTickEvent((ownerClone) -> {
+                    Vec3 look = ownerClone.getLookAngle();
+                    FireballJutsuProjectile fireball = new FireballJutsuProjectile(ownerClone, look.x(), look.y(), look.z(), power, this.getDamage(), 0.5F, 1.0F);
+                    ownerClone.level.addFreshEntity(fireball);
+                    ownerClone.level.playSound(null, ownerClone.blockPosition(), SoundEvents.FIRECHARGE_USE,
                             SoundSource.PLAYERS, 1.0F, 1.0F);
-                }, 20 + (i * 5));
+                }, 20 + (i * 5), LogicalSide.SERVER);
             }
         });
     }

@@ -12,7 +12,7 @@ import net.minecraft.world.entity.Entity;
 import radon.naruto_universe.NarutoUniverse;
 
 public class ThrownKunaiModel<T extends Entity> extends EntityModel<T> {
-	public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(NarutoUniverse.MOD_ID, "thrown_kunai_model"), "main");
+	public static ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(new ResourceLocation(NarutoUniverse.MOD_ID, "thrown_kunai_model"), "main");
 	private final ModelPart bb_main;
 
 	public ThrownKunaiModel(ModelPart root) {

@@ -13,10 +13,10 @@ public class MouseHandler {
     private static double accumulatedScroll;
 
     @SubscribeEvent
-    public static void onMouseScroll(final InputEvent.MouseScrollingEvent event) {
-        final Minecraft mc = Minecraft.getInstance();
+    public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
+        Minecraft mc = Minecraft.getInstance();
 
-        final double delta = event.getScrollDelta();
+        double delta = event.getScrollDelta();
 
         if (accumulatedScroll != 0.0D && Math.signum(delta) != Math.signum(accumulatedScroll)) {
             accumulatedScroll = 0.0D;

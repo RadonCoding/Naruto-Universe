@@ -1,24 +1,44 @@
 package radon.naruto_universe.capability;
 
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.LogicalSide;
 import radon.naruto_universe.ability.Ability;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
     void tick(LivingEntity entity, boolean isClientSide);
 
-    void generateShinobi(Player player);
+    void generateNinja();
+
     void setPowerResetTimer(int value);
 
-    void delayTickEvent(Consumer<LivingEntity> task, int delay);
+    void delayTickEvent(Consumer<LivingEntity> task, int delay, LogicalSide side);
+
+    float getMangekyoBlindess();
+    void increaseMangekyoBlindess(float amount);
+
+    ToggledEyes getToggledEyes(UUID uuid);
+    void saveToggledEyes(UUID uuid, ToggledEyes ability);
+    void removeToggledEyes(UUID uuid);
+
+    boolean isInitialized();
 
     int getSharinganLevel();
     void levelUpSharingan();
+
+    MangekyoType getMangekyoType();
+    void setMangekyoType(MangekyoType type);
+
+    void addCooldown(Ability ability);
+    int getRemainingCooldown(Ability ability);
+    boolean isCooldownDone(Ability ability);
 
     float getPower();
     void resetPower();
@@ -44,6 +64,8 @@ public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
 
     void unlockAbility(Ability key);
     boolean hasUnlockedAbility(Ability ability);
+
+    Ability getCurrentEyes();
 
     void enableToggledAbility(LivingEntity entity, Ability ability);
     void disableToggledAbility(LivingEntity entity, Ability ability);

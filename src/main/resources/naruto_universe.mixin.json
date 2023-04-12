@@ -1,11 +1,17 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "radon.naruto_universe.mixin.client",
+  "package": "radon.naruto_universe.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "PlayerModelMixin",
-    "LivingRendererMixin"
+    "client.MinecraftMixin",
+    "client.LivingRendererMixin",
+    "client.PlayerModelMixin",
+    "client.PostChainAccessor",
+    "common.PlayerMixin"
+  ],
+  "server": [
+    "common.PlayerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

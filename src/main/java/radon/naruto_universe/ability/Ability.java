@@ -23,10 +23,12 @@ public abstract class Ability {
         CHANNELED
     }
 
-    public enum FailStatus {
+    public enum Status {
         SUCCESS,
+        FAILURE,
         NO_POWER,
-        NO_CHAKRA
+        NO_CHAKRA,
+        COOLDOWN
     }
 
     // Used for storing the power that was used to activate the jutsu
@@ -59,6 +61,9 @@ public abstract class Ability {
         return NinjaTrait.NONE;
     }
 
+    // Number of ticks you have to wait before being able to use the ability again
+    public int getCooldown() { return 0; }
+
     public Component getChatMessage() {
         if (this.getRelease() != NinjaTrait.NONE) {
             return Component.literal(String.format("%s - %s", this.getRelease().getIdentifier().getString(), this.getName().getString()));
@@ -85,7 +90,7 @@ public abstract class Ability {
         return NarutoAbilities.isUnlocked(owner, this);
     }
 
-    public abstract AbilityDisplayInfo getDisplay();
+    public abstract AbilityDisplayInfo getDisplay(LivingEntity owner);
     public abstract Ability getParent();
 
     public float getMinPower() {
@@ -93,26 +98,51 @@ public abstract class Ability {
     }
     public float getPower() { return this.power; }
 
-    public FailStatus checkChakra(LivingEntity entity) {
-        AtomicReference<FailStatus> result = new AtomicReference<>(FailStatus.SUCCESS);
+    // Used for checking if a toggled ability can still be used
+    public Status checkStatus(LivingEntity owner) {
+        return this.checkChakra(owner);
+    }
 
-        entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+    public Status checkChakra(LivingEntity owner) {
+        AtomicReference<Status> result = new AtomicReference<>(Status.SUCCESS);
+
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             float power = cap.getPower();
 
             this.power = power;
 
-            if (this.getMinPower() > 0.0F && this.power < this.getMinPower()) {
-                result.set(FailStatus.NO_POWER);
+            float minPower = this.getMinPower();
+
+            if (minPower > 0.0F && this.power < this.getMinPower()) {
+                result.set(Status.NO_POWER);
             }
             else {
-                if (!(entity instanceof Player player && player.getAbilities().instabuild)) {
-                    float cost = this.getMinPower() > 0.0F ? this.getCost() * power : this.getCost();
+                if (!(owner instanceof Player player && player.getAbilities().instabuild)) {
+                    float cost = this.getCost(owner);
+
+                    if (minPower > 0.0F) {
+                        cost *= power;
+                    }
 
                     if (cap.getChakra() < cost) {
-                        result.set(FailStatus.NO_CHAKRA);
+                        result.set(Status.NO_CHAKRA);
                     } else {
                         cap.useChakra(cost);
                     }
+                }
+            }
+
+            if (!(owner instanceof Player player && player.getAbilities().instabuild)) {
+                if (!cap.isCooldownDone(this) && !cap.hasToggledAbility(this)) {
+                    result.set(Status.COOLDOWN);
+                } else {
+                    cap.addCooldown(this);
+                }
+            }
+
+            if (result.get() == Status.SUCCESS) {
+                if (minPower > 0.0F) {
+                    cap.resetPower();
                 }
             }
         });
@@ -123,12 +153,12 @@ public abstract class Ability {
         return 0.0F;
     }
 
-    public float getCost() {
+    public float getCost(LivingEntity owner) {
         return 0.0F;
     }
 
-    public abstract void runClient(LivingEntity owner);
-    public abstract void runServer(LivingEntity owner);
+    public void runClient(LivingEntity owner) {}
+    public void runServer(LivingEntity owner) {}
 
     public boolean hasCombo() {
         return false;
@@ -165,6 +195,9 @@ public abstract class Ability {
     }
 
     public interface IToggled {
+        default void onToggled(LivingEntity owner, boolean isClientSide) {}
+        default void onDisabled(LivingEntity owner, boolean isClientSide) {}
+
         default Component getEnableMessage() {
             Ability ability = (Ability) this;
             ResourceLocation key = ability.getId();

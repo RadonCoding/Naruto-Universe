@@ -36,7 +36,7 @@ public class ChakraControl extends Ability implements Ability.IToggled {
     }
 
     @Override
-    public AbilityDisplayInfo getDisplay() {
+    public AbilityDisplayInfo getDisplay(LivingEntity owner) {
         return new AbilityDisplayInfo(this.getId().getPath(), 2.0F, 0.0F);
     }
 
@@ -51,7 +51,7 @@ public class ChakraControl extends Ability implements Ability.IToggled {
     }
 
     @Override
-    public float getCost() {
+    public float getCost(LivingEntity owner) {
         return 0.001F;
     }
 
@@ -155,16 +155,16 @@ public class ChakraControl extends Ability implements Ability.IToggled {
         this.checkWaterWalking(owner);
         this.checkWallClimbing(owner);
 
-        Random random = new Random();
+        Random rand = new Random();
 
         ServerLevel serverLevel = (ServerLevel) owner.getLevel();
 
-        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.25F, 1.0F, true, 3),
-                owner.getX() + (random.nextGaussian() * 0.1D) + 0.15D, owner.getY(), owner.getZ() + random.nextGaussian() * 0.1D,
+        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.0F, 0.5F, false, 3),
+                owner.getX() + (rand.nextGaussian() * 0.1D) + 0.15D, owner.getY(), owner.getZ() + rand.nextGaussian() * 0.1D,
                 0, 0.0D, 0.23D, 0.0D, -0.1D);
 
-        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.25F, 1.0F, true, 3),
-                owner.getX() + (random.nextGaussian() * 0.1D) - 0.15D, owner.getY(), owner.getZ() + random.nextGaussian() * 0.1D,
+        serverLevel.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.0F, 0.5F, false, 3),
+                owner.getX() + (rand.nextGaussian() * 0.1D) - 0.15D, owner.getY(), owner.getZ() + rand.nextGaussian() * 0.1D,
                 0, 0.0D, 0.23D, 0.0D, -0.1D);
     }
 }

@@ -1,19 +1,20 @@
 package radon.naruto_universe.client.gui.tab;
 
-import com.google.common.collect.Maps;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
+import net.minecraftforge.registries.RegistryObject;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.client.gui.NinjaScreen;
 import radon.naruto_universe.client.gui.widget.AbilityWidget;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
-import net.minecraftforge.registries.RegistryObject;
 
-import java.util.Map;
+import java.util.HashMap;
 
 public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.Scrollable, NinjaTab.Clickable {
     private static final Component TITLE = Component.translatable("gui.tab.ability");
@@ -32,7 +33,7 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
 
     private AbilityWidget root;
 
-    private final Map<Ability, AbilityWidget> abilities = Maps.newLinkedHashMap();
+    private final HashMap<Ability, AbilityWidget> abilities = new HashMap<>();
 
     public AbilityTab(NinjaScreen screen, Minecraft mc, int index) {
         super(screen, mc, TITLE, ICON, NinjaTabType.ABOVE, index);
@@ -65,6 +66,19 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
 
     @Override
     public void drawContents(PoseStack pPoseStack) {
+        pPoseStack.pushPose();
+        pPoseStack.translate(0.0D, 0.0D, 950.0D);
+        RenderSystem.enableDepthTest();
+        RenderSystem.colorMask(false, false, false, false);
+        fill(pPoseStack, 4680, 2260, -4680, -2260, -16777216);
+        RenderSystem.colorMask(true, true, true, true);
+        pPoseStack.translate(0.0D, 0.0D, -950.0D);
+        RenderSystem.depthFunc(518);
+        fill(pPoseStack, 234, 113, 0, 0, -16777216);
+        RenderSystem.depthFunc(515);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
+        
         super.drawContents(pPoseStack);
 
         if (!this.centered) {
@@ -79,13 +93,21 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
         this.root.drawConnectivity(pPoseStack, i, j, true);
         this.root.drawConnectivity(pPoseStack, i, j, false);
         this.root.draw(pPoseStack, i, j);
+
+        RenderSystem.depthFunc(518);
+        pPoseStack.translate(0.0F, 0.0F, -950.0F);
+        RenderSystem.colorMask(false, false, false, false);
+        fill(pPoseStack, 4680, 2260, -4680, -2260, -16777216);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthFunc(515);
+        pPoseStack.popPose();
     }
 
     @Override
     public void drawTooltips(PoseStack pPoseStack, int pMouseX, int pMouseY, int p, int pHeight) {
         pPoseStack.pushPose();
         pPoseStack.translate(0.0D, 0.0D, -200.0D);
-        fill(pPoseStack, 0, 0, 234, HEIGHT, Mth.floor(this.fade * 255.0F) << 24);
+        fill(pPoseStack, 0, 0, WIDTH, HEIGHT, Mth.floor(this.fade * 255.0F) << 24);
         boolean hovered = false;
         int i = Mth.floor(this.scrollX);
         int j = Mth.floor(this.scrollY);
@@ -125,7 +147,7 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
     }
 
     public void addAbility(Ability ability) {
-        if (ability.getDisplay() != null) {
+        if (ability.getDisplay(this.mc.player) != null) {
             AbilityWidget widget = new AbilityWidget(this, this.mc, ability);
 
             if (this.abilities.size() == 0) {

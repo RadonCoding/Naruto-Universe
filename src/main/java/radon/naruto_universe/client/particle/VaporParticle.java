@@ -31,7 +31,7 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
         this.gCol = color.y();
         this.bCol = color.z();
 
-        this.alpha = options.opacity() + (this.random.nextFloat() - 0.5F);
+        this.alpha = options.opacity();
 
         this.glow = options.glow();
 
@@ -54,11 +54,11 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
     }
 
     public record VaporParticleOptions(Vector3f color, float scalar, float opacity, boolean glow, int lifetime) implements ParticleOptions {
-        public static final Vector3f CHAKRA_COLOR = Vec3.fromRGB24(2003199).toVector3f();
-        public static final Vector3f FLAME_COLOR = Vec3.fromRGB24(16727040).toVector3f();
-        public static final Vector3f SMOKE_COLOR = Vec3.fromRGB24(4342338).toVector3f();
+        public static Vector3f CHAKRA_COLOR = Vec3.fromRGB24(7389695).toVector3f();
+        public static Vector3f FLAME_COLOR = Vec3.fromRGB24(16727040).toVector3f();
+        public static Vector3f SMOKE_COLOR = Vec3.fromRGB24(4342338).toVector3f();
 
-        public static final Deserializer<VaporParticleOptions> DESERIALIZER = new Deserializer<>() {
+        public static Deserializer<VaporParticleOptions> DESERIALIZER = new Deserializer<>() {
             public @NotNull VaporParticleOptions fromCommand(ParticleType<VaporParticleOptions> type, StringReader reader) throws CommandSyntaxException {
                 Vector3f color = VaporParticleOptions.readColorVector3f(reader);
                 reader.expect(' ');

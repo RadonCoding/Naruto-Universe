@@ -1,6 +1,7 @@
 package radon.naruto_universe.ability.jutsu.fire;
 
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraftforge.fml.LogicalSide;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
@@ -28,7 +29,7 @@ public class GreatFireball extends Ability {
     }
 
     @Override
-    public AbilityDisplayInfo getDisplay() {
+    public AbilityDisplayInfo getDisplay(LivingEntity owner) {
         return new AbilityDisplayInfo(this.getId().getPath(), 2.0F, 2.0F);
     }
 
@@ -47,7 +48,7 @@ public class GreatFireball extends Ability {
     }
 
     @Override
-    public float getCost() {
+    public float getCost(LivingEntity owner) {
         return 15.0F;
     }
 
@@ -72,13 +73,13 @@ public class GreatFireball extends Ability {
             owner.level.playSound(null, owner.blockPosition(), NarutoSounds.GREAT_FIREBALL.get(),
                     SoundSource.PLAYERS, 1.0F, 1.0F);
 
-            cap.delayTickEvent((playerClone) -> {
-                final Vec3 look = playerClone.getLookAngle();
-                final FireballJutsuProjectile fireball = new FireballJutsuProjectile(playerClone, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), 1.5F, 3.0F);
-                playerClone.level.addFreshEntity(fireball);
-                playerClone.level.playSound(null, playerClone.blockPosition(), SoundEvents.FIRECHARGE_USE,
+            cap.delayTickEvent((ownerClone) -> {
+                Vec3 look = ownerClone.getLookAngle();
+                FireballJutsuProjectile fireball = new FireballJutsuProjectile(ownerClone, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), 1.5F, 3.0F);
+                ownerClone.level.addFreshEntity(fireball);
+                ownerClone.level.playSound(null, ownerClone.blockPosition(), SoundEvents.FIRECHARGE_USE,
                         SoundSource.PLAYERS, 1.0F, 1.0F);
-            }, 20);
+            }, 20, LogicalSide.SERVER);
         });
     }
 }

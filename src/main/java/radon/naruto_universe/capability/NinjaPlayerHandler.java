@@ -17,18 +17,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class NinjaPlayerHandler {
-    public static final Capability<INinjaPlayer> INSTANCE = CapabilityManager.get(new CapabilityToken<>() {});
+    public static Capability<INinjaPlayer> INSTANCE = CapabilityManager.get(new CapabilityToken<>() {});
 
-    public static void attach(final AttachCapabilitiesEvent<Entity> event) {
-        final NinjaPlayerProvider provider = new NinjaPlayerProvider();
+    public static void attach(AttachCapabilitiesEvent<Entity> event) {
+        NinjaPlayerProvider provider = new NinjaPlayerProvider();
         event.addCapability(NinjaPlayerProvider.IDENTIFIER, provider);
 
-        Player player = (Player) event.getObject();
-        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.generateShinobi(player));
+        if (!provider.cap.isInitialized()) {
+            provider.cap.generateNinja();
+        }
     }
 
     private static class NinjaPlayerProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
-        public static final ResourceLocation IDENTIFIER = new ResourceLocation(NarutoUniverse.MOD_ID, "shinobi_player");
+        public static ResourceLocation IDENTIFIER = new ResourceLocation(NarutoUniverse.MOD_ID, "ninja_player");
 
         private final INinjaPlayer cap = new NinjaPlayer();
         private final LazyOptional<INinjaPlayer> optional = LazyOptional.of(() -> this.cap);

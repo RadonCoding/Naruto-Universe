@@ -1,21 +1,19 @@
 package radon.naruto_universe.client;
 
-import com.google.common.collect.Queues;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import radon.naruto_universe.NarutoUniverse;
-
-import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class CameraShakeHandler {
-    private static Queue<ShakeEvent> shakes = Queues.newLinkedBlockingQueue();
+    private static final LinkedBlockingQueue<ShakeEvent> shakes = new LinkedBlockingQueue<>();
 
     @SubscribeEvent
-    public static void onComputeCameraAngles(final ViewportEvent.ComputeCameraAngles event) {
+    public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
         if (shakes.isEmpty()) return;
 
         ShakeEvent shake = shakes.peek();

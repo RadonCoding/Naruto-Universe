@@ -7,9 +7,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -102,7 +100,7 @@ public class FireballJutsuProjectile extends JutsuProjectile {
             double offsetY = (this.getBbHeight() / 2.0) + ((this.random.nextDouble() * 0.5F) * (random.nextBoolean() ? -1 : 1));
             double offsetZ = (this.random.nextDouble() * 0.5F) * (random.nextBoolean() ? -1 : 1);
 
-            this.level.addAlwaysVisibleParticle(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.FLAME_COLOR, this.getSize() * 2.0F, 0.25F,
+            this.level.addAlwaysVisibleParticle(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.FLAME_COLOR, this.getSize() * 2.0F, 0.5F,
                             true, this.random.nextInt(1, 20)), true, this.getX() + offsetX, this.getY() + offsetY, this.getZ() + offsetZ,
                     0.0D, 0.0D, 0.0D);
         }

@@ -5,6 +5,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.LogicalSide;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
@@ -12,6 +13,7 @@ import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.client.particle.VaporParticle;
+import radon.naruto_universe.entity.HidingInAshEntity;
 import radon.naruto_universe.entity.ParticleSpawnerProjectile;
 import radon.naruto_universe.sound.NarutoSounds;
 
@@ -30,8 +32,7 @@ public class HidingInAsh extends Ability {
     }
 
     @Override
-    public AbilityDisplayInfo getDisplay() {
-        final String iconPath = this.getId().getPath();
+    public AbilityDisplayInfo getDisplay(LivingEntity owner) {
         return new AbilityDisplayInfo(this.getId().getPath(), 4.0F, 2.0F);
     }
 
@@ -50,7 +51,7 @@ public class HidingInAsh extends Ability {
     }
 
     @Override
-    public float getCost() {
+    public float getCost(LivingEntity owner) {
         return 10.0F;
     }
 
@@ -65,22 +66,21 @@ public class HidingInAsh extends Ability {
     }
 
     @Override
-    public void runClient(LivingEntity owner) {}
-
-    @Override
     public void runServer(LivingEntity owner) {
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             owner.level.playSound(null, owner.blockPosition(), NarutoSounds.HIDING_IN_ASH.get(),
                     SoundSource.PLAYERS, 1.0F, 1.0F);
 
-            cap.delayTickEvent((playerClone) -> {
-                final Random rand = new Random();
-                final int lifetime = rand.nextInt(60, 120);
+            cap.delayTickEvent((ownerClone) -> {
+                Random rand = new Random();
+                int duration = Math.max(10, Math.round(this.getPower())) * rand.nextInt(5, 10);
+                int lifetime = 5;
+                float scalar = Math.max(5.0F, rand.nextFloat() * 5.0F);
 
-                final Vec3 look = playerClone.getLookAngle();
-                final ParticleOptions particle = new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.SMOKE_COLOR, 10.0F, 1.0F, false, lifetime);
-                owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), NinjaTrait.FIRE_RELEASE, particle, lifetime, 10.0F, 7.5F));
-            }, 20);
+                ParticleOptions particle = new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.SMOKE_COLOR,
+                        scalar, 0.75F, false, lifetime);
+                owner.level.addFreshEntity(new HidingInAshEntity(owner, this.getPower(), this.getDamage(), particle, duration, 5.0F, 0.25F));
+            }, 20, LogicalSide.SERVER);
         });
     }
 }

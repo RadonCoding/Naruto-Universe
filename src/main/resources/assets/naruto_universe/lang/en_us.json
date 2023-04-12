@@ -14,6 +14,7 @@
   "ability.fail.not_found": "No ability found with that combination",
   "ability.fail.not_enough_chakra": "Not enough chakra",
   "ability.fail.not_skilled_enough": "You cannot unlock a %1$s level technique",
+  "ability.fail.cooldown": "Cooldown: %d seconds",
 
   "naruto_universe:chakra_control.name": "Chakra Control",
   "naruto_universe:chakra_control.desc": "Allows you to walk on water and climb walls.",
@@ -48,6 +49,12 @@
   "naruto_universe:sharingan.enable": "Activated sharingan",
   "naruto_universe:sharingan.disable": "Deactivated sharingan",
 
+  "naruto_universe:mangekyo.name": "Activate Mangekyo",
+  "naruto_universe:mangekyo.desc": "Activates your mangekyo.",
+  "naruto_universe:mangekyo.enable": "Activated mangekyo",
+  "naruto_universe:mangekyo.disable": "Deactivated sharingan",
+
+
   "naruto_universe:rinnegan.name": "Activate Rinnegan",
   "naruto_universe:rinnegan.desc": "Activates your rinnegan.",
   "naruto_universe:rinnegan.enable": "Activated rinnegan",
@@ -55,7 +62,10 @@
 
   "naruto_universe:genjutsu.name": "Genjutsu",
   "naruto_universe:amaterasu.name": "Amaterasu",
+
   "naruto_universe:susanoo.name": "Susanoo",
+  "naruto_universe:susanoo.enable": "Activated susanoo",
+  "naruto_universe:susanoo.disable": "Deactivated susanoo",
 
   "naruto_universe:lariat.name": "Lariat",
   "naruto_universe:lariat.desc": "High speed melee attack which is triggered when the player is moving at a very fast speed and punches a entity.",
@@ -79,7 +89,8 @@
   "trait.lightning_release": "Lightning Release",
   "trait.sharingan": "Sharingan",
   "trait.rinnegan": "Rinnegan",
-  "trait.unlocked_shraringan": "Unlocked Sharingan",
+  "trait.unlocked_sharingan": "Unlocked Sharingan",
+  "trait.unlocked_mangekyo": "Unlocked Mangekyo",
   "trait.unlocked_rinnegan": "Unlocked Rinnegan",
 
   "sharingan.unlock.one": "You feel grief and you feel something happening to your eyes as you awaken the sharingan",

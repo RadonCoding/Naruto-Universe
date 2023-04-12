@@ -1,9 +1,8 @@
 package radon.naruto_universe.client.ability;
 
 import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.INinjaPlayer;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.client.AbilityKeyMapping;
+import radon.naruto_universe.client.NarutoKeyMapping;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.HandleHandSignC2SPacket;
 import radon.naruto_universe.ability.Ability;
@@ -12,9 +11,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import org.apache.commons.compress.utils.Lists;
 import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ClientAbilityHandler {
@@ -26,7 +25,7 @@ public class ClientAbilityHandler {
 
     private static boolean isCurrentlyChargingAbility;
 
-    private static final List<AbilityKeyMapping> MOD_KEYS = Lists.newArrayList();
+    private static final List<NarutoKeyMapping> MOD_KEYS = new ArrayList<>();
 
     public static void tick(LocalPlayer player) {
         if (currentCombo != 0) {
@@ -37,7 +36,7 @@ public class ClientAbilityHandler {
 
         boolean lastKeyIsHeld = false;
 
-        AbilityKeyMapping currentKey = null;
+        NarutoKeyMapping currentKey = null;
 
         if (lastKey > 0 && lastKey < MOD_KEYS.size()) {
             currentKey = MOD_KEYS.get(lastKey - 1);
@@ -84,7 +83,7 @@ public class ClientAbilityHandler {
             }
         }
 
-        for (AbilityKeyMapping key : MOD_KEYS) {
+        for (NarutoKeyMapping key : MOD_KEYS) {
             key.update();
         }
     }
@@ -116,7 +115,7 @@ public class ClientAbilityHandler {
     }
     
     public static void registerListener(KeyMapping key, Runnable onClick) {
-        AbilityKeyMapping modKey = new AbilityKeyMapping(key.getName(), key.getKey().getValue(), key.getCategory());
+        NarutoKeyMapping modKey = new NarutoKeyMapping(key.getName(), key.getKey().getValue(), key.getCategory());
         modKey.registerClickConsumer(onClick);
         MOD_KEYS.add(modKey);
     }
@@ -127,19 +126,24 @@ public class ClientAbilityHandler {
     }
 
     public static void triggerAbility(Ability ability) {
-        LocalPlayer owner = Minecraft.getInstance().player;
+        Minecraft mc = Minecraft.getInstance();
+        LocalPlayer owner = mc.player;
 
         assert owner != null;
 
-        Ability.FailStatus status;
+        Ability.Status status;
 
         if (!ability.isUnlocked(owner)) {
             return;
-        } else if ((status = ability.checkChakra(owner)) != Ability.FailStatus.SUCCESS) {
-            switch (status) {
-                case NO_CHAKRA -> owner.sendSystemMessage(Component.translatable("ability.fail.not_enough_chakra"));
-                case NO_POWER -> owner.sendSystemMessage(Component.translatable("ability.fail.not_enough_power"));
-            }
+        } else if ((status = ability.checkChakra(owner)) != Ability.Status.SUCCESS) {
+            owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+                switch (status) {
+                    case NO_CHAKRA -> owner.sendSystemMessage(Component.translatable("ability.fail.not_enough_chakra"));
+                    case NO_POWER -> owner.sendSystemMessage(Component.translatable("ability.fail.not_enough_power"));
+                    case COOLDOWN -> mc.gui.setOverlayMessage(Component.translatable("ability.fail.cooldown",
+                            cap.getRemainingCooldown(ability) / 20), false);
+                }
+            });
             return;
         }
 
@@ -153,10 +157,6 @@ public class ClientAbilityHandler {
             NarutoAbilities.setChanneledAbility(owner, ability);
         } else if (ability.getActivationType() == Ability.ActivationType.TOGGLED) {
             NarutoAbilities.setToggledAbility(owner, ability);
-        }
-
-        if (ability.getMinPower() > 0.0F) {
-            owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(INinjaPlayer::resetPower);
         }
     }
 }

@@ -2,13 +2,13 @@ package radon.naruto_universe.client;
 
 import net.minecraft.client.KeyMapping;
 
-public class AbilityKeyMapping extends KeyMapping {
+public class NarutoKeyMapping extends KeyMapping {
     private int ticksHeld;
     private int clickCount;
     private boolean hasConsumedClickState;
     private Runnable onClick;
 
-    public AbilityKeyMapping(String pName, int pKeyCode, String pCategory) {
+    public NarutoKeyMapping(String pName, int pKeyCode, String pCategory) {
         super(pName, pKeyCode, pCategory);
     }
 

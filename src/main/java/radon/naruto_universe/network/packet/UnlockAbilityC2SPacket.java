@@ -43,7 +43,7 @@ public class UnlockAbilityC2SPacket {
                 }
             });
         });
-        ctx.setPacketHandled(true);
 
+        ctx.setPacketHandled(true);
     }
 }

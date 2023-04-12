@@ -14,7 +14,8 @@ public enum NinjaTrait {
     BYAKUGAN(Component.translatable("trait.byakugan").withStyle(ChatFormatting.WHITE)),
     SHARINGAN(Component.translatable("trait.sharingan").withStyle(ChatFormatting.DARK_RED)),
     RINNEGAN(Component.translatable("trait.rinnegan").withStyle(ChatFormatting.DARK_PURPLE)),
-    UNLOCKED_SHARINGAN(Component.translatable("trait.unlocked_shraringan").withStyle(ChatFormatting.DARK_RED)),
+    UNLOCKED_SHARINGAN(Component.translatable("trait.unlocked_sharingan").withStyle(ChatFormatting.DARK_RED)),
+    UNLOCKED_ITACHI_MANGEKYO(Component.translatable("trait.unlocked_mangekyo").withStyle(ChatFormatting.DARK_RED)),
     UNLOCKED_RINNEGAN(Component.translatable("trait.unlocked_rinnegan").withStyle(ChatFormatting.DARK_PURPLE));
 
     private final Component identifier;

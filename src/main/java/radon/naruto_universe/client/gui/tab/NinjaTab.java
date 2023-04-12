@@ -12,22 +12,23 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.compress.utils.Lists;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class NinjaTab extends GuiComponent {
-    public static final ResourceLocation BACKGROUND_LOCATION = new ResourceLocation("textures/gui/advancements/backgrounds/stone.png");
+    public static ResourceLocation BACKGROUND_LOCATION = new ResourceLocation("textures/gui/advancements/backgrounds/stone.png");
 
-    public static final int WIDTH = 234;
-    public static final int HEIGHT = 113;
+    public static int WIDTH = 234;
+    public static int HEIGHT = 113;
 
-    protected final NinjaScreen screen;
-    protected final Minecraft mc;
+    protected NinjaScreen screen;
+    protected Minecraft mc;
     private final Component title;
     private final NinjaTabType type;
     private final ResourceLocation icon;
     private final int index;
 
-    public final List<AbstractWidget> widgets = Lists.newArrayList();
+    public List<AbstractWidget> widgets = new ArrayList<>();
 
     public NinjaTab(NinjaScreen screen, Minecraft mc, Component title, ResourceLocation icon, NinjaTabType type, int index) {
         this.screen = screen;
@@ -55,19 +56,6 @@ public abstract class NinjaTab extends GuiComponent {
     }
 
     public void drawContents(PoseStack pPoseStack) {
-        pPoseStack.pushPose();
-        pPoseStack.translate(0.0D, 0.0D, 950.0D);
-        RenderSystem.enableDepthTest();
-        RenderSystem.colorMask(false, false, false, false);
-        fill(pPoseStack, 4680, 2260, -4680, -2260, -16777216);
-        RenderSystem.colorMask(true, true, true, true);
-        pPoseStack.translate(0.0D, 0.0D, -950.0D);
-        RenderSystem.depthFunc(518);
-        fill(pPoseStack, 234, 113, 0, 0, -16777216);
-        RenderSystem.depthFunc(515);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
-
         int k = WIDTH % 16;
         int l = HEIGHT % 16;
 
@@ -76,14 +64,6 @@ public abstract class NinjaTab extends GuiComponent {
                 blit(pPoseStack, k + 16 * i1, l + 16 * j1, 0.0F, 0.0F, 16, 16, 16, 16);
             }
         }
-
-        RenderSystem.depthFunc(518);
-        pPoseStack.translate(0.0D, 0.0D, -950.0D);
-        RenderSystem.colorMask(false, false, false, false);
-        fill(pPoseStack, 4680, 2260, -4680, -2260, -16777216);
-        RenderSystem.colorMask(true, true, true, true);
-        RenderSystem.depthFunc(515);
-        pPoseStack.popPose();
     }
 
     public boolean isMouseOver(int pOffsetX, int pOffsetY, double pMouseX, double pMouseY) {

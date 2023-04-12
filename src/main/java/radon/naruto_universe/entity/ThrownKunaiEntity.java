@@ -31,6 +31,7 @@ public class ThrownKunaiEntity extends AbstractArrow {
 
     public ThrownKunaiEntity(Level pLevel, LivingEntity pShooter, ItemStack pStack) {
         super(NarutoEntities.THROWN_KUNAI.get(), pShooter, pLevel);
+
         this.kunaiItem = pStack.copy();
     }
 

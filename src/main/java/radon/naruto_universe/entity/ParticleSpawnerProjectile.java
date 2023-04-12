@@ -1,14 +1,19 @@
 package radon.naruto_universe.entity;
 
+import net.minecraft.client.renderer.debug.DebugRenderer;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.*;
 import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.ModDamageSource;
 import radon.naruto_universe.capability.NinjaTrait;
@@ -20,18 +25,24 @@ public class ParticleSpawnerProjectile extends JutsuProjectile {
     private static final EntityDataAccessor<Integer> DATA_TICKS = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DATA_RANGE = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Float> DATA_RADIUS = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> DATA_THICKNESS = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Boolean> DATA_FIRE = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.BOOLEAN);
 
     public ParticleSpawnerProjectile(EntityType<? extends ParticleSpawnerProjectile> pEntityType, Level level) {
         super(pEntityType, level);
+
+        this.setInvisible(true);
     }
 
-    public ParticleSpawnerProjectile(LivingEntity pShooter, double pOffsetX, double pOffsetY, double pOffsetZ, float power, float damage, NinjaTrait release, ParticleOptions particle, int lifetime, float range, float radius) {
+    public ParticleSpawnerProjectile(LivingEntity pShooter, double pOffsetX, double pOffsetY, double pOffsetZ, float power, float damage, NinjaTrait release, ParticleOptions particle, int lifetime, float range, float radius, float thickness, boolean fire) {
         super(NarutoEntities.PARTICLE_SPAWNER.get(), pShooter, pOffsetX, pOffsetY, pOffsetZ, power, damage, release);
 
         this.entityData.set(DATA_PARTICLE, particle);
         this.entityData.set(DATA_LIFETIME, lifetime);
         this.entityData.set(DATA_RANGE, range);
         this.entityData.set(DATA_RADIUS, radius);
+        this.entityData.set(DATA_THICKNESS, thickness);
+        this.entityData.set(DATA_FIRE, fire);
     }
 
     @Override
@@ -43,6 +54,13 @@ public class ParticleSpawnerProjectile extends JutsuProjectile {
         this.entityData.define(DATA_TICKS, 0);
         this.entityData.define(DATA_RANGE, 0.0F);
         this.entityData.define(DATA_RADIUS, 0.0F);
+        this.entityData.define(DATA_THICKNESS, 0.0F);
+        this.entityData.define(DATA_FIRE, false);
+    }
+
+    @Override
+    public boolean fireImmune() {
+        return true;
     }
 
     @Override
@@ -71,11 +89,10 @@ public class ParticleSpawnerProjectile extends JutsuProjectile {
     private float getRadius() {
         return this.entityData.get(DATA_RADIUS);
     }
-
-    @Override
-    public @NotNull EntityDimensions getDimensions(@NotNull Pose pPose) {
-        return EntityDimensions.fixed(0.0F, 0.0F);
+    private float getThickness() {
+        return this.entityData.get(DATA_THICKNESS);
     }
+    private boolean causesFire() { return this.entityData.get(DATA_FIRE); }
 
     @Override
     public void tick() {
@@ -83,48 +100,67 @@ public class ParticleSpawnerProjectile extends JutsuProjectile {
 
         int ticks = this.getTicks();
 
+        Entity owner = this.getOwner();
+
         if (ticks >= this.getLifetime()) {
             this.discard();
         }
+        else if (!this.level.isClientSide && (owner == null || !owner.isAlive())) {
+            this.discard();
+        }
+        else if (owner != null) {
+            float f0 = 1.0F - (float) ticks / this.getLifetime();
 
-        float f0 = 1.0F - (float) ticks / this.getLifetime();
-        float range = Math.max(2.5F ,this.getRange() * (this.getPower() * 0.1F) * f0);
-        float radius = Math.max(1.25F, this.getRadius() * (this.getPower() * 0.1F) * f0);
+            float power = Math.max(10.0F, this.getPower());
+            float range = this.getRange() * (power * 0.1F) * f0;
+            float radius = this.getRadius() * (power * 0.1F) * f0;
 
-        final Entity owner = this.getOwner();
+            Vec3 look = owner.getLookAngle();
+            double angle = Math.atan(radius / range) * 180.0D / Math.PI;
 
-        assert owner != null;
+            Vec3 center = new Vec3(owner.getX() + look.x(), owner.getEyeY() - 0.2D + look.y(), owner.getZ() + look.z());
+            AABB box = new AABB(center.x() - range / 2.0D, center.y() - radius / 2.0D, center.z() - range / 2.0D,
+                    center.x() + range / 2.0D, center.y() + radius / 2.0D, center.z() + range / 2.0D).deflate(this.getThickness());
 
-        Vec3 look = owner.getLookAngle();
-        final double angle = Math.atan(radius / range) * 180.0D / Math.PI;
-
-        AABB box = new AABB(owner.getX() - range, owner.getY() - radius, owner.getZ() - range, owner.getX() + range,
-                owner.getY() + radius, owner.getZ() + range);
-
-        for (Entity entity : this.level.getEntities(null, box)) {
-            if (entity instanceof LivingEntity) {
+            for (Entity entity : this.level.getEntities(null, box)) {
                 Vec3 direction = entity.position().subtract(owner.position()).normalize();
                 double angleBetween = Math.toDegrees(Math.acos(look.dot(direction) / (look.length() * direction.length())));
 
                 if (angleBetween <= angle) {
-                    entity.hurt(ModDamageSource.jutsu(this, owner), this.getDamage());
-
-                    if (this.getRelease() == NinjaTrait.FIRE_RELEASE) {
-                        entity.setSecondsOnFire(Math.round(this.getPower()));
+                    if (entity.hurt(ModDamageSource.jutsu(this, owner), this.getDamage())) {
+                        if (this.getRelease() == NinjaTrait.FIRE_RELEASE) {
+                            entity.setSecondsOnFire(Math.round(this.getPower()));
+                        }
                     }
                 }
+                this.onHitEntity(new EntityHitResult(entity));
             }
-            this.onHitEntity(new EntityHitResult(entity));
-        }
 
-        for (int i = 0; i < (range * radius) * 0.5F; i++) {
-            Vec3 direction = Vec3.directionFromRotation(owner.getXRot() + (float)((this.random.nextDouble() - 0.5D) * angle * 1.5D),
-                    owner.getYRot() + (float)((this.random.nextDouble() - 0.5D) * angle * 2.0D)).scale(range * 0.1D);
-            Vec3 pos = new Vec3(owner.getX() + look.x(), owner.getEyeY() - 0.2D + look.y(), owner.getZ() + look.z());
-            this.level.addParticle(this.getParticle(), pos.x(), pos.y(), pos.z(), direction.x(), direction.y(), direction.z());
-        }
+            if (this.causesFire()) {
+                BlockPos.betweenClosedStream(box).forEach(pos -> {
+                    if (this.random.nextInt(10) == 0) {
+                        BlockState state = this.level.getBlockState(pos);
+                        Block block = state.getBlock();
 
-        this.setTicks(++ticks);
-        this.setDeltaMovement(Vec3.ZERO);
+                        if (block != Blocks.AIR) {
+                            if (block.isFlammable(state, this.level, pos, null)) {
+                                this.level.setBlockAndUpdate(pos, Blocks.FIRE.defaultBlockState());
+                            }
+                        }
+                    }
+                });
+            }
+
+            for (int i = 0; i < (range * radius) * this.getThickness(); i++) {
+                Vec3 direction = Vec3.directionFromRotation(owner.getXRot() + (float) ((this.random.nextDouble() - 0.5D) * angle),
+                        owner.getYRot() + (float) ((this.random.nextDouble() - 0.5D) * angle)).scale(range * 0.05D);
+                Vec3 pos = new Vec3(owner.getX() + look.x(), owner.getEyeY() - 0.2D + look.y(), owner.getZ() + look.z())
+                        .add(this.random.nextDouble() * 0.2D - 0.1D, this.random.nextDouble() * 0.2D - 0.1D, this.random.nextDouble() * 0.2D - 0.1D);
+                this.level.addParticle(this.getParticle(), pos.x(), pos.y(), pos.z(), direction.x(), direction.y(), direction.z());
+            }
+
+            this.setTicks(++ticks);
+            this.setDeltaMovement(Vec3.ZERO);
+        }
     }
 }

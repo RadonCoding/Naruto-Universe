@@ -1,6 +1,5 @@
 package radon.naruto_universe.client.gui;
 
-import com.google.common.collect.Maps;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import org.jetbrains.annotations.NotNull;
@@ -15,6 +14,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.compress.utils.Lists;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,15 +23,15 @@ public class NinjaScreen extends Screen {
     private static final ResourceLocation WINDOW_LOCATION = new ResourceLocation("textures/gui/advancements/window.png");
     private static final ResourceLocation TABS_LOCATION = new ResourceLocation("textures/gui/advancements/tabs.png");
 
-    public static final int WINDOW_WIDTH = 252;
-    public static final int WINDOW_HEIGHT = 140;
+    public static int WINDOW_WIDTH = 252;
+    public static int WINDOW_HEIGHT = 140;
     
     private static final Component TITLE = Component.translatable("gui.ninja");
 
     private boolean isScrolling;
 
-    private final Map<NinjaTab, AbstractWidget> tabWidgets = Maps.newLinkedHashMap();
-    private final List<NinjaTab> tabs = Lists.newArrayList();
+    private final HashMap<NinjaTab, AbstractWidget> tabWidgets = new HashMap<>();
+    private final List<NinjaTab> tabs = new ArrayList<>();
     private NinjaTab selectedTab;
 
     public NinjaScreen() {

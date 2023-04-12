@@ -12,6 +12,6 @@ public class ModDamageSource {
     }
 
     public static DamageSource jutsu(Entity pSource, @Nullable Entity pIndirectEntity) {
-        return (new IndirectEntityDamageSource("jutsu", pSource, pIndirectEntity)).setProjectile();
+        return new IndirectEntityDamageSource("jutsu", pSource, pIndirectEntity);
     }
 }

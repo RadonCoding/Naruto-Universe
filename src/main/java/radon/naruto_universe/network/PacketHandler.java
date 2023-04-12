@@ -1,5 +1,6 @@
 package radon.naruto_universe.network;
 
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -23,7 +24,6 @@ public class PacketHandler {
                 .networkProtocolVersion(() -> "1.0")
                 .clientAcceptedVersions(s -> true)
                 .serverAcceptedVersions(s -> true).simpleChannel();
-
         INSTANCE.messageBuilder(HandleHandSignC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(HandleHandSignC2SPacket::new)
                 .encoder(HandleHandSignC2SPacket::encode)
@@ -49,6 +49,31 @@ public class PacketHandler {
                 .encoder(SetMovementSpeedC2SPacket::encode)
                 .consumerMainThread(SetMovementSpeedC2SPacket::handle)
                 .add();
+        INSTANCE.messageBuilder(ChangeSusanooStageC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(ChangeSusanooStageC2SPacket::new)
+                .encoder(ChangeSusanooStageC2SPacket::encode)
+                .consumerMainThread(ChangeSusanooStageC2SPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(EyeStatusRequestC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(EyeStatusRequestC2SPacket::new)
+                .encoder(EyeStatusRequestC2SPacket::encode)
+                .consumerMainThread(EyeStatusRequestC2SPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(EyeStatusResponseS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(EyeStatusResponseS2CPacket::new)
+                .encoder(EyeStatusResponseS2CPacket::encode)
+                .consumerMainThread(EyeStatusResponseS2CPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(UpdateEyeStatusS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(UpdateEyeStatusS2CPacket::new)
+                .encoder(UpdateEyeStatusS2CPacket::encode)
+                .consumerMainThread(UpdateEyeStatusS2CPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(ClearEyeStatusS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(ClearEyeStatusS2CPacket::new)
+                .encoder(ClearEyeStatusS2CPacket::encode)
+                .consumerMainThread(ClearEyeStatusS2CPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {
@@ -57,5 +82,9 @@ public class PacketHandler {
 
     public static <MSG> void sendToClient(MSG message, ServerPlayer player) {
         INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), message);
+    }
+
+    public static <MSG> void broadcast(MSG message) {
+        INSTANCE.send(PacketDistributor.ALL.noArg(), message);
     }
 }

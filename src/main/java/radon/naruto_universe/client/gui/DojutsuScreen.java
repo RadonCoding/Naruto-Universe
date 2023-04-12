@@ -17,12 +17,12 @@ import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;
 import radon.naruto_universe.util.HelperMethods;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DojutsuScreen extends Screen {
-    private static final float PRECISION = 2.5F / 360.0F;
-    private final List<Ability> abilities = Lists.newArrayList();
+    private final List<Ability> abilities = new ArrayList<>();
 
     private int hovered = -1;
 
@@ -45,6 +45,7 @@ public class DojutsuScreen extends Screen {
     private void drawSlot(PoseStack poseStack, BufferBuilder buffer, float centerX, float centerY,
                           float radiusIn, float radiusOut, float startAngle, float endAngle, int color) {
         float angle = endAngle - startAngle;
+        float PRECISION = 2.5F / 360.0F;
         int sections = Math.max(1, Mth.ceil(angle / PRECISION));
 
         angle = endAngle - startAngle;
@@ -96,8 +97,8 @@ public class DojutsuScreen extends Screen {
     public void render(@NotNull PoseStack pPoseStack, int pMouseX, int pMouseY, float pPartialTicks) {
         super.render(pPoseStack, pMouseX, pMouseY, pPartialTicks);
 
-        final int centerX = this.width / 2;
-        final int centerY = this.height / 2;
+        int centerX = this.width / 2;
+        int centerY = this.height / 2;
 
         RenderSystem.enableBlend();
         RenderSystem.disableTexture();
@@ -111,21 +112,22 @@ public class DojutsuScreen extends Screen {
         BufferBuilder buffer = tesselator.getBuilder();
         buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-        final float radiusIn = 30.0F;
-        final float radiusOut = radiusIn * 2.0F;
+        float radiusIn = 30.0F;
+        float radiusOut = radiusIn * 2.0F;
+
+        assert this.minecraft != null;
+        assert this.minecraft.player != null;
         
         for (int i = 0; i < this.abilities.size(); i++) {
-            final float startAngle = getAngleFor(i - 0.5F);
-            final float endAngle = getAngleFor(i + 0.5F);
+            float startAngle = getAngleFor(i - 0.5F);
+            float endAngle = getAngleFor(i + 0.5F);
 
-            final Ability ability = this.abilities.get(i);
-            final AtomicBoolean toggled = new AtomicBoolean(false);
-            assert this.minecraft != null;
-            assert this.minecraft.player != null;
+            Ability ability = this.abilities.get(i);
+            AtomicBoolean toggled = new AtomicBoolean(false);
             this.minecraft.player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> toggled.set(cap.hasToggledAbility(ability)));
 
-            final int white = HelperMethods.toRGB24(255, 255, 255, 150);
-            final int black = HelperMethods.toRGB24(0, 0, 0, 150);
+            int white = HelperMethods.toRGB24(255, 255, 255, 150);
+            int black = HelperMethods.toRGB24(0, 0, 0, 150);
 
             int color;
 
@@ -147,17 +149,17 @@ public class DojutsuScreen extends Screen {
         pPoseStack.pushPose();
         pPoseStack.translate(-8.0F, -8.0F, 0.0F);
 
-        final float iconRadius = (radiusIn + radiusOut) / 2.0F;
+        float iconRadius = (radiusIn + radiusOut) / 2.0F;
 
         for (int i = 0; i < this.abilities.size(); i++) {
-            final float startAngle = getAngleFor(i - 0.5F);
-            final float endAngle = getAngleFor(i + 0.5F);
-            final float middle = (startAngle + endAngle) / 2.0F;
-            final int posX = (int) (centerX + iconRadius * (float) Math.cos(middle));
-            final int posY = (int) (centerY + iconRadius * (float) Math.sin(middle));
+            float startAngle = getAngleFor(i - 0.5F);
+            float endAngle = getAngleFor(i + 0.5F);
+            float middle = (startAngle + endAngle) / 2.0F;
+            int posX = (int) (centerX + iconRadius * (float) Math.cos(middle));
+            int posY = (int) (centerY + iconRadius * (float) Math.sin(middle));
 
             Ability ability = this.abilities.get(i);
-            RenderSystem.setShaderTexture(0, ability.getDisplay().getIcon());
+            RenderSystem.setShaderTexture(0, ability.getDisplay(this.minecraft.player).getIcon());
             blit(pPoseStack, posX, posY, 0, 0, 16, 16,
                     16, 16);
         }
@@ -168,15 +170,15 @@ public class DojutsuScreen extends Screen {
     public void mouseMoved(double pMouseX, double pMouseY) {
         super.mouseMoved(pMouseX, pMouseY);
 
-        final int centerX = this.width / 2;
-        final int centerY = this.height / 2;
+        int centerX = this.width / 2;
+        int centerY = this.height / 2;
 
         double mouseAngle = Math.atan2(pMouseY - centerY, pMouseX - centerX);
         double mousePos = Math.sqrt(Math.pow(pMouseX - centerX, 2.0D) + Math.pow(pMouseY - centerY, 2.0D));
 
         if (this.abilities.size() > 0) {
-            final float startAngle = getAngleFor(-0.5F);
-            final float endAngle = getAngleFor(this.abilities.size() - 0.5F);
+            float startAngle = getAngleFor(-0.5F);
+            float endAngle = getAngleFor(this.abilities.size() - 0.5F);
 
             while (mouseAngle < startAngle) {
                 mouseAngle += Mth.TWO_PI;
@@ -186,14 +188,14 @@ public class DojutsuScreen extends Screen {
             }
         }
 
-        final float radiusIn = 30.0F;
-        final float radiusOut = radiusIn * 2.0F;
+        float radiusIn = 30.0F;
+        float radiusOut = radiusIn * 2.0F;
 
         this.hovered = -1;
 
         for (int i = 0; i < this.abilities.size(); i++) {
-            final float startAngle = getAngleFor(i - 0.5F);
-            final float endAngle = getAngleFor(i + 0.5F);
+            float startAngle = getAngleFor(i - 0.5F);
+            float endAngle = getAngleFor(i + 0.5F);
 
             if (mouseAngle >= startAngle && mouseAngle < endAngle && mousePos >= radiusIn && mousePos < radiusOut) {
                 this.hovered = i;

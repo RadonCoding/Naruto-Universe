@@ -1,26 +1,23 @@
 package radon.naruto_universe.capability;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.compress.utils.Lists;
+import net.minecraftforge.fml.LogicalSide;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.network.PacketHandler;
+import radon.naruto_universe.network.packet.ClearEyeStatusS2CPacket;
+import radon.naruto_universe.network.packet.UpdateEyeStatusS2CPacket;
 import radon.naruto_universe.sound.NarutoSounds;
+import radon.naruto_universe.util.HelperMethods;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class NinjaPlayer implements INinjaPlayer {
@@ -30,29 +27,33 @@ public class NinjaPlayer implements INinjaPlayer {
     private float chakra;
     private float experience;
     private int sharinganLevel;
-    private Vec3 oldPlayerPos;
+    private MangekyoType mangekyoType;
+    private float mangekyoBlindess;
+    private boolean initialized;
 
     // Used for storing the player's movement speed from client for some abilities
     private double movementSpeed;
 
     private Ability channeledAbility;
-    private final List<Ability> toggledAbilities = Lists.newArrayList();
-    private final List<NinjaTrait> traits = Lists.newArrayList();
-    private final List<DelayedTickEvent> delayedTickEvents = Lists.newArrayList();
-    private final List<Ability> unlockedAbilities = Lists.newArrayList();
-    private final List<Ability> specialAbilities = Lists.newArrayList();
+    private final List<Ability> toggledAbilities = new ArrayList<>();
+    private final List<NinjaTrait> traits = new ArrayList<>();
+    private final List<DelayedTickEvent> delayedTickEvents = new ArrayList<>();
+    private final List<Ability> unlockedAbilities = new ArrayList<>();
+    private final List<Ability> specialAbilities = new ArrayList<>();
+    private final Map<Ability, Integer> cooldowns = new HashMap<>();
+    private final Map<UUID, ToggledEyes> cachedEyes = new HashMap<>();
 
     // Used for checking if the player's experience has changed
     private float oldExperience;
 
     private static final UUID MOVEMEMENT_SPEED_UUID = UUID.fromString("E8A3EE4A-B07F-48E4-A072-DAB79F4C35F1");
-    public static final int POWER_RESET_TIME = 20;
-    public static final float CHAKRA_REGEN_AMOUNT = 0.05F;
-    public static final float NINJA_SPEED = 0.15F;
-    public static final float POWER_AMOUNT = 10.0F;
-    public static final float MAX_POWER = 30.0F;
-    public static final float POWER_CHARGE_AMOUNT = 0.01F;
-    public static final float CHAKRA_AMOUNT = 100.0F;
+    public static int POWER_RESET_TIME = 20;
+    public static float CHAKRA_REGEN_AMOUNT = 0.05F;
+    public static float NINJA_SPEED = 0.15F;
+    public static float POWER_AMOUNT = 10.0F;
+    public static float MAX_POWER = 30.0F;
+    public static float POWER_CHARGE_AMOUNT = 0.01F;
+    public static float CHAKRA_AMOUNT = 100.0F;
 
     public NinjaPlayer() {
         this.power = 0.0F;
@@ -61,55 +62,55 @@ public class NinjaPlayer implements INinjaPlayer {
     }
 
     @Override
-    public void tick(LivingEntity entity, boolean isClientSide) {
-        updateChanneledAbilities(entity, isClientSide);
-        updateToggledAbilities(entity, isClientSide);
+    public void tick(LivingEntity owner, boolean isClientSide) {
+        Vec3 currPos = owner.position();
+        Vec3 oldPos = new Vec3(owner.xOld, owner.yOld, owner.zOld);
 
-        if (!isClientSide) {
-            this.updateTickEvents(entity);
+        if (oldPos.equals(currPos)) {
+            this.addChakra(Math.max(CHAKRA_REGEN_AMOUNT, this.getRank().ordinal() * CHAKRA_REGEN_AMOUNT));
         }
+
+        this.updateChanneledAbilities(owner, isClientSide);
+        this.updateToggledAbilities(owner, isClientSide);
+        this.updateCooldowns();
+
+        this.updateTickEvents(owner, isClientSide ? LogicalSide.CLIENT : LogicalSide.SERVER);
 
         if (this.power > 0.0F) {
             if (this.powerResetTimer > POWER_RESET_TIME) {
-                if (isClientSide) {
-                    System.out.println("RESETTING POWER ON CLIENT");
-                }
-                else {
-                    System.out.println("RESETTING POWER ON SERVER");
-                }
                 this.power = 0.0F;
                 this.powerResetTimer = 0;
             }
             this.powerResetTimer++;
         }
-
-        Vec3 currentPlayerPos = entity.position();
-
-        if (this.oldPlayerPos == currentPlayerPos) {
-            this.addChakra(Math.max(CHAKRA_REGEN_AMOUNT, this.getRank().ordinal() * CHAKRA_REGEN_AMOUNT));
-        } else {
-            this.oldPlayerPos = currentPlayerPos;
-        }
-        this.updateNinjaStats(entity);
-    }
-
-    private void updateNinjaStats(LivingEntity entity) {
-        AttributeInstance speedAttr = entity.getAttribute(Attributes.MOVEMENT_SPEED);
-        AttributeModifier speedModifier = new AttributeModifier(MOVEMEMENT_SPEED_UUID, "Movement speed",
-                this.getRank().ordinal() * NINJA_SPEED, AttributeModifier.Operation.ADDITION);
-
-        if (this.oldExperience != this.experience) {
-            this.oldExperience = this.experience;
-
-            assert speedAttr != null;
-            speedAttr.removeModifier(MOVEMEMENT_SPEED_UUID);
-            speedAttr.addTransientModifier(speedModifier);
-        }
+        this.updateNinjaStats(owner);
     }
 
     @Override
-    public void generateShinobi(Player player) {
+    public void generateNinja() {
+        this.mangekyoType = HelperMethods.randomEnum(MangekyoType.class);
+    }
 
+    private void updateNinjaStats(LivingEntity entity) {
+        AttributeInstance speed = entity.getAttribute(Attributes.MOVEMENT_SPEED);
+
+        if (speed != null) {
+            if (this.toggledAbilities.contains(NarutoAbilities.CHAKRA_CONTROL.get())) {
+                AttributeModifier speedModifier = new AttributeModifier(MOVEMEMENT_SPEED_UUID, "Movement speed",
+                        this.getRank().ordinal() * NINJA_SPEED, AttributeModifier.Operation.ADDITION);
+
+                if (!speed.hasModifier(speedModifier)) {
+                    speed.addTransientModifier(speedModifier);
+                }
+                else if (this.oldExperience != this.experience) {
+                    this.oldExperience = this.experience;
+                    speed.removeModifier(MOVEMEMENT_SPEED_UUID);
+                    speed.addTransientModifier(speedModifier);
+                }
+            } else {
+                speed.removeModifier(MOVEMEMENT_SPEED_UUID);
+            }
+        }
     }
 
     public void setPowerResetTimer(int value) {
@@ -117,14 +118,48 @@ public class NinjaPlayer implements INinjaPlayer {
     }
 
     @Override
-    public void delayTickEvent(Consumer<LivingEntity> task, int delay) {
-        this.delayedTickEvents.add(new DelayedTickEvent(task, delay));
+    public void delayTickEvent(Consumer<LivingEntity> task, int delay, LogicalSide side) {
+        this.delayedTickEvents.add(new DelayedTickEvent(task, delay, side));
     }
 
-    private void updateTickEvents(LivingEntity entity) {
-        final List<DelayedTickEvent> events = new ArrayList<>(this.delayedTickEvents);
+    @Override
+    public float getMangekyoBlindess() {
+        return this.mangekyoBlindess;
+    }
+
+    @Override
+    public void increaseMangekyoBlindess(float amount) {
+        this.mangekyoBlindess += amount;
+    }
+
+    @Override
+    public ToggledEyes getToggledEyes(UUID uuid) {
+        return this.cachedEyes.get(uuid);
+    }
+
+    @Override
+    public void saveToggledEyes(UUID uuid, ToggledEyes eyes) {
+        this.cachedEyes.put(uuid, eyes);
+    }
+
+    @Override
+    public void removeToggledEyes(UUID uuid) {
+        this.cachedEyes.remove(uuid);
+    }
+
+    @Override
+    public boolean isInitialized() {
+        return this.initialized;
+    }
+
+    private void updateTickEvents(LivingEntity entity, LogicalSide side) {
+        List<DelayedTickEvent> events = new ArrayList<>(this.delayedTickEvents);
 
         for (DelayedTickEvent event : events) {
+            if (event.getSide() != side) {
+                continue;
+            }
+
             event.tick();
 
             if (event.run(entity)) {
@@ -144,6 +179,47 @@ public class NinjaPlayer implements INinjaPlayer {
             return;
         }
         this.sharinganLevel += 1;
+    }
+
+    @Override
+    public MangekyoType getMangekyoType() {
+        return this.mangekyoType;
+    }
+
+    @Override
+    public void setMangekyoType(MangekyoType type) {
+        this.mangekyoType = type;
+    }
+
+    private void updateCooldowns() {
+        Iterator<Map.Entry<Ability, Integer>> iter = this.cooldowns.entrySet().iterator();
+
+        while (iter.hasNext()) {
+            Map.Entry<Ability, Integer> entry = iter.next();
+
+            int remaining = entry.getValue();
+
+            if (remaining > 0) {
+                this.cooldowns.put(entry.getKey(), --remaining);
+            } else {
+                iter.remove();
+            }
+        }
+    }
+
+    @Override
+    public void addCooldown(Ability ability) {
+        this.cooldowns.put(ability, ability.getCooldown());
+    }
+
+    @Override
+    public int getRemainingCooldown(Ability ability) {
+        return this.cooldowns.get(ability);
+    }
+
+    @Override
+    public boolean isCooldownDone(Ability ability) {
+        return !this.cooldowns.containsKey(ability);
     }
 
     @Override
@@ -239,15 +315,26 @@ public class NinjaPlayer implements INinjaPlayer {
     }
 
     @Override
-    public void enableToggledAbility(LivingEntity entity, Ability ability) {
+    public Ability getCurrentEyes() {
+        return this.toggledAbilities.stream().filter(Ability::isDojutsu).findFirst().orElse(null);
+    }
+
+    @Override
+    public void enableToggledAbility(LivingEntity owner, Ability ability) {
         this.toggledAbilities.add(ability);
 
+        if (!owner.level.isClientSide && ability.isDojutsu()) {
+            PacketHandler.broadcast(new UpdateEyeStatusS2CPacket(owner.getUUID(), new ToggledEyes(ability.getId(), this.sharinganLevel, this.mangekyoType)));
+        }
+
         if (ability instanceof Ability.IToggled toggled) {
-            entity.level.playSound(null, entity.blockPosition(),
+            toggled.onToggled(owner, owner.level.isClientSide);
+
+            owner.level.playSound(null, owner.blockPosition(),
                     toggled.getActivationSound(), SoundSource.PLAYERS, 10.0F, 1.0F);
 
-            if (ability.shouldLog(entity)) {
-                entity.sendSystemMessage(toggled.getEnableMessage());
+            if (ability.shouldLog(owner)) {
+                owner.sendSystemMessage(toggled.getEnableMessage());
             }
         }
         this.updateSpecialAbilities();
@@ -257,7 +344,13 @@ public class NinjaPlayer implements INinjaPlayer {
     public void disableToggledAbility(LivingEntity entity, Ability ability) {
         this.toggledAbilities.remove(ability);
 
+        if (!entity.level.isClientSide && ability.isDojutsu()) {
+            PacketHandler.broadcast(new ClearEyeStatusS2CPacket(entity.getUUID()));
+        }
+
         if (ability instanceof Ability.IToggled toggled) {
+            toggled.onDisabled(entity, entity.level.isClientSide);
+
             if (toggled.getDectivationSound() != null) {
                 entity.level.playSound(null, entity.blockPosition(),
                         toggled.getDectivationSound(), SoundSource.PLAYERS, 10.0F, 1.0F);
@@ -282,14 +375,7 @@ public class NinjaPlayer implements INinjaPlayer {
 
     @Override
     public void clearToggledDojutsus(LivingEntity entity, Ability exclude) {
-        List<Ability> remove = Lists.newArrayList();
-
-        for (Ability toggled : this.toggledAbilities) {
-            if (toggled != exclude && toggled.isDojutsu()) {
-                remove.add(toggled);
-            }
-        }
-        remove.forEach(x -> this.disableToggledAbility(entity, x));
+        this.toggledAbilities.removeIf(toggled -> toggled != exclude && toggled.isDojutsu());
     }
 
     private void updateSpecialAbilities() {
@@ -299,6 +385,10 @@ public class NinjaPlayer implements INinjaPlayer {
             if (toggled instanceof Ability.ISpecial special) {
                 this.specialAbilities.addAll(special.getSpecialAbilities());
             }
+        }
+
+        if (!this.specialAbilities.contains(NarutoAbilities.SUSANOO.get()) && this.unlockedAbilities.contains(NarutoAbilities.MANGEKYO.get())) {
+            this.specialAbilities.add(NarutoAbilities.SUSANOO.get());
         }
     }
 
@@ -311,15 +401,18 @@ public class NinjaPlayer implements INinjaPlayer {
         Iterator<Ability> iter = this.toggledAbilities.iterator();
 
         while (iter.hasNext()) {
-            Ability toggled = iter.next();
-            if (toggled.checkChakra(entity) != Ability.FailStatus.SUCCESS) {
+            Ability ability = iter.next();
+
+            if (ability.checkStatus(entity) != Ability.Status.SUCCESS) {
+                Ability.IToggled toggled = (Ability.IToggled) ability;
+                toggled.onDisabled(entity, isClientSide);
                 iter.remove();
             } else {
                 if (isClientSide) {
-                    toggled.runClient(entity);
+                    ability.runClient(entity);
                 }
                 else {
-                    toggled.runServer(entity);
+                    ability.runServer(entity);
                 }
             }
         }
@@ -390,38 +483,54 @@ public class NinjaPlayer implements INinjaPlayer {
         nbt.putFloat("chakra", this.chakra);
         nbt.putFloat("experience", this.experience);
         nbt.putInt("sharingan_level", this.sharinganLevel);
+        nbt.putFloat("mangekyo_blindness", this.mangekyoBlindess);
+        nbt.putBoolean("initialized", this.initialized);
+
+        if (this.mangekyoType != null) {
+            nbt.putInt("mangekyo_type", this.mangekyoType.ordinal());
+        }
 
         if (this.channeledAbility != null) {
-            nbt.putString("channeled", NarutoAbilities.getKey(this.channeledAbility).toString());
+            nbt.putString("channeled", this.channeledAbility.getId().toString());
         }
 
         ListTag specialAbilitiesTag = new ListTag();
 
         for (Ability ability : this.specialAbilities) {
-            specialAbilitiesTag.add(StringTag.valueOf(NarutoAbilities.getKey(ability).toString()));
+            specialAbilitiesTag.add(StringTag.valueOf(ability.getId().toString()));
         }
         nbt.put("special", specialAbilitiesTag);
 
         ListTag toggledAbilitiesTag = new ListTag();
 
         for (Ability ability : this.toggledAbilities) {
-            toggledAbilitiesTag.add(StringTag.valueOf(NarutoAbilities.getKey(ability).toString()));
+            toggledAbilitiesTag.add(StringTag.valueOf(ability.getId().toString()));
         }
         nbt.put("toggled", toggledAbilitiesTag);
 
         ListTag unlockedAbilitiesTag = new ListTag();
 
         for (Ability ability : this.unlockedAbilities) {
-            unlockedAbilitiesTag.add(StringTag.valueOf(NarutoAbilities.getKey(ability).toString()));
+            unlockedAbilitiesTag.add(StringTag.valueOf(ability.getId().toString()));
         }
         nbt.put("unlocked", unlockedAbilitiesTag);
 
         ListTag traitsTag = new ListTag();
 
         for (NinjaTrait trait : this.traits) {
-            traitsTag.add(StringTag.valueOf(trait.name()));
+            traitsTag.add(IntTag.valueOf(trait.ordinal()));
         }
         nbt.put("traits", traitsTag);
+
+        ListTag cooldownsTag = new ListTag();
+
+        for (Map.Entry<Ability, Integer> entry : this.cooldowns.entrySet()) {
+            CompoundTag cooldown = new CompoundTag();
+            cooldown.putString("identifier", entry.getKey().getId().toString());
+            cooldown.putInt("cooldown", entry.getValue());
+            cooldownsTag.add(cooldown);
+        }
+        nbt.put("cooldowns", cooldownsTag);
 
         return nbt;
     }
@@ -434,6 +543,12 @@ public class NinjaPlayer implements INinjaPlayer {
         this.chakra = nbt.getFloat("chakra");
         this.experience = nbt.getFloat("experience");
         this.sharinganLevel = nbt.getInt("sharingan_level");
+        this.mangekyoBlindess = nbt.getFloat("mangekyo_blindness");
+        this.initialized = nbt.getBoolean("initialized");
+
+        if (nbt.contains("mangekyo_type")) {
+            this.mangekyoType = MangekyoType.values()[nbt.getInt("mangekyo_type")];
+        }
 
         if (nbt.contains("currently_channeled")) {
             this.channeledAbility = NarutoAbilities.getValue(new ResourceLocation(nbt.getString("channeled")));
@@ -455,8 +570,15 @@ public class NinjaPlayer implements INinjaPlayer {
             this.unlockedAbilities.add(NarutoAbilities.getValue(new ResourceLocation(key.getAsString())));
         }
 
-        for (Tag trait : nbt.getList("traits", Tag.TAG_STRING)) {
-            this.traits.add(NinjaTrait.valueOf(trait.getAsString()));
+        ListTag traits = nbt.getList("traits", Tag.TAG_INT);
+
+        for (int i = 0; i < traits.size(); i++) {
+            this.traits.add(NinjaTrait.values()[traits.getInt(i)]);
+        }
+
+        for (Tag key : nbt.getList("cooldowns", Tag.TAG_COMPOUND)) {
+            CompoundTag cooldown = (CompoundTag) key;
+            this.cooldowns.put(NarutoAbilities.getValue(new ResourceLocation(cooldown.getString("identifier"))), cooldown.getInt("cooldown"));
         }
     }
 }

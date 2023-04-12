@@ -5,7 +5,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import radon.naruto_universe.NarutoUniverse;
 
-@Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID)
+@Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class NarutoCommands {
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {

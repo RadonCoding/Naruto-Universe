@@ -1,7 +1,12 @@
 package radon.naruto_universe.ability;
 
-import com.google.common.collect.Maps;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.RegistryBuilder;
+import net.minecraftforge.registries.RegistryObject;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.jutsu.fire.*;
 import radon.naruto_universe.ability.jutsu.lightning.Lariat;
@@ -12,55 +17,49 @@ import radon.naruto_universe.ability.utility.*;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.KeyRegistry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
-import net.minecraftforge.registries.RegistryObject;
-import org.apache.commons.compress.utils.Lists;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class NarutoAbilities {
-    public static final DeferredRegister<Ability> ABILITIES = DeferredRegister.create(
+    public static DeferredRegister<Ability> ABILITIES = DeferredRegister.create(
             new ResourceLocation(NarutoUniverse.MOD_ID, "ability"), NarutoUniverse.MOD_ID);
-    public static final Supplier<IForgeRegistry<Ability>> ABILITY_REGISTRY =
+    public static Supplier<IForgeRegistry<Ability>> ABILITY_REGISTRY =
             ABILITIES.makeRegistry(RegistryBuilder::new);
 
-    public static final RegistryObject<PowerCharge> POWER_CHARGE =
+    public static RegistryObject<PowerCharge> POWER_CHARGE =
             ABILITIES.register("power_charge", PowerCharge::new);
-    public static final RegistryObject<ChakraControl> CHAKRA_CONTROL =
+    public static RegistryObject<ChakraControl> CHAKRA_CONTROL =
             ABILITIES.register("chakra_control", ChakraControl::new);
-    public static final RegistryObject<ChakraJump> CHAKRA_JUMP =
+    public static RegistryObject<ChakraJump> CHAKRA_JUMP =
             ABILITIES.register("chakra_jump", ChakraJump::new);
-    public static final RegistryObject<GreatFireball> GREAT_FIREBALL =
+    public static RegistryObject<GreatFireball> GREAT_FIREBALL =
             ABILITIES.register("great_fireball", GreatFireball::new);
-    public static final RegistryObject<PhoenixSageFire> PHOENIX_SAGE_FIRE =
+    public static RegistryObject<PhoenixSageFire> PHOENIX_SAGE_FIRE =
             ABILITIES.register("phoenix_sage_fire", PhoenixSageFire::new);
-    public static final RegistryObject<HidingInAsh> HIDING_IN_ASH =
+    public static RegistryObject<HidingInAsh> HIDING_IN_ASH =
             ABILITIES.register("hiding_in_ash", HidingInAsh::new);
-    public static final RegistryObject<GreatFlame> GREAT_FLAME =
+    public static RegistryObject<GreatFlame> GREAT_FLAME =
             ABILITIES.register("great_flame", GreatFlame::new);
-    public static final RegistryObject<GreatAnnihilation> GREAT_ANNIHILATION =
+    public static RegistryObject<GreatAnnihilation> GREAT_ANNIHILATION =
             ABILITIES.register("great_annihilation", GreatAnnihilation::new);
-    public static final RegistryObject<Ability> SHARINGAN =
+    public static RegistryObject<Ability> SHARINGAN =
             ABILITIES.register("sharingan", Sharingan::new);
-    public static final RegistryObject<Ability> RINNEGAN =
+    public static RegistryObject<Ability> MANGEKYO =
+            ABILITIES.register("mangekyo", Mangekyo::new);
+    public static RegistryObject<Ability> RINNEGAN =
             ABILITIES.register("rinnegan", Rinnegan::new);
-    public static final RegistryObject<Ability> GENJUTSU =
+    public static RegistryObject<Ability> GENJUTSU =
             ABILITIES.register("genjutsu", Genjutsu::new);
-    public static final RegistryObject<Ability> AMATERASU =
+    public static RegistryObject<Ability> AMATERASU =
             ABILITIES.register("amaterasu", Amaterasu::new);
-    public static final RegistryObject<Ability> SUSANOO =
+    public static RegistryObject<Ability> SUSANOO =
             ABILITIES.register("susanoo", Susanoo::new);
-    public static final RegistryObject<Ability> LARIAT =
+    public static RegistryObject<Ability> LARIAT =
             ABILITIES.register("lariat", Lariat::new);
 
-    private static final HashMap<Long, ResourceLocation> COMBO_MAP = Maps.newLinkedHashMap();
+    private static final HashMap<Long, ResourceLocation> COMBO_MAP = new HashMap<>();
 
     public static class ComboGenerator implements Iterator<Long> {
         private final List<Long> elements;
@@ -212,7 +211,7 @@ public class NarutoAbilities {
     public static String getStringFromCombo(long combo) {
         StringBuilder result = new StringBuilder();
 
-        List<Integer> digits = Lists.newArrayList();
+        List<Integer> digits = new ArrayList<>();
 
         collectDigits(combo, digits);
 
@@ -246,7 +245,7 @@ public class NarutoAbilities {
     }
 
     public static List<Ability> getDojutsuAbilities(Player player) {
-        final List<Ability> abilities = Lists.newArrayList();
+        List<Ability> abilities = new ArrayList<>();
 
         for (RegistryObject<Ability> ability : ABILITIES.getEntries()) {
             if (ability.get().isDojutsu() && ability.get().isUnlocked(player)) {

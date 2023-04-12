@@ -25,7 +25,6 @@ import radon.naruto_universe.sound.NarutoSounds;
 import java.util.List;
 import java.util.Random;
 
-@Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class Sharingan extends Ability implements Ability.IToggled, Ability.ISpecial {
     @Override
     public boolean isDojutsu() {
@@ -48,7 +47,7 @@ public class Sharingan extends Ability implements Ability.IToggled, Ability.ISpe
     }
 
     @Override
-    public AbilityDisplayInfo getDisplay() {
+    public AbilityDisplayInfo getDisplay(LivingEntity owner) {
         return new AbilityDisplayInfo(this.getId().getPath(), 6.0F, 0.0F);
     }
 
@@ -63,57 +62,8 @@ public class Sharingan extends Ability implements Ability.IToggled, Ability.ISpe
     }
 
     @Override
-    public float getCost() {
+    public float getCost(LivingEntity owner) {
         return 0.025F;
-    }
-
-    @SubscribeEvent
-    public static void onProjectileImpact(final ProjectileImpactEvent event) {
-        if (event.getRayTraceResult() instanceof EntityHitResult result) {
-            final Entity entity = result.getEntity();
-
-            entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                if (cap.hasToggledAbility(NarutoAbilities.SHARINGAN.get())) {
-                    final Random rand = new Random();
-
-                    if (entity.level instanceof ServerLevel serverLevel) {
-                        serverLevel.sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + (entity.getBbHeight() / 2.0F), entity.getZ(), 0,
-                                0.0D, 0.0D, 0.0D, 0.0D);
-                    }
-
-                    BlockPos pos = entity.blockPosition();
-                    double diffX = entity.getX() - pos.getX();
-                    double diffZ = entity.getZ() - pos.getZ();
-
-                    Vec3 movement = entity.getDeltaMovement();
-
-                    if (diffX <= 0.1D) {
-                        movement = new Vec3(rand.nextDouble(), 0.0D, movement.z());
-                    } else if (diffX >= 0.9D) {
-                        movement = new Vec3(-rand.nextDouble(), 0.0D, movement.z());
-                    } else if (diffZ <= 0.1D) {
-                        movement = new Vec3(movement.x(), 0.0D, rand.nextDouble());
-                    } else if (diffZ >= 0.9D) {
-                        movement = new Vec3(movement.x(), 0.0D, -rand.nextDouble());
-                    } else {
-                        movement = new Vec3(rand.nextDouble() * 2.0D - 1.0D, 0.0D, rand.nextDouble() * 2.0D - 1.0D);
-                    }
-
-                    entity.setDeltaMovement(movement);
-                    event.setCanceled(true);
-                }
-            });
-        }
-    }
-
-    @Override
-    public void runClient(LivingEntity owner) {
-
-    }
-
-    @Override
-    public void runServer(LivingEntity owner) {
-
     }
 
     @Override
@@ -128,6 +78,6 @@ public class Sharingan extends Ability implements Ability.IToggled, Ability.ISpe
 
     @Override
     public List<Ability> getSpecialAbilities() {
-        return List.of(NarutoAbilities.GENJUTSU.get(), NarutoAbilities.AMATERASU.get(), NarutoAbilities.SUSANOO.get());
+        return List.of(NarutoAbilities.GENJUTSU.get());
     }
 }

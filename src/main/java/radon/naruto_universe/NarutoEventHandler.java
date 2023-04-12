@@ -1,13 +1,20 @@
 package radon.naruto_universe;
 
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
@@ -15,17 +22,21 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.INinjaPlayer;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaTrait;
+import radon.naruto_universe.entity.NarutoEntities;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
+
+import java.util.Random;
 
 public class NarutoEventHandler {
     @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
     public static class ForgeEvents {
         @SubscribeEvent
-        public static void onPlayerLoggedIn(final PlayerEvent.PlayerLoggedInEvent event) {
+        public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
             if (event.getEntity() instanceof ServerPlayer player) {
                 player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                     PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
@@ -34,7 +45,46 @@ public class NarutoEventHandler {
         }
 
         @SubscribeEvent
-        public static void onLivingFall(final LivingFallEvent event) {
+        public static void onProjectileImpact(ProjectileImpactEvent event) {
+            if (event.getRayTraceResult() instanceof EntityHitResult result) {
+                Entity entity = result.getEntity();
+
+                entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+                    if (cap.hasToggledAbility(NarutoAbilities.SHARINGAN.get()) || cap.hasToggledAbility(NarutoAbilities.MANGEKYO.get())) {
+                        Random rand = new Random();
+
+                        if (entity.level instanceof ServerLevel serverLevel) {
+                            serverLevel.sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + (entity.getBbHeight() / 2.0F), entity.getZ(), 0,
+                                    0.0D, 0.0D, 0.0D, 0.0D);
+                        }
+
+                        BlockPos pos = entity.blockPosition();
+                        double diffX = entity.getX() - pos.getX();
+                        double diffZ = entity.getZ() - pos.getZ();
+
+                        Vec3 movement = entity.getDeltaMovement();
+
+                        if (diffX <= 0.1D) {
+                            movement = new Vec3(rand.nextDouble(), 0.0D, movement.z());
+                        } else if (diffX >= 0.9D) {
+                            movement = new Vec3(-rand.nextDouble(), 0.0D, movement.z());
+                        } else if (diffZ <= 0.1D) {
+                            movement = new Vec3(movement.x(), 0.0D, rand.nextDouble());
+                        } else if (diffZ >= 0.9D) {
+                            movement = new Vec3(movement.x(), 0.0D, -rand.nextDouble());
+                        } else {
+                            movement = new Vec3(rand.nextDouble() * 2.0D - 1.0D, 0.0D, rand.nextDouble() * 2.0D - 1.0D);
+                        }
+
+                        entity.setDeltaMovement(movement);
+                        event.setCanceled(true);
+                    }
+                });
+            }
+        }
+
+        @SubscribeEvent
+        public static void onLivingFall(LivingFallEvent event) {
             if (event.getEntity() instanceof Player) {
                 if (event.getDistance() < 20.0F) {
                     event.setCanceled(true);
@@ -43,7 +93,7 @@ public class NarutoEventHandler {
         }
 
         @SubscribeEvent
-        public static void onPLayerChangeDimension(final PlayerEvent.PlayerChangedDimensionEvent event) {
+        public static void onPLayerChangeDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
             if (event.getEntity() instanceof ServerPlayer serverPlayer) {
                 serverPlayer.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap ->
                         PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), serverPlayer));
@@ -51,7 +101,7 @@ public class NarutoEventHandler {
         }
 
         @SubscribeEvent
-        public static void onPlayerRespawn(final PlayerEvent.PlayerRespawnEvent event) {
+        public static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
             if (event.getEntity() instanceof ServerPlayer serverPlayer) {
                 serverPlayer.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap ->
                         PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), serverPlayer));
@@ -59,7 +109,7 @@ public class NarutoEventHandler {
         }
 
         @SubscribeEvent
-        public static void onPlayerClone(final PlayerEvent.Clone event) {
+        public static void onPlayerClone(PlayerEvent.Clone event) {
             Player original = event.getOriginal();
             Player player = event.getEntity();
 
@@ -79,8 +129,8 @@ public class NarutoEventHandler {
         }
 
         @SubscribeEvent
-        public static void onPlayerWakeUp(final PlayerWakeUpEvent event) {
-            final Player player = event.getEntity();
+        public static void onPlayerWakeUp(PlayerWakeUpEvent event) {
+            Player player = event.getEntity();
 
             player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                 cap.setChakra(cap.getMaxChakra());
@@ -88,7 +138,7 @@ public class NarutoEventHandler {
         }
 
         @SubscribeEvent
-        public static void onLivingDeath(final LivingDeathEvent event) {
+        public static void onLivingDeath(LivingDeathEvent event) {
             Entity entity = event.getEntity();
 
             if (entity instanceof TamableAnimal tamable) {
@@ -118,13 +168,13 @@ public class NarutoEventHandler {
         }
 
         @SubscribeEvent
-        public static void onLivingTick(final LivingEvent.LivingTickEvent event) {
-            final LivingEntity entity = event.getEntity();
+        public static void onLivingTick(LivingEvent.LivingTickEvent event) {
+            LivingEntity entity = event.getEntity();
             entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.tick(entity, entity.level.isClientSide));
         }
 
         @SubscribeEvent
-        public static void onAttachCapabilities(final AttachCapabilitiesEvent<Entity> event) {
+        public static void onAttachCapabilities(AttachCapabilitiesEvent<Entity> event) {
             if (event.getObject() instanceof Player player) {
                 if (!player.getCapability(NinjaPlayerHandler.INSTANCE).isPresent()) {
                     NinjaPlayerHandler.attach(event);
@@ -136,7 +186,12 @@ public class NarutoEventHandler {
     @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
     public static class ModEvents {
         @SubscribeEvent
-        public static void onRegisterCapabilities(final RegisterCapabilitiesEvent event) {
+        public static void onCreateAttributes(EntityAttributeCreationEvent event) {
+            NarutoEntities.createAttributes(event);
+        }
+
+        @SubscribeEvent
+        public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
             event.register(INinjaPlayer.class);
         }
     }

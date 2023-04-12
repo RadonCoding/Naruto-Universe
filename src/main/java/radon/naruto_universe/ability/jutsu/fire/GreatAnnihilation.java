@@ -4,6 +4,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.LogicalSide;
+import org.jline.utils.Log;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
@@ -29,7 +31,7 @@ public class GreatAnnihilation extends Ability {
     }
 
     @Override
-    public AbilityDisplayInfo getDisplay() {
+    public AbilityDisplayInfo getDisplay(LivingEntity owner) {
         return new AbilityDisplayInfo(this.getId().getPath(), 6.0F, 2.0F);
     }
 
@@ -48,7 +50,7 @@ public class GreatAnnihilation extends Ability {
     }
 
     @Override
-    public float getCost() {
+    public float getCost(LivingEntity owner) {
         return 25.0F;
     }
 
@@ -63,24 +65,19 @@ public class GreatAnnihilation extends Ability {
     }
 
     @Override
-    public void runClient(LivingEntity owner) {
-
-    }
-
-    @Override
     public void runServer(LivingEntity owner) {
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             owner.level.playSound(null, owner.blockPosition(), NarutoSounds.GREAT_ANNIHILATION.get(),
                     SoundSource.PLAYERS, 1.0F, 1.0F);
 
-            cap.delayTickEvent((playerClone) -> {
-                final Random rand = new Random();
-                final int lifetime = rand.nextInt(30, 60);
+            cap.delayTickEvent((ownerClone) -> {
+                Random rand = new Random();
+                int duration = Math.max(10, Math.round(this.getPower())) * rand.nextInt(5, 10);
 
-                final Vec3 look = playerClone.getLookAngle();
+                Vec3 look = ownerClone.getLookAngle();
                 owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(),
-                        NinjaTrait.FIRE_RELEASE, NarutoParticles.FLAME.get(), lifetime, 15.0F, 10.0F));
-            }, 2 * 20);
+                        NinjaTrait.FIRE_RELEASE, NarutoParticles.FLAME.get(), duration, 15.0F, 25.0F, 0.5F, true));
+            }, 2 * 20, LogicalSide.SERVER);
         });
     }
 }

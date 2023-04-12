@@ -11,9 +11,10 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import org.jetbrains.annotations.NotNull;
+import radon.naruto_universe.client.NarutoEffects;
 
 public class NarutoParticleRenderTypes {
-    public static final ParticleRenderType GLOW = new ParticleRenderType() {
+    public static ParticleRenderType GLOW = new ParticleRenderType() {
         @Override
         public void begin(BufferBuilder buffer, @NotNull TextureManager manager) {
             Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
@@ -33,12 +34,15 @@ public class NarutoParticleRenderTypes {
         }
     };
 
-    public static final ParticleRenderType TRANSLUCENT = new ParticleRenderType() {
+    public static ParticleRenderType TRANSLUCENT = new ParticleRenderType() {
         @Override
-        public void begin(BufferBuilder buffer, TextureManager manager) {
+        public void begin(BufferBuilder buffer, @NotNull TextureManager manager) {
             RenderSystem.depthMask(false);
-            RenderSystem.enableDepthTest();
             RenderSystem.enableBlend();
+            RenderSystem.enableCull();
+            RenderSystem.enableDepthTest();
+            RenderSystem.setShader(NarutoEffects::getTranslucentParticleShader);
+            RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);
         }
@@ -46,7 +50,6 @@ public class NarutoParticleRenderTypes {
         @Override
         public void end(Tesselator tesselator) {
             tesselator.end();
-            RenderSystem.disableDepthTest();
         }
     };
 }

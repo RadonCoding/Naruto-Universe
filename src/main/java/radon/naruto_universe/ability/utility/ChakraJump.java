@@ -35,7 +35,7 @@ public class ChakraJump extends Ability {
     }
 
     @Override
-    public AbilityDisplayInfo getDisplay() {
+    public AbilityDisplayInfo getDisplay(LivingEntity owner) {
         return new AbilityDisplayInfo(this.getId().getPath(), 4.0F, 0.0F);
     }
 
@@ -45,7 +45,7 @@ public class ChakraJump extends Ability {
     }
 
     @Override
-    public float getCost() {
+    public float getCost(LivingEntity owner) {
         return 1.0F;
     }
 

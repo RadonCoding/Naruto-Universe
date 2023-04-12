@@ -25,9 +25,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class KunaiItem extends Item implements Vanishable {
-    public static final int THROW_THRESHOLD_TIME = 1;
-    public static final float BASE_DAMAGE = 8.0F;
-    public static final float SHOOT_POWER = 2.5F;
+    public static int THROW_THRESHOLD_TIME = 1;
+    public static float BASE_DAMAGE = 8.0F;
+    public static float SHOOT_POWER = 2.5F;
     private final Multimap<Attribute, AttributeModifier> defaultModifiers;
 
     public KunaiItem(Item.Properties pProperties) {
@@ -58,10 +58,6 @@ public class KunaiItem extends Item implements Vanishable {
         if (pLivingEntity instanceof Player player) {
             if (this.getUseDuration(pStack) - pTimeCharged >= THROW_THRESHOLD_TIME) {
                 if (!pLevel.isClientSide) {
-                    pStack.hurtAndBreak(1, player, (entity) -> {
-                        entity.broadcastBreakEvent(player.getUsedItemHand());
-                    });
-
                     ThrownKunaiEntity thrownKunai = new ThrownKunaiEntity(pLevel, player, pStack);
                     thrownKunai.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, SHOOT_POWER, 1.0F);
 
@@ -73,7 +69,11 @@ public class KunaiItem extends Item implements Vanishable {
                     pLevel.playSound(null, thrownKunai, NarutoSounds.KUNAI_THROW.get(), SoundSource.PLAYERS, 1.0F, 1.0F);
 
                     if (!player.getAbilities().instabuild) {
-                        player.getInventory().removeItem(pStack);
+                        pStack.shrink(1);
+
+                        if (pStack.isEmpty()) {
+                            player.getInventory().removeItem(pStack);
+                        }
                     }
                 }
             }
@@ -83,33 +83,8 @@ public class KunaiItem extends Item implements Vanishable {
     @Override
     public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level pLevel, Player pPlayer, @NotNull InteractionHand pHand) {
         ItemStack stack = pPlayer.getItemInHand(pHand);
-
-        if (stack.getDamageValue() >= stack.getMaxDamage() - 1) {
-            return InteractionResultHolder.fail(stack);
-        } else if (EnchantmentHelper.getRiptide(stack) > 0 && !pPlayer.isInWaterOrRain()) {
-            return InteractionResultHolder.fail(stack);
-        } else {
-            pPlayer.startUsingItem(pHand);
-            return InteractionResultHolder.consume(stack);
-        }
-    }
-
-    @Override
-    public boolean hurtEnemy(ItemStack pStack, @NotNull LivingEntity pTarget, @NotNull LivingEntity pAttacker) {
-        pStack.hurtAndBreak(1, pAttacker, (entity) -> {
-            entity.broadcastBreakEvent(EquipmentSlot.MAINHAND);
-        });
-        return true;
-    }
-
-    @Override
-    public boolean mineBlock(@NotNull ItemStack pStack, @NotNull Level pLevel, BlockState pState, @NotNull BlockPos pPos, @NotNull LivingEntity pEntityLiving) {
-        if ((double) pState.getDestroySpeed(pLevel, pPos) != 0.0D) {
-            pStack.hurtAndBreak(2, pEntityLiving, (entity) -> {
-                entity.broadcastBreakEvent(EquipmentSlot.MAINHAND);
-            });
-        }
-        return true;
+        pPlayer.startUsingItem(pHand);
+        return InteractionResultHolder.consume(stack);
     }
 
     @Override

@@ -1,5 +1,5 @@
 {
-  "parent": "minecraft:item/handheld",
+  "parent": "item/handheld",
   "gui_light": "front",
   "textures": {
     "layer0": "naruto_universe:item/kunai"

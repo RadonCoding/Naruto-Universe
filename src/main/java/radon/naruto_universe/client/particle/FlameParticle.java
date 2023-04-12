@@ -11,17 +11,17 @@ public class FlameParticle extends TextureSheetParticle {
     protected FlameParticle(ClientLevel pLevel, double pX, double pY, double pZ, double pXSpeed, double pYSpeed, double pZSpeed, SpriteSet pSprites) {
         super(pLevel, pX, pY, pZ, pXSpeed, pYSpeed, pZSpeed);
 
-        this.lifetime = 20;
+        this.lifetime = 10;
 
         this.xd = pXSpeed;
         this.yd = this.random.nextFloat() * pYSpeed;
         this.zd = pZSpeed;
 
-        this.rCol = 255.0F / 255.0F;
+        this.rCol = 1.0f;
         this.gCol = 75.0F / 255.0F;
         this.bCol = 0.0F / 255.0F;
 
-        this.alpha = 1.0F - this.random.nextFloat();
+        this.alpha = this.random.nextFloat() * 0.25F;
 
         this.quadSize = Math.max(1.5F, this.random.nextFloat() * 1.5F);
 

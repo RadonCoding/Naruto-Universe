@@ -12,15 +12,16 @@ import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SpecialAbilityHandler {
     private static int selected;
-    private static final List<Ability> _abilities = Lists.newArrayList();
+    private static final List<Ability> _abilities = new ArrayList<>();
 
     public static boolean scroll(int direction) {
-        final int i = -(int) Math.signum(direction);
-        final int count = _abilities.size();
+        int i = -(int) Math.signum(direction);
+        int count = _abilities.size();
 
         if (count == 0) {
             return false;
@@ -39,16 +40,15 @@ public class SpecialAbilityHandler {
     }
 
     public static void triggerSelectedAbility() {
-        Ability ability = _abilities.get(selected);
-
-        if (ability != null) {
+        if (_abilities.size() > selected) {
+            Ability ability = _abilities.get(selected);
             PacketHandler.sendToServer(new TriggerAbilityC2SPacket(ability.getId()));
             ClientAbilityHandler.triggerAbility(ability);
         }
     }
 
     private static Ability getAbility(int idx) {
-        final int count = _abilities.size();
+        int count = _abilities.size();
 
         while (idx < 0) {
             idx += count;
@@ -61,7 +61,7 @@ public class SpecialAbilityHandler {
     }
 
     private static void renderAbility(PoseStack poseStack, int yOffset, Font font, int idx, int color) {
-        final Minecraft mc = Minecraft.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
         int screenWidth = mc.getWindow().getGuiScaledWidth();
 
@@ -69,14 +69,14 @@ public class SpecialAbilityHandler {
 
         if (ability != null) {
             Component name = ability.getName();
-            final int x = screenWidth - font.width(name) - 20;
-            final int y = 20 + yOffset;
+            int x = screenWidth - font.width(name) - 20;
+            int y = 20 + yOffset;
             font.drawShadow(poseStack, name, x, y, color);
         }
     }
 
-    public static final IGuiOverlay SPECIAL_ABILITY = (gui, poseStack, partialTicks, width, height) -> {
-        final Minecraft mc = gui.getMinecraft();
+    public static IGuiOverlay SPECIAL_ABILITY = (gui, poseStack, partialTicks, width, height) -> {
+        Minecraft mc = gui.getMinecraft();
         LocalPlayer player = mc.player;
 
         assert player != null;
@@ -91,18 +91,24 @@ public class SpecialAbilityHandler {
         });
 
         if (_abilities.size() > 0) {
-            final Font font = gui.getFont();
+            Font font = gui.getFont();
 
             int y = 0;
 
             poseStack.pushPose();
 
-            renderAbility(poseStack, y, font, selected - 1, 11513775);
-            y += font.lineHeight;
-            renderAbility(poseStack, y, font, selected, 16777215);
-            y += font.lineHeight;
-            renderAbility(poseStack, y, font, selected + 1, 11513775);
-
+            if (_abilities.size() > 2) {
+                renderAbility(poseStack, y, font, selected - 1, 11513775);
+                y += font.lineHeight;
+            }
+            if (_abilities.size() > 0) {
+                renderAbility(poseStack, y, font, selected, 16777215);
+                y += font.lineHeight;
+            }
+            if (_abilities.size() > 1) {
+                renderAbility(poseStack, y, font, selected + 1, 11513775);
+                y += font.lineHeight;
+            }
             poseStack.popPose();
         }
     };

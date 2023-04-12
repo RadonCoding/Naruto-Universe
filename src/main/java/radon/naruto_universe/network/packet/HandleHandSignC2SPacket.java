@@ -45,7 +45,7 @@ public class HandleHandSignC2SPacket {
             assert sound != null;
 
             player.level.playSound(null, player.blockPosition(),
-                    sound, SoundSource.PLAYERS, 10.0F, 1.0F);
+                    sound, SoundSource.PLAYERS, 1.0F, 1.0F);
         });
         ctx.setPacketHandled(true);
     }

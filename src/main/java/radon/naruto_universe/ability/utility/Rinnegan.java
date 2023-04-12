@@ -34,8 +34,8 @@ public class Rinnegan extends Ability implements Ability.IToggled {
     }
 
     @Override
-    public AbilityDisplayInfo getDisplay() {
-        return new AbilityDisplayInfo(this.getId().getPath(), 7.0F, 0.0F);
+    public AbilityDisplayInfo getDisplay(LivingEntity owner) {
+        return new AbilityDisplayInfo(this.getId().getPath(), 8.0F, 0.0F);
     }
 
     @Override
@@ -45,22 +45,12 @@ public class Rinnegan extends Ability implements Ability.IToggled {
 
     @Override
     public Ability getParent() {
-        return NarutoAbilities.SHARINGAN.get();
+        return NarutoAbilities.MANGEKYO.get();
     }
 
     @Override
-    public float getCost() {
+    public float getCost(LivingEntity owner) {
         return 0.05F;
-    }
-
-    @Override
-    public void runClient(LivingEntity owner) {
-
-    }
-
-    @Override
-    public void runServer(LivingEntity owner) {
-
     }
 
     @Override

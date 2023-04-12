@@ -12,7 +12,7 @@ public class Amaterasu extends Ability {
     }
 
     @Override
-    public AbilityDisplayInfo getDisplay() {
+    public AbilityDisplayInfo getDisplay(LivingEntity owner) {
         return null;
     }
 

@@ -11,6 +11,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import radon.naruto_universe.ability.Ability;
+import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaPlayer;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
@@ -40,7 +41,7 @@ public class PowerCharge extends Ability implements Ability.IChanneled {
     }
 
     @Override
-    public AbilityDisplayInfo getDisplay() {
+    public AbilityDisplayInfo getDisplay(LivingEntity owner) {
         return new AbilityDisplayInfo(this.getId().getPath(), 0.0F, 0.0F);
     }
 
@@ -64,6 +65,8 @@ public class PowerCharge extends Ability implements Ability.IChanneled {
                     Math.max(NinjaPlayer.POWER_CHARGE_AMOUNT, (cap.getRank().ordinal() * 10.0F) * NinjaPlayer.POWER_CHARGE_AMOUNT);
             cap.addPower(amount);
             cap.setPowerResetTimer(0);
+
+            owner.setDeltaMovement(Vec3.ZERO.add(0.0D, owner.getDeltaMovement().y(), 0.0D));
         });
     }
 
@@ -88,9 +91,9 @@ public class PowerCharge extends Ability implements Ability.IChanneled {
         }
 
         for (int i = 0; i < 8; i++) {
-            level.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.5F, 0.1F, true, 1),
+            level.sendParticles(new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.CHAKRA_COLOR, 1.5F, 0.5F, false, 1),
                     owner.getX() + (rand.nextGaussian() * 0.1D), owner.getY() + rand.nextDouble(owner.getBbHeight()), owner.getZ() + (rand.nextGaussian() * 0.1D),
-                    0, rand.nextGaussian() * 0.1D, rand.nextDouble() * 1.5D, rand.nextGaussian() * 0.1D, 1.0D);
+                    0, 0.0D, rand.nextDouble(), 0.0D, 2.5D);
         }
     }
 }

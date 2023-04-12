@@ -10,9 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 public class ChakraBarOverlay {
-    public static final ResourceLocation TEXTURE = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/overlay/chakra_bar.png");
+    public static ResourceLocation TEXTURE = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/overlay/chakra_bar.png");
 
-    public static final IGuiOverlay HUD_CHAKRA_BAR = (gui, poseStack, partialTicks, width, height) -> {
+    public static IGuiOverlay HUD_CHAKRA_BAR = (gui, poseStack, partialTicks, width, height) -> {
         RenderSystem.disableDepthTest();
         RenderSystem.depthMask(false);
         RenderSystem.defaultBlendFunc();

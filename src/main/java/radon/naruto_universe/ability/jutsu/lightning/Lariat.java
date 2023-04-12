@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.Ability;
@@ -31,8 +32,8 @@ import java.util.Random;
 @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class Lariat extends Ability {
     private static final float LAUNCH_POWER = 20.0F;
-    private static final float REQUIRED_SPEED = 30.0F;
-    private static final float SPEED_DAMAGE_MULTIPLIER = 2.5F;
+    private static final float REQUIRED_SPEED = 1.5F;
+    private static final float SPEED_DAMAGE_MULTIPLIER = 50.0F;
 
     @Override
     public NinjaRank getRank() {
@@ -40,7 +41,7 @@ public class Lariat extends Ability {
     }
 
     @Override
-    public AbilityDisplayInfo getDisplay() {
+    public AbilityDisplayInfo getDisplay(LivingEntity owner) {
         return new AbilityDisplayInfo(this.getId().getPath(), 2.0F, 3.0F);
     }
 
@@ -65,7 +66,7 @@ public class Lariat extends Ability {
     }
 
     @SubscribeEvent
-    public static void onLivingAttack(final LivingAttackEvent event) {
+    public static void onLivingAttack(LivingAttackEvent event) {
         if (!event.getSource().msgId.equals("mob") && !event.getSource().msgId.equals("player")) {
             return;
         }
@@ -74,11 +75,11 @@ public class Lariat extends Ability {
             if (attacker.level.isClientSide) {
                 attacker.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                     if (cap.hasUnlockedAbility(NarutoAbilities.LARIAT.get())) {
-                        final Vec3 movement = attacker.getDeltaMovement();
-                        final double speed = Math.sqrt(movement.x() * movement.x() + movement.z() * movement.z()) * 20;
+                        Vec3 movement = attacker.getDeltaMovement();
+                        double speed = Math.sqrt(movement.x() * movement.x() + movement.z() * movement.z());
 
-                        if (speed > REQUIRED_SPEED) {
-                            final Ability ability = NarutoAbilities.LARIAT.get();
+                        if (speed >= REQUIRED_SPEED) {
+                            Ability ability = NarutoAbilities.LARIAT.get();
                             PacketHandler.sendToServer(new SetMovementSpeedC2SPacket(speed));
                             PacketHandler.sendToServer(new TriggerAbilityC2SPacket(ability.getId()));
                             ClientAbilityHandler.triggerAbility(ability);
@@ -91,6 +92,20 @@ public class Lariat extends Ability {
 
     @Override
     public void runClient(LivingEntity owner) {
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            cap.delayTickEvent((ownerClone) -> {
+                LivingEntity target = ownerClone.getLastHurtMob();
+
+                if (target != null) {
+                    Vec3 look = ownerClone.getLookAngle();
+                    target.setDeltaMovement(look.x() * LAUNCH_POWER, look.y() * LAUNCH_POWER, look.z() * LAUNCH_POWER);
+
+                    ownerClone.moveTo(target.position());
+                    ownerClone.setDeltaMovement(target.getDeltaMovement());
+                }
+            }, 1, LogicalSide.CLIENT);
+        });
+
         if (owner instanceof LocalPlayer) {
             CameraShakeHandler.shakeCamera(2.5F, 5.0F, 20);
         }
@@ -108,18 +123,16 @@ public class Lariat extends Ability {
                 LivingEntity target = ownerClone.getLastHurtMob();
 
                 if (target != null) {
-                    final Vec3 look = ownerClone.getLookAngle();
+                    Vec3 look = ownerClone.getLookAngle();
                     target.setDeltaMovement(look.x() * LAUNCH_POWER, look.y() * LAUNCH_POWER, look.z() * LAUNCH_POWER);
-                    target.hurtMarked = true;
 
                     ownerClone.moveTo(target.position());
                     ownerClone.setDeltaMovement(target.getDeltaMovement());
-                    ownerClone.hurtMarked = true;
 
                     DamageSource source = owner instanceof Player ? DamageSource.playerAttack((Player) owner) : DamageSource.mobAttack(owner);
                     target.hurt(source, (float) (cap.getMovementSpeed() * SPEED_DAMAGE_MULTIPLIER));
 
-                    final Random rand = new Random();
+                    Random rand = new Random();
 
                     for (int i = 0; i < 5; i++) {
                         ServerLevel level = (ServerLevel) ownerClone.level;
@@ -134,7 +147,7 @@ public class Lariat extends Ability {
                                 0, 1.0D, 1.0D, 1.0D, 0.1D);
                     }
                 }
-            }, 1);
+            }, 1, LogicalSide.SERVER);
         });
     }
 }

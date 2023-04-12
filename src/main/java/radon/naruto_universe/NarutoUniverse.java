@@ -27,7 +27,7 @@ public class NarutoUniverse {
 
     public NarutoUniverse()
     {
-        final ModLoadingContext ctx = ModLoadingContext.get();
+        ModLoadingContext ctx = ModLoadingContext.get();
         ctx.registerConfig(ModConfig.Type.CLIENT, ConfigHolder.CLIENT_SPEC);
         ctx.registerConfig(ModConfig.Type.COMMON, ConfigHolder.SERVER_SPEC);
 
@@ -44,12 +44,12 @@ public class NarutoUniverse {
         bus.addListener(NarutoUniverse::onClientSetup);
     }
 
-    public static void onCommonSetup(final FMLCommonSetupEvent event) {
+    public static void onCommonSetup(FMLCommonSetupEvent event) {
         PacketHandler.register();
         NarutoAbilities.registerCombos();
     }
 
-    public static void onClientSetup(final FMLClientSetupEvent event) {
+    public static void onClientSetup(FMLClientSetupEvent event) {
         ItemProperties.register(NarutoItems.KUNAI.get(), new ResourceLocation("throwing"),
                 (pStack,  pLevel, pEntity, pSeed) -> pEntity != null && pEntity.isUsingItem() && pEntity.getUseItem() == pStack ? 1.0F : 0.0F);
     }

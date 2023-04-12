@@ -1,6 +1,8 @@
 package radon.naruto_universe.client.gui.tab;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.GameRenderer;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.client.gui.NinjaScreen;
@@ -19,9 +21,24 @@ public class InfoTab extends NinjaTab{
 
     @Override
     public void drawContents(PoseStack pPoseStack) {
+        pPoseStack.pushPose();
+        pPoseStack.translate(0.0D, 0.0D, 950.0D);
+        RenderSystem.enableDepthTest();
+        RenderSystem.colorMask(false, false, false, false);
+        fill(pPoseStack, 4680, 2260, -4680, -2260, -16777216);
+        RenderSystem.colorMask(true, true, true, true);
+        pPoseStack.translate(0.0D, 0.0D, -950.0D);
+        RenderSystem.depthFunc(518);
+        fill(pPoseStack, 234, 113, 0, 0, -16777216);
+        RenderSystem.depthFunc(515);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
+
         super.drawContents(pPoseStack);
 
         LocalPlayer player = this.mc.player;
+
+        assert player != null;
 
         player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             int i = 7;
@@ -33,5 +50,13 @@ public class InfoTab extends NinjaTab{
             this.mc.font.drawShadow(pPoseStack, rank, i, j, 16777215);
             j += this.mc.font.lineHeight + 2;
         });
+
+        RenderSystem.depthFunc(518);
+        pPoseStack.translate(0.0F, 0.0F, -950.0F);
+        RenderSystem.colorMask(false, false, false, false);
+        fill(pPoseStack, 4680, 2260, -4680, -2260, -16777216);
+        RenderSystem.colorMask(true, true, true, true);
+        RenderSystem.depthFunc(515);
+        pPoseStack.popPose();
     }
 }

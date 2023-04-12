@@ -12,6 +12,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
+import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.particle.NarutoParticles;
 
@@ -70,12 +71,12 @@ public class JutsuProjectile extends AbstractHurtingProjectile {
     }
 
     @Override
-    protected ParticleOptions getTrailParticle() {
+    protected @NotNull ParticleOptions getTrailParticle() {
         return NarutoParticles.EMPTY.get();
     }
 
     @Override
-    protected void onHitEntity(EntityHitResult pResult) {
+    protected void onHitEntity(@NotNull EntityHitResult pResult) {
         super.onHitEntity(pResult);
 
         if (pResult.getEntity() instanceof JutsuProjectile projectile) {

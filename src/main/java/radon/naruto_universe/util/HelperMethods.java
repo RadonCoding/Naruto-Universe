@@ -4,12 +4,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import org.joml.Quaternionf;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 
 public class HelperMethods {
-    private static final SecureRandom random = new SecureRandom();
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     public static <T extends Enum<?>> T randomEnum(Class<T> enumClass){
-        int x = random.nextInt(enumClass.getEnumConstants().length);
+        int x = RANDOM.nextInt(enumClass.getEnumConstants().length);
         return enumClass.getEnumConstants()[x];
     }
 
