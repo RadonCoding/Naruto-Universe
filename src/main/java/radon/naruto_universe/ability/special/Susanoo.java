@@ -113,17 +113,6 @@ public class Susanoo extends Ability implements Ability.IToggled {
     public void onDisabled(LivingEntity owner, boolean isClientSide) {
         if (owner.getVehicle() instanceof SusanooEntity susanoo) {
             susanoo.discard();
-
-            AttributeInstance reachAttribute = owner.getAttribute(REACH_DISTANCE.get());
-            AttributeInstance meleeAttribute = owner.getAttribute(Attributes.ATTACK_DAMAGE);
-
-            if (reachAttribute != null) {
-                reachAttribute.removeModifier(SusanooEntity.REACH_DISTANCE_UUID);
-            }
-
-            if (meleeAttribute != null) {
-                meleeAttribute.removeModifier(SusanooEntity.ATTACK_DAMAGE_UUID);
-            }
         }
     }
 

@@ -82,6 +82,8 @@ public class Lariat extends Ability {
                             Ability ability = NarutoAbilities.LARIAT.get();
                             PacketHandler.sendToServer(new SetMovementSpeedC2SPacket(speed));
                             PacketHandler.sendToServer(new TriggerAbilityC2SPacket(ability.getId()));
+
+                            attacker.setLastHurtMob(event.getEntity());
                             ClientAbilityHandler.triggerAbility(ability);
                         }
                     }
@@ -93,17 +95,15 @@ public class Lariat extends Ability {
     @Override
     public void runClient(LivingEntity owner) {
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            cap.delayTickEvent((ownerClone) -> {
-                LivingEntity target = ownerClone.getLastHurtMob();
+            LivingEntity target = owner.getLastHurtMob();
 
-                if (target != null) {
-                    Vec3 look = ownerClone.getLookAngle();
-                    target.setDeltaMovement(look.x() * LAUNCH_POWER, look.y() * LAUNCH_POWER, look.z() * LAUNCH_POWER);
+            if (target != null) {
+                Vec3 look = owner.getLookAngle();
+                target.setDeltaMovement(look.x() * LAUNCH_POWER, look.y() * LAUNCH_POWER, look.z() * LAUNCH_POWER);
 
-                    ownerClone.moveTo(target.position());
-                    ownerClone.setDeltaMovement(target.getDeltaMovement());
-                }
-            }, 1, LogicalSide.CLIENT);
+                owner.moveTo(target.position());
+                owner.setDeltaMovement(target.getDeltaMovement());
+            }
         });
 
         if (owner instanceof LocalPlayer) {

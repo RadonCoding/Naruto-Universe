@@ -1,5 +1,6 @@
 package radon.naruto_universe.entity;
 
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -12,17 +13,17 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
+import oshi.software.os.OSProcess;
 import radon.naruto_universe.capability.MangekyoType;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.SusanooStage;
@@ -42,11 +43,10 @@ import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.UUID;
 
-import static net.minecraftforge.common.ForgeMod.REACH_DISTANCE;
-
-public class SusanooEntity extends Mob implements GeoAnimatable {
+public class SusanooEntity extends LivingEntity implements GeoAnimatable {
     public static final RawAnimation GRAB = RawAnimation.begin().thenPlayAndHold("attack.grab");
-    public static final RawAnimation SWING = RawAnimation.begin().thenPlayAndHold("attack.swing");
+    public static final RawAnimation SWING = RawAnimation.begin().thenPlay("attack.swing");
+    public static final RawAnimation CRUSH = RawAnimation.begin().thenLoop("attack.crush");
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private UUID ownerUUID;
@@ -59,9 +59,8 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     private int crushingTime;
     private Entity grabbed;
 
-    public static final UUID REACH_DISTANCE_UUID = UUID.fromString("D1BCE29F-8660-464F-9B44-51E2E56F7870");
-    public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("D1BCE29F-8660-464F-9B44-51E2E56F7871");
-    private static final UUID MAX_HEALTH_UUID = UUID.fromString("D1BCE29F-8660-464F-9B44-51E2E56F7872");
+    private final NonNullList<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
+    private final NonNullList<ItemStack> armorItems = NonNullList.withSize(4, ItemStack.EMPTY);
 
     public SusanooEntity(EntityType<? extends SusanooEntity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -84,7 +83,6 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
             this.variant = cap.getMangekyoType();
             this.stage = SusanooStage.RIBCAGE;
         });
-        this.updateModifiers(stage);
     }
 
     public SusanooStage getStage() {
@@ -124,7 +122,6 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
 
                 if (cap.getExperience() >= newStage.getExperience()) {
                     this.stage = newStage;
-                    this.updateModifiers(newStage);
                 }
             }
         });
@@ -135,14 +132,14 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
         SusanooStage[] stages = SusanooStage.values();
 
         if (stage > 0) {
-            SusanooStage newStage = stages[--stage];
-            this.stage = newStage;
-            this.updateModifiers(newStage);
+            this.stage = stages[--stage];
         }
     }
 
     public void onLeftClick() {
-        this.swing(InteractionHand.MAIN_HAND);
+        if (!this.grabbing) {
+            this.swing(InteractionHand.MAIN_HAND, true);
+        }
     }
 
     public void onRightClick() {
@@ -196,64 +193,11 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     }
 
     @Override
-    public boolean isAttackable() {
-        return false;
-    }
-
-    @Override
     public double getPassengersRidingOffset() {
         return switch (this.stage) {
             case RIBCAGE, SKELETAL -> 0.35D;
             default -> super.getPassengersRidingOffset();
         };
-    }
-
-    private void updateModifiers(SusanooStage stage) {
-        LivingEntity owner = this.getOwner();
-
-        AttributeModifier healthModifier = new AttributeModifier(MAX_HEALTH_UUID, "Max Health", stage.ordinal() * 500.0D, AttributeModifier.Operation.ADDITION);
-        AttributeInstance healthAttribute = this.getAttribute(Attributes.MAX_HEALTH);
-
-        if (healthAttribute != null) {
-            if (healthAttribute.hasModifier(healthModifier)) {
-                healthAttribute.removeModifier(healthModifier);
-            }
-            healthAttribute.addTransientModifier(healthModifier);
-        }
-
-        if (owner != null) {
-            float reachAmount = switch (stage) {
-                case RIBCAGE -> 3.0F;
-                case SKELETAL -> 5.0F;
-                default -> 0.0F;
-            };
-
-            float meleeAmount = switch (stage) {
-                case RIBCAGE -> 15.0F;
-                case SKELETAL -> 30.0F;
-                default -> 0.0F;
-            };
-
-            AttributeModifier reachModifier = new AttributeModifier(REACH_DISTANCE_UUID, "Reach Distance Boost", reachAmount, AttributeModifier.Operation.ADDITION);
-            AttributeInstance reachAttribute = owner.getAttribute(REACH_DISTANCE.get());
-
-            if (reachAttribute != null) {
-                if (reachAttribute.hasModifier(reachModifier)) {
-                    reachAttribute.removeModifier(reachModifier);
-                }
-                reachAttribute.addTransientModifier(reachModifier);
-            }
-
-            AttributeModifier meleeModifier = new AttributeModifier(ATTACK_DAMAGE_UUID, "Attack Damage Boost", meleeAmount, AttributeModifier.Operation.ADDITION);
-            AttributeInstance meleeAttribute = owner.getAttribute(Attributes.ATTACK_DAMAGE);
-
-            if (meleeAttribute != null) {
-                if (meleeAttribute.hasModifier(meleeModifier)) {
-                    meleeAttribute.removeModifier(meleeModifier);
-                }
-                meleeAttribute.addTransientModifier(meleeModifier);
-            }
-        }
     }
 
     @Override
@@ -264,6 +208,30 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     @Override
     public boolean causeFallDamage(float pFallDistance, float pMultiplier, @NotNull DamageSource pSource) {
         return false;
+    }
+
+    public @NotNull Iterable<ItemStack> getHandSlots() {
+        return this.handItems;
+    }
+
+    public @NotNull Iterable<ItemStack> getArmorSlots() {
+        return this.armorItems;
+    }
+
+    public @NotNull ItemStack getItemBySlot(EquipmentSlot pSlot) {
+        return switch (pSlot.getType()) {
+            case HAND -> this.handItems.get(pSlot.getIndex());
+            case ARMOR -> this.armorItems.get(pSlot.getIndex());
+        };
+    }
+
+    public void setItemSlot(EquipmentSlot pSlot, @NotNull ItemStack pStack) {
+        this.verifyEquippedItem(pStack);
+        switch (pSlot.getType()) {
+            case HAND -> this.onEquipItem(pSlot, this.handItems.set(pSlot.getIndex(), pStack), pStack);
+            case ARMOR -> this.onEquipItem(pSlot, this.armorItems.set(pSlot.getIndex(), pStack), pStack);
+        }
+
     }
 
     @Override
@@ -369,6 +337,20 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     }
 
     @Override
+    protected void serverAiStep() {
+        super.serverAiStep();
+
+        this.updateSwingTime();
+    }
+
+    @Override
+    public void aiStep() {
+        super.aiStep();
+
+        this.updateSwingTime();
+    }
+
+    @Override
     public void tick() {
         this.refreshDimensions();
 
@@ -422,7 +404,7 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
                         this.crushingTime--;
 
                         if (this.crushingTime > 0) {
-                            this.grabbed.hurt(DamageSource.indirectMobAttack(this, owner), 50.0F);
+                            this.grabbed.hurt(DamageSource.indirectMobAttack(this, owner), 1.0F);
                         } else {
                             this.release();
                         }
@@ -435,6 +417,11 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     @Override
     public boolean isPickable() {
         return false;
+    }
+
+    @Override
+    public @NotNull HumanoidArm getMainArm() {
+        return HumanoidArm.RIGHT;
     }
 
     public void setOwner(LivingEntity pOwner) {
@@ -496,24 +483,36 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
         }
     }
 
-    private PlayState predicate(AnimationState<SusanooEntity> animationState) {
+    private PlayState attackPredicate(AnimationState<SusanooEntity> animationState) {
         if (this.swinging) {
+            animationState.getController().forceAnimationReset();
             animationState.setAnimation(SWING);
+            this.swinging = false;
+        }
+        return PlayState.CONTINUE;
+    }
+
+    private PlayState predicate(AnimationState<SusanooEntity> animationState) {
+        if (this.crushing) {
+            if (!animationState.isCurrentAnimation(CRUSH)) {
+                animationState.setAnimation(CRUSH);
+            }
+            return PlayState.CONTINUE;
         }
         else if (this.grabbing) {
             if (!animationState.isCurrentAnimation(GRAB)) {
                 animationState.setAnimation(GRAB);
             }
+            return PlayState.CONTINUE;
         }
-        else if (animationState.isCurrentAnimation(GRAB)) {
-            return PlayState.STOP;
-        }
-        return PlayState.CONTINUE;
+        animationState.getController().forceAnimationReset();
+        return PlayState.STOP;
     }
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
         controllerRegistrar.add(new AnimationController<>(this, "controller", this::predicate));
+        controllerRegistrar.add(new AnimationController<>(this, "attackController", this::attackPredicate));
     }
 
     @Override

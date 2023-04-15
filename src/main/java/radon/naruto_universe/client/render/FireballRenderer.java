@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.client.NarutoRenderTypes;
-import radon.naruto_universe.entity.NarutoEntities;
 import radon.naruto_universe.entity.FireballJutsuProjectile;
 import radon.naruto_universe.util.HelperMethods;
 

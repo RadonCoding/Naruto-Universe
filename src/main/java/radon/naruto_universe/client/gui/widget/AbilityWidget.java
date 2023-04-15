@@ -213,7 +213,7 @@ public class AbilityWidget extends GuiComponent {
             assert this.mc.player != null;
             this.mc.player.playSound(SoundEvents.PLAYER_LEVELUP, 1.0F, 1.0F);
             PacketHandler.sendToServer(new UnlockAbilityC2SPacket(NarutoAbilities.getKey(this.ability)));
-            NarutoAbilities.unlockAbility(mc.player, ability);
+            NarutoAbilities.unlockAbility(this.mc.player, this.ability);
             this.update();
         }
     }

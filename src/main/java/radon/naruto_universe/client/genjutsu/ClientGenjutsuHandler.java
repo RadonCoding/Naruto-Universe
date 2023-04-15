@@ -56,7 +56,6 @@ public class ClientGenjutsuHandler {
         }
     };
 
-
     public static void trigger(int entityId, int duration) {
         Minecraft mc = Minecraft.getInstance();
 

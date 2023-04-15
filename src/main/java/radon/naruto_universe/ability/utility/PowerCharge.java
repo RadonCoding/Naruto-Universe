@@ -8,6 +8,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import radon.naruto_universe.ability.Ability;
@@ -76,6 +77,11 @@ public class PowerCharge extends Ability implements Ability.IChanneled {
 
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap ->
                 Minecraft.getInstance().gui.setOverlayMessage(Component.translatable("chat_text.power", HelperMethods.round(cap.getPower(), 1)), false));
+
+        if (owner.level.getGameTime() % 10 == 0) {
+            owner.level.playLocalSound(owner.blockPosition(), NarutoSounds.POWER_CHARGE.get(),
+                    SoundSource.MASTER, 1.0F, 1.0F, false);
+        }
     }
 
     @Override
@@ -86,8 +92,13 @@ public class PowerCharge extends Ability implements Ability.IChanneled {
         ServerLevel level = (ServerLevel) owner.getLevel();
 
         if (level.getGameTime() % 10 == 0) {
-            level.playSound(null, owner.blockPosition(), NarutoSounds.POWER_CHARGE.get(),
-                    SoundSource.PLAYERS, 1.0F, 1.0F);
+            if (owner instanceof Player player) {
+                level.playSound(player, owner.blockPosition(), NarutoSounds.POWER_CHARGE.get(),
+                        SoundSource.MASTER, 1.0F, 1.0F);
+            } else {
+                level.playSound(null, owner.blockPosition(), NarutoSounds.POWER_CHARGE.get(),
+                        SoundSource.MASTER, 1.0F, 1.0F);
+            }
         }
 
         for (int i = 0; i < 8; i++) {

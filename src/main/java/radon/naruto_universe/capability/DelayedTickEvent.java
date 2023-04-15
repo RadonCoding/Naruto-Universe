@@ -23,12 +23,12 @@ public class DelayedTickEvent {
     }
 
     public void tick() {
-        delay--;
+        this.delay--;
     }
 
     public boolean run(LivingEntity entity) {
-        if (delay <= 0) {
-            task.accept(entity);
+        if (this.delay <= 0) {
+            this.task.accept(entity);
             return true;
         }
         return false;

@@ -197,6 +197,7 @@ public class ClientEventHandler {
                             susanoo.onRightClick();
                         }
                         event.setCanceled(true);
+                        event.setSwingHand(false);
                     }
                 }
             }
