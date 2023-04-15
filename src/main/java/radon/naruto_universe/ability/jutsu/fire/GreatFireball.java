@@ -44,7 +44,7 @@ public class GreatFireball extends Ability {
 
     @Override
     public float getDamage() {
-        return 10.0F;
+        return 2.5F;
     }
 
     @Override
@@ -60,11 +60,6 @@ public class GreatFireball extends Ability {
     @Override
     public float getMinPower() {
         return 0.1F;
-    }
-
-    @Override
-    public void runClient(LivingEntity owner) {
-
     }
 
     @Override

@@ -26,21 +26,21 @@ public class CameraShakeHandler {
 
         shake.duration--;
 
-        if (shake.duration <= 0.0F) {
+        if (shake.duration <= 0) {
             shakes.remove();
         }
     }
 
-    public static void shakeCamera(float intensity, float speed, float duration) {
+    public static void shakeCamera(float intensity, float speed, int duration) {
         shakes.add(new ShakeEvent(intensity, speed, duration));
     }
 
     public static class ShakeEvent {
         public float intensity;
         public float speed;
-        public float duration;
+        public int duration;
 
-        public ShakeEvent(float intensity, float speed, float duration) {
+        public ShakeEvent(float intensity, float speed, int duration) {
             this.intensity = intensity;
             this.speed = speed;
             this.duration = duration;

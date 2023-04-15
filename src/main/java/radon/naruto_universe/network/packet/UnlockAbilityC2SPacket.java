@@ -34,14 +34,8 @@ public class UnlockAbilityC2SPacket {
 
             assert player != null;
 
-            player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                Ability ability = NarutoAbilities.getValue(this.key);
-
-                if (ability.checkRequirements(player)) {
-                    cap.unlockAbility(ability);
-                    PacketHandler.sendToClient(new SyncNinjaPlayerS2CPacket(cap.serializeNBT()), player);
-                }
-            });
+            Ability ability = NarutoAbilities.getValue(this.key);
+            NarutoAbilities.unlockAbility(player, ability);
         });
 
         ctx.setPacketHandled(true);

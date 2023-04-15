@@ -1,0 +1,45 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.susanoo_ribcage",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 6,
+				"visible_bounds_height": 5,
+				"visible_bounds_offset": [0, 1.5, 0]
+			},
+			"bones": [
+				{
+					"name": "body",
+					"pivot": [0, 0, 0],
+					"mirror": true,
+					"cubes": [
+						{"origin": [-10, 16, -8], "size": [20, 17, 16], "uv": [0, 0]},
+						{"origin": [-8, 8, -6], "size": [16, 8, 12], "uv": [0, 34]}
+					]
+				},
+				{
+					"name": "right_arm",
+					"parent": "body",
+					"pivot": [-8, 30, -1],
+					"mirror": true,
+					"cubes": [
+						{"origin": [-13.39323, 26.81658, -4], "size": [12, 4, 4], "pivot": [-5.39323, 5.81658, -10], "rotation": [0, 0, -15], "uv": [44, 34]},
+						{"origin": [-18.56583, 15.04047, -4.01], "size": [4, 10, 4], "inflate": -0.01, "uv": [0, 0]}
+					]
+				},
+				{
+					"name": "right_forearm",
+					"parent": "right_arm",
+					"pivot": [-16.82583, 18.07234, -2.49719],
+					"cubes": [
+						{"origin": [-21.61583, 9.53212, -6.28992], "size": [10, 10, 8], "inflate": -0.02, "pivot": [23.13417, -18.21788, 2.71008], "rotation": [27.5, 0, 0], "uv": [48, 46], "mirror": true},
+						{"origin": [-18.57583, 7.82234, -5.49719], "size": [4, 4, 14], "inflate": -0.02, "pivot": [-6.82583, -5.92766, -10.49719], "rotation": [27.5, 0, 0], "uv": [0, 54], "mirror": true}
+					]
+				}
+			]
+		}
+	]
+}

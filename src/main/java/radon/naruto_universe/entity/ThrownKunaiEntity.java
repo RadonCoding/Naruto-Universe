@@ -1,7 +1,6 @@
 package radon.naruto_universe.entity;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -18,10 +17,15 @@ import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.ModDamageSource;
 import radon.naruto_universe.item.NarutoItems;
 import radon.naruto_universe.sound.NarutoSounds;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
 
-public class ThrownKunaiEntity extends AbstractArrow {
+public class ThrownKunaiEntity extends AbstractArrow implements GeoAnimatable {
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private ItemStack kunaiItem = new ItemStack(NarutoItems.KUNAI.get());
     private boolean dealtDamage;
 
@@ -51,15 +55,6 @@ public class ThrownKunaiEntity extends AbstractArrow {
             this.discard();
         }
         super.tick();
-    }
-
-    private boolean isAcceptibleReturnOwner() {
-        Entity entity = this.getOwner();
-        if (entity != null && entity.isAlive()) {
-            return !(entity instanceof ServerPlayer) || !entity.isSpectator();
-        } else {
-            return false;
-        }
     }
 
     @Override
@@ -151,5 +146,20 @@ public class ThrownKunaiEntity extends AbstractArrow {
     @Override
     public boolean shouldRender(double pX, double pY, double pZ) {
         return true;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
+
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
+    }
+
+    @Override
+    public double getTick(Object o) {
+        return 0;
     }
 }

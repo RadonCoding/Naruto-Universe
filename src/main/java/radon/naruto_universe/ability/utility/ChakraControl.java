@@ -15,6 +15,7 @@ import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaRank;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.client.particle.VaporParticle;
+import radon.naruto_universe.entity.SusanooEntity;
 
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -146,14 +147,24 @@ public class ChakraControl extends Ability implements Ability.IToggled {
 
     @Override
     public void runClient(LivingEntity owner) {
-        this.checkWaterWalking(owner);
-        this.checkWallClimbing(owner);
+        if (owner.getVehicle() instanceof SusanooEntity susanoo) {
+            this.checkWaterWalking(susanoo);
+            this.checkWallClimbing(susanoo);
+        } else {
+            this.checkWaterWalking(owner);
+            this.checkWallClimbing(owner);
+        }
     }
 
     @Override
     public void runServer(LivingEntity owner) {
-        this.checkWaterWalking(owner);
-        this.checkWallClimbing(owner);
+        if (owner.getVehicle() instanceof SusanooEntity susanoo) {
+            this.checkWaterWalking(susanoo);
+            this.checkWallClimbing(susanoo);
+        } else {
+            this.checkWaterWalking(owner);
+            this.checkWallClimbing(owner);
+        }
 
         Random rand = new Random();
 

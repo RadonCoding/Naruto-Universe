@@ -397,24 +397,24 @@ public class NinjaPlayer implements INinjaPlayer {
         return this.specialAbilities;
     }
 
-    private void updateToggledAbilities(LivingEntity entity, boolean isClientSide) {
-        Iterator<Ability> iter = this.toggledAbilities.iterator();
+    private void updateToggledAbilities(LivingEntity owner, boolean isClientSide) {
+        List<Ability> remove = new ArrayList<>();
 
-        while (iter.hasNext()) {
-            Ability ability = iter.next();
-
-            if (ability.checkStatus(entity) != Ability.Status.SUCCESS) {
-                Ability.IToggled toggled = (Ability.IToggled) ability;
-                toggled.onDisabled(entity, isClientSide);
-                iter.remove();
+        for (Ability ability : this.toggledAbilities) {
+            if (ability.checkStatus(owner) != Ability.Status.SUCCESS) {
+                remove.add(ability);
             } else {
                 if (isClientSide) {
-                    ability.runClient(entity);
+                    ability.runClient(owner);
                 }
                 else {
-                    ability.runServer(entity);
+                    ability.runServer(owner);
                 }
             }
+        }
+
+        for (Ability ability : remove) {
+            disableToggledAbility(owner, ability);
         }
     }
 
@@ -463,13 +463,17 @@ public class NinjaPlayer implements INinjaPlayer {
         return this.movementSpeed;
     }
 
-    private void updateChanneledAbilities(LivingEntity entity, boolean isClientSide) {
+    private void updateChanneledAbilities(LivingEntity owner, boolean isClientSide) {
         if (this.channeledAbility != null) {
-            if (isClientSide) {
-                this.channeledAbility.runClient(entity);
+            if (this.channeledAbility.checkStatus(owner) != Ability.Status.SUCCESS) {
+                this.stopChanneledAbility(owner);
             }
             else {
-                this.channeledAbility.runServer(entity);
+                if (isClientSide) {
+                    this.channeledAbility.runClient(owner);
+                } else {
+                    this.channeledAbility.runServer(owner);
+                }
             }
         }
     }
@@ -488,10 +492,6 @@ public class NinjaPlayer implements INinjaPlayer {
 
         if (this.mangekyoType != null) {
             nbt.putInt("mangekyo_type", this.mangekyoType.ordinal());
-        }
-
-        if (this.channeledAbility != null) {
-            nbt.putString("channeled", this.channeledAbility.getId().toString());
         }
 
         ListTag specialAbilitiesTag = new ListTag();
@@ -548,10 +548,6 @@ public class NinjaPlayer implements INinjaPlayer {
 
         if (nbt.contains("mangekyo_type")) {
             this.mangekyoType = MangekyoType.values()[nbt.getInt("mangekyo_type")];
-        }
-
-        if (nbt.contains("currently_channeled")) {
-            this.channeledAbility = NarutoAbilities.getValue(new ResourceLocation(nbt.getString("channeled")));
         }
 
         this.specialAbilities.clear();

@@ -22,6 +22,7 @@
 - Dojutsu rendering system
 - Basic animations
 - Configuration
+- Mangekyo blindness
 
 ## TODO
 - More susanoo stages

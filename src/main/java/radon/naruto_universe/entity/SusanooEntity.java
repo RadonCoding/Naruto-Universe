@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidType;
 import org.jetbrains.annotations.NotNull;
@@ -25,6 +27,16 @@ import radon.naruto_universe.capability.MangekyoType;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.SusanooStage;
 import radon.naruto_universe.client.particle.VaporParticle;
+import radon.naruto_universe.util.HelperMethods;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+import software.bernie.geckolib.util.GeckoLibUtil;
+import software.bernie.geckolib.util.RenderUtils;
 
 import javax.annotation.Nullable;
 import java.util.Random;
@@ -32,16 +44,23 @@ import java.util.UUID;
 
 import static net.minecraftforge.common.ForgeMod.REACH_DISTANCE;
 
-public class SusanooEntity extends Mob {
+public class SusanooEntity extends Mob implements GeoAnimatable {
+    public static final RawAnimation GRAB = RawAnimation.begin().thenPlayAndHold("attack.grab");
+    public static final RawAnimation SWING = RawAnimation.begin().thenPlayAndHold("attack.swing");
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+
     private UUID ownerUUID;
     private LivingEntity cachedOwner;
 
     private SusanooStage stage = SusanooStage.RIBCAGE;
     private MangekyoType variant;
+    private boolean grabbing;
+    private boolean crushing;
+    private int crushingTime;
+    private Entity grabbed;
 
     public static final UUID REACH_DISTANCE_UUID = UUID.fromString("D1BCE29F-8660-464F-9B44-51E2E56F7870");
     public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("D1BCE29F-8660-464F-9B44-51E2E56F7871");
-    public static final UUID ATTACK_KNOCKBACK_UUID = UUID.fromString("D1BCE29F-8660-464F-9B44-51E2E56F7873");
     private static final UUID MAX_HEALTH_UUID = UUID.fromString("D1BCE29F-8660-464F-9B44-51E2E56F7872");
 
     public SusanooEntity(EntityType<? extends SusanooEntity> pEntityType, Level pLevel) {
@@ -51,13 +70,21 @@ public class SusanooEntity extends Mob {
     public SusanooEntity(LivingEntity owner) {
         this(NarutoEntities.SUSANOO.get(), owner.level);
 
+        this.init(owner);
+    }
+
+    private void init(LivingEntity owner) {
         this.moveTo(owner.position());
         this.reapplyPosition();
 
         owner.startRiding(this);
         this.setOwner(owner);
 
-        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> this.variant = cap.getMangekyoType());
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            this.variant = cap.getMangekyoType();
+            this.stage = SusanooStage.RIBCAGE;
+        });
+        this.updateModifiers(stage);
     }
 
     public SusanooStage getStage() {
@@ -114,6 +141,46 @@ public class SusanooEntity extends Mob {
         }
     }
 
+    public void onLeftClick() {
+        this.swing(InteractionHand.MAIN_HAND);
+    }
+
+    public void onRightClick() {
+        LivingEntity owner = this.getOwner();
+
+        if (this.stage == SusanooStage.RIBCAGE) {
+            if (!this.grabbing) {
+                EntityHitResult hit = HelperMethods.getEntityLookAt(owner, 5.0F);
+
+                if (hit != null) {
+                    this.grab(hit.getEntity());
+                }
+            }
+            else if (owner.isShiftKeyDown()) {
+                this.release();
+            }
+            else {
+                this.crush();
+            }
+        }
+    }
+
+    private void crush() {
+        this.crushingTime = 10 * 20;
+        this.crushing = true;
+    }
+
+    private void release() {
+        this.crushing = false;
+        this.crushingTime = 0;
+        this.grabbing = false;
+    }
+
+    private void grab(Entity grabbed) {
+        this.grabbing = true;
+        this.grabbed = grabbed;
+    }
+
     public static AttributeSupplier.Builder createAttributes() {
         return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 500.0D);
     }
@@ -125,6 +192,11 @@ public class SusanooEntity extends Mob {
 
     @Override
     public boolean shouldRiderSit() {
+        return false;
+    }
+
+    @Override
+    public boolean isAttackable() {
         return false;
     }
 
@@ -151,16 +223,13 @@ public class SusanooEntity extends Mob {
 
         if (owner != null) {
             float reachAmount = switch (stage) {
+                case RIBCAGE -> 3.0F;
                 case SKELETAL -> 5.0F;
                 default -> 0.0F;
             };
 
             float meleeAmount = switch (stage) {
-                case SKELETAL -> 30.0F;
-                default -> 0.0F;
-            };
-
-            float knockbackAmount = switch (stage) {
+                case RIBCAGE -> 15.0F;
                 case SKELETAL -> 30.0F;
                 default -> 0.0F;
             };
@@ -183,16 +252,6 @@ public class SusanooEntity extends Mob {
                     meleeAttribute.removeModifier(meleeModifier);
                 }
                 meleeAttribute.addTransientModifier(meleeModifier);
-            }
-
-            AttributeModifier knockbackModifier = new AttributeModifier(ATTACK_KNOCKBACK_UUID, "Attack Knockback Boost", knockbackAmount, AttributeModifier.Operation.ADDITION);
-            AttributeInstance knockbackAttribute = owner.getAttribute(Attributes.ATTACK_KNOCKBACK);
-
-            if (knockbackAttribute != null) {
-                if (knockbackAttribute.hasModifier(knockbackModifier)) {
-                    knockbackAttribute.removeModifier(knockbackModifier);
-                }
-                knockbackAttribute.addTransientModifier(knockbackModifier);
             }
         }
     }
@@ -244,8 +303,8 @@ public class SusanooEntity extends Mob {
     @Override
     public @NotNull EntityDimensions getDimensions(@NotNull Pose pPose) {
         return switch (this.stage) {
-            case RIBCAGE -> EntityDimensions.fixed(1.0F, 2.2F);
-            case SKELETAL -> EntityDimensions.fixed(3.0F, 4.2F);
+            case RIBCAGE -> EntityDimensions.fixed(1.8F, 2.6F);
+            case SKELETAL -> EntityDimensions.fixed(2.4F, 4.0F);
             default -> super.getDimensions(pPose);
         };
     }
@@ -288,7 +347,7 @@ public class SusanooEntity extends Mob {
         LivingEntity owner = this.getOwner();
 
         if (owner != null) {
-            this.setRot(owner.getYRot(), owner.getXRot());
+            this.setYRot(owner.getYRot());
             this.yRotO = this.yBodyRot = this.yHeadRot = this.getYRot();
 
             float f = owner.xxa;
@@ -328,23 +387,46 @@ public class SusanooEntity extends Mob {
                             SoundSource.PLAYERS, 1.0F, 1.0F);
                 }
 
-                AABB bounds = this.getBoundingBox();
+                AABB bounds = this.getBoundingBox().inflate(0.25D);
 
                 double bbWidth = bounds.maxX - bounds.minX;
                 double bbHeight = bounds.maxY - bounds.minY;
                 double bbDepth = bounds.maxZ - bounds.minZ;
                 double bbSize = Math.max(Math.max(bbWidth, bbHeight), bbDepth);
-                int particleCount = (int) Math.round(bbSize * 3.0D);
+                int particleCount = (int) Math.round(bbSize * 5.0D);
 
                 for (int i = 0; i < particleCount; i++) {
                     double xPos = bounds.minX + rand.nextDouble() * bbWidth;
                     double yPos = bounds.minY + rand.nextDouble() * bbHeight;
                     double zPos = bounds.minZ + rand.nextDouble() * bbDepth;
 
-                    float particleSize = Math.min(2.5F, (float) bbSize * 3.0F);
+                    float particleSize = Math.min(2.5F, (float) bbSize * 5.0F);
 
-                    this.level.addParticle(new VaporParticle.VaporParticleOptions(this.variant.getSusanooColor(), particleSize, 0.25F, false, 1),
+                    this.level.addParticle(new VaporParticle.VaporParticleOptions(this.variant.getSusanooColor(), particleSize, 0.1F, false, 1),
                             xPos, yPos, zPos, 0.0D, rand.nextDouble(), 0.0D);
+                }
+            }
+
+            if (this.grabbing) {
+                if ((!this.level.isClientSide && this.grabbed == null) || (this.grabbed.isRemoved() || !this.grabbed.isAlive())) {
+                    this.release();
+                }
+                else {
+                    this.grabbed.setDeltaMovement(Vec3.ZERO);
+
+                    Vec3 look = this.getLookAngle().scale(1.25D);
+                    Vec3 pos = new Vec3(this.getX() + look.x(), this.getY() + 0.5D, this.getZ() + look.z());
+                    this.grabbed.moveTo(pos);
+
+                    if (this.crushing) {
+                        this.crushingTime--;
+
+                        if (this.crushingTime > 0) {
+                            this.grabbed.hurt(DamageSource.indirectMobAttack(this, owner), 50.0F);
+                        } else {
+                            this.release();
+                        }
+                    }
                 }
             }
         }
@@ -395,69 +477,53 @@ public class SusanooEntity extends Mob {
         this.variant = MangekyoType.values()[pCompound.getInt("variant")];
     }
 
-    int pack(int val1, int val2, int val3)
-    {
-        return (((val1 & 0xFFFF) << 16) | ((val2 & 0xFFFF) << 8) | (val3 & 0xFFFF));
-    }
-
-    int[] unpack(int packed)
-    {
-        int val1 = ((packed >> 16) & 0xFFFF);
-
-        if ((val1 & 0x8000) != 0) {
-            val1 |= 0xFFFF0000;
-        }
-
-        int val2 = ((packed >> 8) & 0xFF);
-
-        if ((val2 & 0x80) != 0) {
-            val2 |= 0xFFFFFF00;
-        }
-
-        int val3 = (packed & 0xFF);
-
-        if ((val3 & 0x80) != 0) {
-            val3 |= 0xFFFFFF00;
-        }
-
-        return new int[] { val1, val2, val3 };
-    }
-
     @Override
     public @NotNull Packet<ClientGamePacketListener> getAddEntityPacket() {
         LivingEntity owner = this.getOwner();
 
         int ownerId = owner == null ? 0 : owner.getId();
-        int stage = this.stage.ordinal();
-        int variant = this.variant.ordinal();
-
-        int data = pack(ownerId, stage, variant);
-        return new ClientboundAddEntityPacket(this, data);
+        return new ClientboundAddEntityPacket(this, ownerId);
     }
 
     @Override
     public void recreateFromPacket(@NotNull ClientboundAddEntityPacket pPacket) {
         super.recreateFromPacket(pPacket);
 
-        int[] data = unpack(pPacket.getData());
-        int ownerId = data[0];
-        int stage = data[1];
-        int variant = data[2];
-
-        LivingEntity owner = (LivingEntity) this.level.getEntity(ownerId);
+        LivingEntity owner = (LivingEntity) this.level.getEntity(pPacket.getData());
 
         if (owner != null) {
-            this.moveTo(owner.position());
-            this.reapplyPosition();
-
-            owner.startRiding(this);
-            this.setOwner(owner);
-
-            this.stage = SusanooStage.values()[stage];
-            this.variant = MangekyoType.values()[variant];
-
-            this.updateModifiers(this.stage);
+            this.init(owner);
         }
+    }
+
+    private PlayState predicate(AnimationState<SusanooEntity> animationState) {
+        if (this.swinging) {
+            animationState.setAnimation(SWING);
+        }
+        else if (this.grabbing) {
+            if (!animationState.isCurrentAnimation(GRAB)) {
+                animationState.setAnimation(GRAB);
+            }
+        }
+        else if (animationState.isCurrentAnimation(GRAB)) {
+            return PlayState.STOP;
+        }
+        return PlayState.CONTINUE;
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
+        controllerRegistrar.add(new AnimationController<>(this, "controller", this::predicate));
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
+    }
+
+    @Override
+    public double getTick(Object o) {
+        return RenderUtils.getCurrentTick();
     }
 }
 

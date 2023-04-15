@@ -1,16 +1,12 @@
 package radon.naruto_universe.client.ability;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
-import org.apache.commons.compress.utils.Lists;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.network.PacketHandler;
-import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;
+import radon.naruto_universe.client.NarutoKeyMapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +35,11 @@ public class SpecialAbilityHandler {
         return true;
     }
 
-    public static void triggerSelectedAbility() {
+    public static Ability getSelected() {
         if (_abilities.size() > selected) {
-            Ability ability = _abilities.get(selected);
-            PacketHandler.sendToServer(new TriggerAbilityC2SPacket(ability.getId()));
-            ClientAbilityHandler.triggerAbility(ability);
+            return _abilities.get(selected);
         }
+        return null;
     }
 
     private static Ability getAbility(int idx) {
@@ -58,21 +53,6 @@ public class SpecialAbilityHandler {
             idx -= count;
         }
         return _abilities.get(idx);
-    }
-
-    private static void renderAbility(PoseStack poseStack, int yOffset, Font font, int idx, int color) {
-        Minecraft mc = Minecraft.getInstance();
-
-        int screenWidth = mc.getWindow().getGuiScaledWidth();
-
-        Ability ability = getAbility(idx);
-
-        if (ability != null) {
-            Component name = ability.getName();
-            int x = screenWidth - font.width(name) - 20;
-            int y = 20 + yOffset;
-            font.drawShadow(poseStack, name, x, y, color);
-        }
     }
 
     public static IGuiOverlay SPECIAL_ABILITY = (gui, poseStack, partialTicks, width, height) -> {
@@ -91,25 +71,32 @@ public class SpecialAbilityHandler {
         });
 
         if (_abilities.size() > 0) {
-            Font font = gui.getFont();
+            int maxNameWidth = 0;
+            int yOffset = 0;
 
-            int y = 0;
+            for (int i = selected - 1; i <= selected + 1; i++) {
+                Ability ability = getAbility(i);
 
-            poseStack.pushPose();
+                if ((i == selected - 1 && _abilities.size() > 2) || (i == selected && _abilities.size() > 0) || (i == selected + 1 && _abilities.size() > 1)) {
+                    maxNameWidth = Math.max(maxNameWidth, mc.font.width(ability.getName()));
+                }
+            }
 
-            if (_abilities.size() > 2) {
-                renderAbility(poseStack, y, font, selected - 1, 11513775);
-                y += font.lineHeight;
+            int screenWidth = mc.getWindow().getGuiScaledWidth();
+
+            for (int i = selected - 1; i <= selected + 1; i++) {
+                Ability ability = getAbility(i);
+
+                if ((i == selected - 1 && _abilities.size() > 2) || (i == selected && _abilities.size() > 0) || (i == selected + 1 && _abilities.size() > 1)) {
+                    int color = i == selected ? 16777215 : 2139062143;
+                    Component name = ability.getName();
+                    int x = screenWidth - maxNameWidth - 20 + (maxNameWidth - mc.font.width(name)) / 2;
+                    int y = 20 + yOffset;
+                    mc.font.drawShadow(poseStack, name, x, y, color);
+
+                    yOffset += mc.font.lineHeight;
+                }
             }
-            if (_abilities.size() > 0) {
-                renderAbility(poseStack, y, font, selected, 16777215);
-                y += font.lineHeight;
-            }
-            if (_abilities.size() > 1) {
-                renderAbility(poseStack, y, font, selected + 1, 11513775);
-                y += font.lineHeight;
-            }
-            poseStack.popPose();
         }
     };
 }

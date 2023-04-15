@@ -78,6 +78,6 @@ public class Sharingan extends Ability implements Ability.IToggled, Ability.ISpe
 
     @Override
     public List<Ability> getSpecialAbilities() {
-        return List.of(NarutoAbilities.GENJUTSU.get());
+        return List.of(NarutoAbilities.GENJUTSU.get(), NarutoAbilities.COPY.get());
     }
 }

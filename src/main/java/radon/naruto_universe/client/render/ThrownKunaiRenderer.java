@@ -1,43 +1,27 @@
 package radon.naruto_universe.client.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
-import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.client.model.ThrownKunaiModel;
 import radon.naruto_universe.entity.ThrownKunaiEntity;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Mth;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
-public class ThrownKunaiRenderer extends EntityRenderer<ThrownKunaiEntity> {
-    public static ResourceLocation TEXTURE_LOCATION = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/entity/thrown_kunai.png");
-
-    private final ThrownKunaiModel<ThrownKunaiEntity> model;
-
-    public ThrownKunaiRenderer(EntityRendererProvider.Context pContext) {
-        super(pContext);
-        this.model = new ThrownKunaiModel<>(pContext.bakeLayer(ThrownKunaiModel.LAYER_LOCATION));
+public class ThrownKunaiRenderer extends GeoEntityRenderer<ThrownKunaiEntity> {
+    public ThrownKunaiRenderer(EntityRendererProvider.Context renderManager) {
+        super(renderManager, new ThrownKunaiModel());
     }
 
     @Override
-    public void render(ThrownKunaiEntity pEntity, float pEntityYaw, float pPartialTick, PoseStack pPoseStack, @NotNull MultiBufferSource pBuffer, int pPackedLight) {
-        pPoseStack.pushPose();
-        pPoseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(pPartialTick, pEntity.yRotO, pEntity.getYRot()) - 90.0F));
-        pPoseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(pPartialTick, pEntity.xRotO, pEntity.getXRot()) + 90.0F));
-        VertexConsumer consumer = ItemRenderer.getFoilBufferDirect(pBuffer, this.model.renderType(this.getTextureLocation(pEntity)), false, false);
-        this.model.renderToBuffer(pPoseStack, consumer, pPackedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
-        pPoseStack.popPose();
-        super.render(pEntity, pEntityYaw, pPartialTick, pPoseStack, pBuffer, pPackedLight);
-    }
-
-    @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull ThrownKunaiEntity animatable) {
-        return TEXTURE_LOCATION;
+    public void render(ThrownKunaiEntity entity, float entityYaw, float partialTick, PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+        poseStack.pushPose();
+        poseStack.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) - 90.0F));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(Mth.lerp(partialTick, entity.xRotO, entity.getXRot()) - 90.0F));
+        poseStack.translate(0.0D, -0.5D, 0.0D);
+        super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
+        poseStack.popPose();
     }
 }

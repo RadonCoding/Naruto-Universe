@@ -6,7 +6,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
-import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 import radon.naruto_universe.ability.Ability;
@@ -52,7 +51,7 @@ public class DojutsuScreen extends Screen {
 
         int r = (color >> 16) & 0xFF;
         int g = (color >> 8) & 0xFF;
-        int b = (color >> 0) & 0xFF;
+        int b = color & 0xFF;
         int a = (color >> 24) & 0xFF;
 
         float slice = angle / sections;

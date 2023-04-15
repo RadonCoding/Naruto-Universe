@@ -15,6 +15,7 @@
   "ability.fail.not_enough_chakra": "Not enough chakra",
   "ability.fail.not_skilled_enough": "You cannot unlock a %1$s level technique",
   "ability.fail.cooldown": "Cooldown: %d seconds",
+  "ability.unlock": "Unlocked \"%s\"",
 
   "naruto_universe:chakra_control.name": "Chakra Control",
   "naruto_universe:chakra_control.desc": "Allows you to walk on water and climb walls.",
@@ -66,6 +67,10 @@
   "naruto_universe:susanoo.name": "Susanoo",
   "naruto_universe:susanoo.enable": "Activated susanoo",
   "naruto_universe:susanoo.disable": "Deactivated susanoo",
+
+  "naruto_universe:copy.name": "Copy",
+  "naruto_universe:copy.start": "Copying abilities...",
+  "naruto_universe:copy.stop": "Stopped copying abilities",
 
   "naruto_universe:lariat.name": "Lariat",
   "naruto_universe:lariat.desc": "High speed melee attack which is triggered when the player is moving at a very fast speed and punches a entity.",

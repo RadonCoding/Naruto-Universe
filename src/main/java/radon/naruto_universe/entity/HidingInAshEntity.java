@@ -10,7 +10,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import radon.naruto_universe.ModDamageSource;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.particle.NarutoParticles;
 
@@ -99,9 +102,31 @@ public class HidingInAshEntity extends JutsuProjectile {
             float power = Math.max(10.0F, this.getPower());
             float range = this.getRange() * (power * 0.1F);
 
-            for (int i = 0; i < (range * 10) * this.getThickness(); i++) {
-                this.level.addParticle(this.getParticle(), owner.getX(), owner.getEyeY() - 0.2D, owner.getZ(),
-                        range * (this.random.nextDouble()-0.5D) * 0.1D, range * (this.random.nextDouble()-0.5D) * 0.1D, range * (this.random.nextDouble()-0.5D) * 0.1D);
+            Vec3 look = owner.getLookAngle();
+            double angle = Math.atan(1.0D) * 180.0D / Math.PI;
+
+            Vec3 center = new Vec3(owner.getX() + look.x(), owner.getEyeY() - 0.2D + look.y(), owner.getZ() + look.z());
+            AABB box = new AABB(center.x() - range / 2.0D, center.y() - range / 2.0D, center.z() - range / 2.0D,
+                    center.x() + range / 2.0D, center.y() + range / 2.0D, center.z() + range / 2.0D).deflate(this.getThickness());
+
+            for (Entity entity : this.level.getEntities(null, box)) {
+                Vec3 direction = entity.position().subtract(owner.position()).normalize();
+                double angleBetween = Math.toDegrees(Math.acos(look.dot(direction) / (look.length() * direction.length())));
+
+                if (angleBetween <= angle) {
+                    if (entity.hurt(ModDamageSource.jutsu(this, owner), this.getDamage())) {
+                        if (this.getRelease() == NinjaTrait.FIRE_RELEASE) {
+                            entity.setSecondsOnFire(Math.round(this.getPower()));
+                        }
+                    }
+                }
+                this.onHitEntity(new EntityHitResult(entity));
+            }
+
+
+            for (int i = 0; i < range * this.getThickness(); i++) {
+                this.level.addParticle(this.getParticle(), owner.getX(), owner.getEyeY() - 0.2D, owner.getZ(), range * (this.random.nextDouble() - 0.5D) * 0.1D,
+                        range * (this.random.nextDouble() - 0.5D) * 0.1D, range * (this.random.nextDouble() - 0.5D) * 0.1D);
             }
 
             this.setTicks(++ticks);

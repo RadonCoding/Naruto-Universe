@@ -1,14 +1,17 @@
 package radon.naruto_universe.mixin.client;
 
+import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraftforge.registries.RegistryObject;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.client.BlindessHandler;
+import radon.naruto_universe.client.NarutoPostEffect;
+import radon.naruto_universe.client.effects.BlindnessEffect;
+import radon.naruto_universe.client.effects.NarutoEffects;
+import radon.naruto_universe.client.effects.SharinganEffect;
 
 @Mixin(GameRenderer.class)
 public class MinecraftMixin {
@@ -17,12 +20,14 @@ public class MinecraftMixin {
         Minecraft mc = Minecraft.getInstance();
 
         if (mc.player != null) {
-            mc.player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                if (cap.hasUnlockedAbility(NarutoAbilities.MANGEKYO.get())) {
-                    BlindessHandler.INSTANCE.resize(mc.getWindow().getWidth(), mc.getWindow().getHeight());
-                    BlindessHandler.INSTANCE.render(mc.getFrameTime(), cap.getMangekyoBlindess());
+            Window window = mc.getWindow();
+
+            for (NarutoPostEffect effect : NarutoEffects.EFFECTS) {
+                if (effect.shouldRender(mc.player)) {
+                    effect.resize(window.getWidth(), window.getHeight());
+                    effect.render(mc.getFrameTime());
                 }
-            });
+            }
         }
     }
 }

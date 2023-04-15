@@ -6,9 +6,8 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
-import radon.naruto_universe.capability.MangekyoType;
 import radon.naruto_universe.capability.SusanooStage;
 import radon.naruto_universe.client.model.SusanooRibcageModel;
 import radon.naruto_universe.client.model.SusanooSkeletalModel;
@@ -18,32 +17,32 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SusanooRenderer extends EntityRenderer<SusanooEntity> {
-    private final Map<SusanooStage, SusanooStageRenderer<?>> renderers = new HashMap<>();
+    private final Map<SusanooStage, SusanooStageRenderer> renderers = new HashMap<>();
 
     public SusanooRenderer(EntityRendererProvider.Context pContext) {
         super(pContext);
 
-        this.renderers.put(SusanooStage.RIBCAGE, new SusanooRibcageRenderer(pContext, new SusanooRibcageModel<>(pContext
-                .bakeLayer(SusanooRibcageModel.LAYER_LOCATION)), 1.0F));
-        this.renderers.put(SusanooStage.SKELETAL, new SusanooSkeletalRenderer(pContext, new SusanooSkeletalModel<>(pContext
-                .bakeLayer(SusanooSkeletalModel.LAYER_LOCATION)), 1.0F));
+        this.renderers.put(SusanooStage.RIBCAGE, new SusanooStageRenderer(pContext, new SusanooRibcageModel()));
+        this.renderers.put(SusanooStage.SKELETAL, new SusanooSkeletalRenderer(pContext, new SusanooSkeletalModel()));
     }
 
     @Override
     public void render(@NotNull SusanooEntity pEntity, float pEntityYaw, float pPartialTick, @NotNull PoseStack pPoseStack, @NotNull MultiBufferSource pBuffer, int pPackedLight) {
-        MangekyoType type = pEntity.getVariant();
-        Vector3f color = type.getSusanooColor();
+        LivingEntity owner = pEntity.getOwner();
+        owner.animationSpeed = pEntity.animationSpeed;
+        owner.animationSpeedOld = pEntity.animationSpeedOld;
+        owner.yBodyRot = pEntity.yBodyRot;
+        owner.yBodyRotO = pEntity.yBodyRotO;
+        this.renderers.get(pEntity.getStage()).render(pEntity, pEntityYaw, pPartialTick, pPoseStack, pBuffer, pPackedLight);
+    }
 
-        this.renderers.get(pEntity.getStage()).renderSusanoo(pEntity, pEntityYaw, pPartialTick, pPoseStack, pBuffer, pPackedLight, color.x(), color.y(), color.z());
+    @Override
+    public @NotNull ResourceLocation getTextureLocation(SusanooEntity pEntity) {
+        return this.renderers.get(pEntity.getStage()).getTextureLocation(pEntity);
     }
 
     @Override
     protected int getBlockLightLevel(@NotNull SusanooEntity pEntity, @NotNull BlockPos pPos) {
         return 15;
-    }
-
-    @Override
-    public @NotNull ResourceLocation getTextureLocation(@NotNull SusanooEntity pEntity) {
-        return null;
     }
 }

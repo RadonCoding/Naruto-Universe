@@ -1,8 +1,11 @@
 package radon.naruto_universe.client.ability;
 
+import net.minecraftforge.common.MinecraftForge;
 import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.ability.event.AbilityTriggerEvent;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.client.NarutoKeyMapping;
+import radon.naruto_universe.client.NarutoKeys;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.HandleHandSignC2SPacket;
 import radon.naruto_universe.ability.Ability;
@@ -22,69 +25,72 @@ public class ClientAbilityHandler {
     private static final long MAX_COMBO_VALUE = 10 * 10; // Max 10 hand signs
     private static final int MAX_TICKS = 15;
     private static Ability currentAbility;
+    private static NarutoKeyMapping currentKey;
 
     private static boolean isCurrentlyChargingAbility;
 
-    private static final List<NarutoKeyMapping> MOD_KEYS = new ArrayList<>();
+    private static final List<NarutoKeyMapping> ABILITY_KEYS = new ArrayList<>();
 
     public static void tick(LocalPlayer player) {
-        if (currentCombo != 0) {
+        if (currentKey != null) {
             ticksPassed++;
         }
 
-        int lastKey = (int) (currentCombo % 10);
-
-        boolean lastKeyIsHeld = false;
-
-        NarutoKeyMapping currentKey = null;
-
-        if (lastKey > 0 && lastKey < MOD_KEYS.size()) {
-            currentKey = MOD_KEYS.get(lastKey - 1);
-
-            if (currentKey.isDown()) {
-                lastKeyIsHeld = true;
-            }
-        }
-
         boolean possiblyChanneling = currentAbility != null && currentAbility.getActivationType() == Ability.ActivationType.CHANNELED;
+        boolean isSpecial = currentKey != null && currentKey.getName().equals(NarutoKeys.KEY_ACTIVATE_SPECIAL.getName());
 
         if (possiblyChanneling) {
-            if (lastKeyIsHeld && currentKey.currentTickCount() >= MAX_TICKS) {
+            assert currentKey != null;
+
+            boolean lastKeyIsHeld = currentKey.isDown();
+
+            if (lastKeyIsHeld && (isSpecial || currentKey.currentTickCount() >= MAX_TICKS)) {
                 if (!isCurrentlyChargingAbility) {
                     PacketHandler.sendToServer(new TriggerAbilityC2SPacket(currentAbility.getId()));
-                    ClientAbilityHandler.triggerAbility(currentAbility);
+                    triggerAbility(currentAbility);
                 }
                 isCurrentlyChargingAbility = true;
             } else if (!lastKeyIsHeld) {
-                assert currentKey != null;
                 currentKey.consumeReleaseDuration();
 
                 if (isCurrentlyChargingAbility) {
                     PacketHandler.sendToServer(new TriggerAbilityC2SPacket(currentAbility.getId()));
-                    ClientAbilityHandler.triggerAbility(currentAbility);
+                    triggerAbility(currentAbility);
                     resetAbilityCasting();
-                }
-                else if (ticksPassed > MAX_TICKS) {
+                } else if (ticksPassed > MAX_TICKS) {
                     player.sendSystemMessage(Component.translatable("ability.fail.not_found"));
                     resetAbilityCasting();
                 }
                 isCurrentlyChargingAbility = false;
             }
         } else {
-            if (ticksPassed > MAX_TICKS) {
+            if (isSpecial || ticksPassed > MAX_TICKS) {
                 if (currentAbility != null) {
                     PacketHandler.sendToServer(new TriggerAbilityC2SPacket(currentAbility.getId()));
-                    ClientAbilityHandler.triggerAbility(currentAbility);
-                }
-                else {
+                    triggerAbility(currentAbility);
+                } else {
                     player.sendSystemMessage(Component.translatable("ability.fail.not_found"));
                 }
                 resetAbilityCasting();
             }
         }
 
-        for (NarutoKeyMapping key : MOD_KEYS) {
+        for (NarutoKeyMapping key : ABILITY_KEYS) {
             key.update();
+        }
+    }
+
+    public static void handleSpecialKey() {
+        if (isCurrentlyChargingAbility || currentCombo > MAX_COMBO_VALUE) {
+            return;
+        }
+
+        Ability ability = SpecialAbilityHandler.getSelected();
+
+        if (ability != null) {
+            ticksPassed = 0;
+            currentKey = ABILITY_KEYS.get(ABILITY_KEYS.size() - 1);
+            currentAbility = ability;
         }
     }
 
@@ -96,6 +102,12 @@ public class ClientAbilityHandler {
         currentCombo *= 10;
         currentCombo += i;
         ticksPassed = 0;
+
+        int lastKey = (int) (currentCombo % 10);
+
+        if (lastKey > 0 && lastKey < ABILITY_KEYS.size()) {
+            currentKey = ABILITY_KEYS.get(lastKey - 1);
+        }
 
         LocalPlayer player = Minecraft.getInstance().player;
         currentAbility = NarutoAbilities.getUnlockedAbility(player, currentCombo);
@@ -111,19 +123,21 @@ public class ClientAbilityHandler {
         currentCombo = 0;
         ticksPassed = 0;
         currentAbility = null;
+        currentKey = null;
         isCurrentlyChargingAbility = false;
     }
-    
+
     public static void registerListener(KeyMapping key, Runnable onClick) {
-        NarutoKeyMapping modKey = new NarutoKeyMapping(key.getName(), key.getKey().getValue(), key.getCategory());
-        modKey.registerClickConsumer(onClick);
-        MOD_KEYS.add(modKey);
+        NarutoKeyMapping abilityKey = new NarutoKeyMapping(key.getName(), key.getKey().getValue(), key.getCategory());
+        abilityKey.registerClickConsumer(onClick);
+        ABILITY_KEYS.add(abilityKey);
     }
 
-    public static void registerKeyMapping(RegisterKeyMappingsEvent event, KeyMapping key, Runnable onClick) {
+    public static void registerAbilityKey(RegisterKeyMappingsEvent event, KeyMapping key, Runnable onClick) {
         event.register(key);
         registerListener(key, onClick);
     }
+
 
     public static void triggerAbility(Ability ability) {
         Minecraft mc = Minecraft.getInstance();
@@ -135,7 +149,7 @@ public class ClientAbilityHandler {
 
         if (!ability.isUnlocked(owner)) {
             return;
-        } else if ((status = ability.checkChakra(owner)) != Ability.Status.SUCCESS) {
+        } else if ((status = ability.checkTriggerable(owner)) != Ability.Status.SUCCESS) {
             owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                 switch (status) {
                     case NO_CHAKRA -> owner.sendSystemMessage(Component.translatable("ability.fail.not_enough_chakra"));
@@ -146,6 +160,8 @@ public class ClientAbilityHandler {
             });
             return;
         }
+
+        MinecraftForge.EVENT_BUS.post(new AbilityTriggerEvent(owner, ability));
 
         if (ability.getActivationType() == Ability.ActivationType.INSTANT) {
             ability.runClient(owner);

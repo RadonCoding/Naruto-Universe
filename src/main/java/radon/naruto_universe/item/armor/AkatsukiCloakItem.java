@@ -12,10 +12,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.client.model.AkatsukiCloakModel;
+import radon.naruto_universe.client.render.AkatsukiCloakRenderer;
+import software.bernie.example.client.renderer.armor.GeckoArmorRenderer;
+import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.renderer.GeoArmorRenderer;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.function.Consumer;
 
-public class AkatsukiCloakItem extends ArmorItem {
+public class AkatsukiCloakItem extends ArmorItem implements GeoAnimatable, GeoItem {
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+
     public AkatsukiCloakItem(ArmorMaterial pMaterial, EquipmentSlot pSlot, Properties pProperties) {
         super(pMaterial, pSlot, pProperties);
     }
@@ -23,15 +33,29 @@ public class AkatsukiCloakItem extends ArmorItem {
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
         consumer.accept(new IClientItemExtensions() {
+            private AkatsukiCloakRenderer renderer;
+
             @Override
             public @NotNull HumanoidModel<?> getHumanoidArmorModel(LivingEntity livingEntity, ItemStack itemStack, EquipmentSlot equipmentSlot, HumanoidModel<?> original) {
-                return new AkatsukiCloakModel(AkatsukiCloakModel.createBodyLayer().bakeRoot());
+                if (this.renderer == null) this.renderer = new AkatsukiCloakRenderer();
+                this.renderer.prepForRender(livingEntity, itemStack, equipmentSlot, original);
+                return this.renderer;
             }
         });
     }
 
     @Override
-    public @Nullable String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlot slot, String type) {
-        return String.format("%s:%s", NarutoUniverse.MOD_ID, "textures/armor/akatsuki_cloak.png");
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
+
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return this.cache;
+    }
+
+    @Override
+    public double getTick(Object o) {
+        return 0;
     }
 }

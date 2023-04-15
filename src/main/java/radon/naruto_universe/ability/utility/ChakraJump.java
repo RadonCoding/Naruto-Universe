@@ -50,7 +50,7 @@ public class ChakraJump extends Ability {
     }
 
     private void jump(LivingEntity owner) {
-        if (!ChakraControl.isWaterWalking(owner) && !owner.isOnGround()) {
+        if (!ChakraControl.isWaterWalking(owner) && !owner.isOnGround() || owner.isPassenger()) {
             return;
         }
 

@@ -116,7 +116,6 @@ public class Susanoo extends Ability implements Ability.IToggled {
 
             AttributeInstance reachAttribute = owner.getAttribute(REACH_DISTANCE.get());
             AttributeInstance meleeAttribute = owner.getAttribute(Attributes.ATTACK_DAMAGE);
-            AttributeInstance knockbackAttribute = owner.getAttribute(Attributes.ATTACK_KNOCKBACK);
 
             if (reachAttribute != null) {
                 reachAttribute.removeModifier(SusanooEntity.REACH_DISTANCE_UUID);
@@ -124,10 +123,6 @@ public class Susanoo extends Ability implements Ability.IToggled {
 
             if (meleeAttribute != null) {
                 meleeAttribute.removeModifier(SusanooEntity.ATTACK_DAMAGE_UUID);
-            }
-
-            if (knockbackAttribute != null) {
-                knockbackAttribute.removeModifier(SusanooEntity.ATTACK_KNOCKBACK_UUID);
             }
         }
     }

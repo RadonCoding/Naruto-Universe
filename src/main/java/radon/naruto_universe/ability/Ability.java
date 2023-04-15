@@ -71,19 +71,19 @@ public abstract class Ability {
         return this.getName();
     }
 
-    public boolean checkRequirements(Player player) {
-        if (player.getAbilities().instabuild || NarutoAbilities.checkRequirements(player, this)) {
+    public boolean checkRequirements(LivingEntity owner) {
+        if ((owner instanceof Player player && player.getAbilities().instabuild) || NarutoAbilities.checkRequirements(owner, this)) {
             return true;
         }
-        player.sendSystemMessage(Component.translatable("ability.fail.not_skilled_enough", this.getRank().getIdentifier()));
+        owner.sendSystemMessage(Component.translatable("ability.fail.not_skilled_enough", this.getRank().getIdentifier()));
         return false;
     }
 
-    public boolean isUnlockable(Player player) {
-        if (player.getAbilities().instabuild) {
+    public boolean isUnlockable(LivingEntity owner) {
+        if (owner instanceof Player player && player.getAbilities().instabuild) {
             return true;
         }
-        return NarutoAbilities.checkRequirements(player, this);
+        return NarutoAbilities.checkRequirements(owner, this);
     }
 
     public boolean isUnlocked(LivingEntity owner) {
@@ -99,11 +99,7 @@ public abstract class Ability {
     public float getPower() { return this.power; }
 
     // Used for checking if a toggled ability can still be used
-    public Status checkStatus(LivingEntity owner) {
-        return this.checkChakra(owner);
-    }
-
-    public Status checkChakra(LivingEntity owner) {
+    public Status checkTriggerable(LivingEntity owner) {
         AtomicReference<Status> result = new AtomicReference<>(Status.SUCCESS);
 
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
@@ -133,10 +129,12 @@ public abstract class Ability {
             }
 
             if (!(owner instanceof Player player && player.getAbilities().instabuild)) {
-                if (!cap.isCooldownDone(this) && !cap.hasToggledAbility(this)) {
-                    result.set(Status.COOLDOWN);
-                } else {
-                    cap.addCooldown(this);
+                if (this.getCooldown() != 0) {
+                    if (!cap.isCooldownDone(this) && !cap.hasToggledAbility(this)) {
+                        result.set(Status.COOLDOWN);
+                    } else {
+                        cap.addCooldown(this);
+                    }
                 }
             }
 
@@ -179,6 +177,10 @@ public abstract class Ability {
     }
 
     public ChatFormatting getChatColor() { return ChatFormatting.WHITE; }
+
+    public Status checkStatus(LivingEntity owner) {
+        return this.checkTriggerable(owner);
+    }
 
     public interface IChanneled {
         default Component getStartMessage() {

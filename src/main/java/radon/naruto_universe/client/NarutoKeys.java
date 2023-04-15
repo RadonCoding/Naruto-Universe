@@ -5,7 +5,7 @@ import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import radon.naruto_universe.NarutoUniverse;
 import net.minecraft.client.KeyMapping;
 
-public class KeyRegistry {
+public class NarutoKeys {
     public static String KEY_CATEGORY_NARUTO_UNIVERSE = String.format("key.category.%s", NarutoUniverse.MOD_ID);
     public static KeyMapping KEY_HAND_SIGN_ONE = createKeyMapping("hand_sign_one",
             InputConstants.KEY_C);
@@ -23,7 +23,7 @@ public class KeyRegistry {
             InputConstants.KEY_G);
 
     private static KeyMapping createKeyMapping(String name, int keyCode) {
-        return new KeyMapping(String.format("key.%s.%s", NarutoUniverse.MOD_ID, name), keyCode, KeyRegistry.KEY_CATEGORY_NARUTO_UNIVERSE);
+        return new KeyMapping(String.format("key.%s.%s", NarutoUniverse.MOD_ID, name), keyCode, NarutoKeys.KEY_CATEGORY_NARUTO_UNIVERSE);
     }
 
     public static void register(RegisterKeyMappingsEvent event) {

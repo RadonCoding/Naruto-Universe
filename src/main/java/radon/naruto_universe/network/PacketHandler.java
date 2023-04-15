@@ -1,6 +1,5 @@
 package radon.naruto_universe.network;
 
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkDirection;
@@ -73,6 +72,16 @@ public class PacketHandler {
                 .decoder(ClearEyeStatusS2CPacket::new)
                 .encoder(ClearEyeStatusS2CPacket::encode)
                 .consumerMainThread(ClearEyeStatusS2CPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(GenjutsuS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(GenjutsuS2CPacket::new)
+                .encoder(GenjutsuS2CPacket::encode)
+                .consumerMainThread(GenjutsuS2CPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(SusanooControlC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(SusanooControlC2SPacket::new)
+                .encoder(SusanooControlC2SPacket::encode)
+                .consumerMainThread(SusanooControlC2SPacket::handle)
                 .add();
     }
 

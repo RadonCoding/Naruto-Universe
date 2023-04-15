@@ -1,5 +1,6 @@
 package radon.naruto_universe.ability;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -11,12 +12,13 @@ import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.jutsu.fire.*;
 import radon.naruto_universe.ability.jutsu.lightning.Lariat;
 import radon.naruto_universe.ability.special.Amaterasu;
+import radon.naruto_universe.ability.special.Copy;
 import radon.naruto_universe.ability.special.Genjutsu;
 import radon.naruto_universe.ability.special.Susanoo;
 import radon.naruto_universe.ability.utility.*;
 import radon.naruto_universe.capability.NinjaPlayerHandler;
 import radon.naruto_universe.capability.NinjaTrait;
-import radon.naruto_universe.client.KeyRegistry;
+import radon.naruto_universe.client.NarutoKeys;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -58,6 +60,8 @@ public class NarutoAbilities {
             ABILITIES.register("susanoo", Susanoo::new);
     public static RegistryObject<Ability> LARIAT =
             ABILITIES.register("lariat", Lariat::new);
+    public static RegistryObject<Ability> COPY =
+            ABILITIES.register("copy", Copy::new);
 
     private static final HashMap<Long, ResourceLocation> COMBO_MAP = new HashMap<>();
 
@@ -142,20 +146,30 @@ public class NarutoAbilities {
         return null;
     }
 
-    public static Ability getUnlockedAbility(Player player, long combo) {
+    public static void unlockAbility(LivingEntity owner, Ability ability) {
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            if (ability.checkRequirements(owner)) {
+                if (owner.level.isClientSide) {
+                    owner.sendSystemMessage(Component.translatable("ability.unlock", ability.getChatMessage()));
+                }
+                cap.unlockAbility(ability);
+            }
+        });
+    }
+
+    public static Ability getUnlockedAbility(LivingEntity owner, long combo) {
         Ability ability = getAbility(combo);
 
-        if (ability != null && ability.isUnlocked(player)) {
+        if (ability != null && ability.isUnlocked(owner)) {
             return ability;
         }
         return null;
     }
 
-
-    public static boolean checkRequirements(Player player, Ability ability) {
+    public static boolean checkRequirements(LivingEntity owner, Ability ability) {
         AtomicBoolean result = new AtomicBoolean(true);
 
-        player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             if (cap.getRank().ordinal() >= ability.getRank().ordinal()) {
                 List<NinjaTrait> requirements = ability.getRequirements();
 
@@ -188,14 +202,14 @@ public class NarutoAbilities {
     public static void setToggledAbility(LivingEntity owner, Ability ability) {
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             if (ability instanceof Ability.IToggled) {
+                if (ability.isDojutsu()) {
+                    cap.clearToggledDojutsus(owner, ability);
+                }
+
                 if (!cap.hasToggledAbility(ability)) {
                     cap.enableToggledAbility(owner, ability);
                 } else {
                     cap.disableToggledAbility(owner, ability);
-                }
-
-                if (ability.isDojutsu()) {
-                    cap.clearToggledDojutsus(owner, ability);
                 }
             }
         });
@@ -217,9 +231,9 @@ public class NarutoAbilities {
 
         for (int digit : digits) {
             switch (digit) {
-                case 1 -> result.append((char) KeyRegistry.KEY_HAND_SIGN_ONE.getKey().getValue());
-                case 2 -> result.append((char) KeyRegistry.KEY_HAND_SIGN_TWO.getKey().getValue());
-                case 3 -> result.append((char) KeyRegistry.KEY_HAND_SIGN_THREE.getKey().getValue());
+                case 1 -> result.append((char) NarutoKeys.KEY_HAND_SIGN_ONE.getKey().getValue());
+                case 2 -> result.append((char) NarutoKeys.KEY_HAND_SIGN_TWO.getKey().getValue());
+                case 3 -> result.append((char) NarutoKeys.KEY_HAND_SIGN_THREE.getKey().getValue());
             }
         }
         return result.toString();

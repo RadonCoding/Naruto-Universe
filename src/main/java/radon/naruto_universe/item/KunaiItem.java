@@ -2,9 +2,6 @@ package radon.naruto_universe.item;
 
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
-import org.jetbrains.annotations.NotNull;
-import radon.naruto_universe.entity.ThrownKunaiEntity;
-import radon.naruto_universe.sound.NarutoSounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -20,9 +17,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.Vanishable;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
+import radon.naruto_universe.entity.ThrownKunaiEntity;
+import radon.naruto_universe.sound.NarutoSounds;
 
 public class KunaiItem extends Item implements Vanishable {
     public static int THROW_THRESHOLD_TIME = 1;
@@ -93,7 +92,7 @@ public class KunaiItem extends Item implements Vanishable {
     }
 
     @Override
-    public @NotNull Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(@NotNull EquipmentSlot pEquipmentSlot) {
-        return pEquipmentSlot == EquipmentSlot.MAINHAND ? this.defaultModifiers : super.getDefaultAttributeModifiers(pEquipmentSlot);
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlot slot, ItemStack stack) {
+        return slot == EquipmentSlot.MAINHAND ? this.defaultModifiers : super.getAttributeModifiers(slot, stack);
     }
 }

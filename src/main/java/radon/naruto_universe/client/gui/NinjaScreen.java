@@ -2,22 +2,19 @@ package radon.naruto_universe.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import org.jetbrains.annotations.NotNull;
-import radon.naruto_universe.client.gui.tab.InfoTab;
-import radon.naruto_universe.client.gui.tab.AbilityTab;
-import radon.naruto_universe.client.gui.tab.SettingsTab;
-import radon.naruto_universe.client.gui.tab.NinjaTab;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import org.apache.commons.compress.utils.Lists;
+import org.jetbrains.annotations.NotNull;
+import radon.naruto_universe.client.gui.tab.AbilityTab;
+import radon.naruto_universe.client.gui.tab.InfoTab;
+import radon.naruto_universe.client.gui.tab.NinjaTab;
+import radon.naruto_universe.client.gui.tab.SettingsTab;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class NinjaScreen extends Screen {
     private static final ResourceLocation WINDOW_LOCATION = new ResourceLocation("textures/gui/advancements/window.png");
@@ -30,7 +27,6 @@ public class NinjaScreen extends Screen {
 
     private boolean isScrolling;
 
-    private final HashMap<NinjaTab, AbstractWidget> tabWidgets = new HashMap<>();
     private final List<NinjaTab> tabs = new ArrayList<>();
     private NinjaTab selectedTab;
 
@@ -58,11 +54,6 @@ public class NinjaScreen extends Screen {
                 widget.visible = this.selectedTab == tab;
             }
         }
-    }
-
-    public AbstractWidget addTabWidget(NinjaTab tab, AbstractWidget widget) {
-        this.tabWidgets.put(tab, widget);
-        return super.addRenderableWidget(widget);
     }
 
     public void updateAbilities() {

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.ModDamageSource;
 import radon.naruto_universe.capability.NinjaTrait;
 import radon.naruto_universe.client.particle.NarutoParticles;
+import radon.naruto_universe.util.HelperMethods;
 
 public class ParticleSpawnerProjectile extends JutsuProjectile {
     private static final EntityDataAccessor<ParticleOptions> DATA_PARTICLE = SynchedEntityData.defineId(ParticleSpawnerProjectile.class, EntityDataSerializers.PARTICLE);
@@ -118,37 +119,34 @@ public class ParticleSpawnerProjectile extends JutsuProjectile {
             Vec3 look = owner.getLookAngle();
             double angle = Math.atan(radius / range) * 180.0D / Math.PI;
 
-            Vec3 center = new Vec3(owner.getX() + look.x(), owner.getEyeY() - 0.2D + look.y(), owner.getZ() + look.z());
-            AABB box = new AABB(center.x() - range / 2.0D, center.y() - radius / 2.0D, center.z() - range / 2.0D,
-                    center.x() + range / 2.0D, center.y() + radius / 2.0D, center.z() + range / 2.0D).deflate(this.getThickness());
+            HitResult result = HelperMethods.getHitResult(owner, range, radius);
 
-            for (Entity entity : this.level.getEntities(null, box)) {
-                Vec3 direction = entity.position().subtract(owner.position()).normalize();
-                double angleBetween = Math.toDegrees(Math.acos(look.dot(direction) / (look.length() * direction.length())));
+            if (result != null) {
+                if (result.getType() == HitResult.Type.ENTITY) {
+                    EntityHitResult hit = (EntityHitResult) result;
 
-                if (angleBetween <= angle) {
+                    Entity entity = hit.getEntity();
+
                     if (entity.hurt(ModDamageSource.jutsu(this, owner), this.getDamage())) {
                         if (this.getRelease() == NinjaTrait.FIRE_RELEASE) {
                             entity.setSecondsOnFire(Math.round(this.getPower()));
                         }
                     }
-                }
-                this.onHitEntity(new EntityHitResult(entity));
-            }
+                    this.onHitEntity(hit);
+                } else if (result.getType() == HitResult.Type.BLOCK) {
+                    BlockHitResult hit = (BlockHitResult) result;
 
-            if (this.causesFire()) {
-                BlockPos.betweenClosedStream(box).forEach(pos -> {
-                    if (this.random.nextInt(10) == 0) {
-                        BlockState state = this.level.getBlockState(pos);
-                        Block block = state.getBlock();
+                    BlockPos pos = hit.getBlockPos();
+                    BlockState state = this.level.getBlockState(pos);
+                    Block block = state.getBlock();
 
-                        if (block != Blocks.AIR) {
-                            if (block.isFlammable(state, this.level, pos, null)) {
-                                this.level.setBlockAndUpdate(pos, Blocks.FIRE.defaultBlockState());
-                            }
+                    if (block != Blocks.AIR) {
+                        if (block.isFlammable(state, this.level, pos, null)) {
+                            this.level.setBlockAndUpdate(pos, Blocks.FIRE.defaultBlockState());
                         }
                     }
-                });
+                    this.onHitBlock(hit);
+                }
             }
 
             for (int i = 0; i < (range * radius) * this.getThickness(); i++) {

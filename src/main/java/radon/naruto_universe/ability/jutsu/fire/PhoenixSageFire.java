@@ -44,7 +44,7 @@ public class PhoenixSageFire extends Ability {
 
     @Override
     public float getDamage() {
-        return 2.5F;
+        return 1.5F;
     }
 
     @Override

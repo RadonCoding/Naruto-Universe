@@ -56,13 +56,13 @@ public class NarutoRenderTypes extends RenderType {
         return create("susanoo", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, 256,
                 false, true, CompositeState.builder()
                         .setLayeringState(POLYGON_OFFSET_LAYERING)
-                        .setShaderState(new ShaderStateShard(GameRenderer::getPositionColorTexShader))
+                        .setShaderState(new ShaderStateShard(GameRenderer::getPositionColorTexLightmapShader))
                         .setTextureState(shard)
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                         .setCullState(NO_CULL)
                         .setWriteMaskState(COLOR_WRITE)
                         .setLightmapState(LIGHTMAP)
-                        .setOverlayState(NO_OVERLAY)
+                        .setOverlayState(OVERLAY)
                         .createCompositeState(false));
     });
 

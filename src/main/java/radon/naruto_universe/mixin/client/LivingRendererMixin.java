@@ -3,8 +3,6 @@ package radon.naruto_universe.mixin.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.entity.layers.RenderLayer;
-import org.spongepowered.asm.mixin.Shadow;
 import radon.naruto_universe.client.event.PlayerModelEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
@@ -20,7 +18,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
-import radon.naruto_universe.client.layer.ModEyesLayer;
 
 @Mixin(LivingEntityRenderer.class)
 public abstract class LivingRendererMixin<T extends LivingEntity, M extends EntityModel<T>> {

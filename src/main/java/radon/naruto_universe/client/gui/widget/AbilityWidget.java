@@ -5,7 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.NinjaTrait;
-import radon.naruto_universe.client.KeyRegistry;
+import radon.naruto_universe.client.NarutoKeys;
 import radon.naruto_universe.client.gui.tab.AbilityTab;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.UnlockAbilityC2SPacket;
@@ -90,7 +90,7 @@ public class AbilityWidget extends GuiComponent {
             component.append("\n");
             component.append("\n");
             component.append(Component.literal("Combo: "));
-            component.append(String.valueOf((char) KeyRegistry.KEY_CHAKRA_JUMP.getKey().getValue()));
+            component.append(String.valueOf((char) NarutoKeys.KEY_CHAKRA_JUMP.getKey().getValue()));
         }
         else if (this.ability.hasCombo()) {
             component.append("\n");
@@ -213,6 +213,7 @@ public class AbilityWidget extends GuiComponent {
             assert this.mc.player != null;
             this.mc.player.playSound(SoundEvents.PLAYER_LEVELUP, 1.0F, 1.0F);
             PacketHandler.sendToServer(new UnlockAbilityC2SPacket(NarutoAbilities.getKey(this.ability)));
+            NarutoAbilities.unlockAbility(mc.player, ability);
             this.update();
         }
     }

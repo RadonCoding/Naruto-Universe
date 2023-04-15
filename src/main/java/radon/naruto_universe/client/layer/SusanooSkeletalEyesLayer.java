@@ -1,24 +1,28 @@
 package radon.naruto_universe.client.layer;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.entity.layers.EyesLayer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.NarutoUniverse;
-import radon.naruto_universe.client.model.SusanooSkeletalModel;
 import radon.naruto_universe.entity.SusanooEntity;
+import software.bernie.geckolib.cache.object.BakedGeoModel;
+import software.bernie.geckolib.renderer.GeoRenderer;
+import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
-public class SusanooSkeletalEyesLayer<T extends SusanooEntity, M extends SusanooSkeletalModel<T>> extends EyesLayer<T, M> {
-    private static final RenderType SUSANOO_SKELETAL_EYES = RenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID,
+public class SusanooSkeletalEyesLayer extends GeoRenderLayer<SusanooEntity> {
+    private static final RenderType EYES = RenderType.eyes(new ResourceLocation(NarutoUniverse.MOD_ID,
             "textures/entity/susanoo_skeletal_eyes.png"));
 
-    public SusanooSkeletalEyesLayer(RenderLayerParent<T, M> pRenderer) {
-        super(pRenderer);
+    public SusanooSkeletalEyesLayer(GeoRenderer<SusanooEntity> entityRendererIn) {
+        super(entityRendererIn);
     }
 
     @Override
-    public @NotNull RenderType renderType() {
-        return SUSANOO_SKELETAL_EYES;
+    public void render(PoseStack poseStack, SusanooEntity animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+        getRenderer().reRender(getDefaultBakedModel(animatable), poseStack, bufferSource, animatable, EYES, bufferSource.getBuffer(EYES), partialTick, packedLight, OverlayTexture.NO_OVERLAY,
+                1.0F, 1.0F, 1.0F, 1.0F);
     }
 }

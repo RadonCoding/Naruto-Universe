@@ -75,6 +75,6 @@ public class Mangekyo extends Ability implements Ability.IToggled, Ability.ISpec
 
     @Override
     public List<Ability> getSpecialAbilities() {
-        return List.of(NarutoAbilities.SUSANOO.get());
+        return List.of(NarutoAbilities.GENJUTSU.get(), NarutoAbilities.SUSANOO.get());
     }
 }
