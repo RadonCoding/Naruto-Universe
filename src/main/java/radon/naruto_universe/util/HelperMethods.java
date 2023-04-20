@@ -2,19 +2,14 @@ package radon.naruto_universe.util;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
 import org.joml.Quaternionf;
-import radon.naruto_universe.ability.Ability;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 public class HelperMethods {
     private static final SecureRandom RANDOM = new SecureRandom();
@@ -46,14 +41,13 @@ public class HelperMethods {
             return new EntityHitResult(entityHit);
         }
 
-        BlockHitResult blockHit = level.clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, entity));
+        BlockHitResult blockHit = level.clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.ANY, entity));
 
         if (blockHit.getType() == HitResult.Type.BLOCK) {
             return blockHit;
         }
         return null;
     }
-
 
     public static HitResult getHitResult(Entity entity, double range, double radius) {
         Vec3 look = entity.getLookAngle().normalize().scale(range);
@@ -62,12 +56,36 @@ public class HelperMethods {
         return getHitResult(entity.level, entity, start, end, radius);
     }
 
-    public static EntityHitResult getEntityLookAt(Entity entity, double range) {
-        Vec3 look = entity.getLookAngle().normalize().scale(range);
-        Vec3 start = new Vec3(entity.getX(), entity.getEyeY() - 0.2D, entity.getZ());
-        Vec3 end = start.add(look);
-        return ProjectileUtil.getEntityHitResult(entity.level, entity, start, end, entity.getBoundingBox().expandTowards(end).inflate(1.0D), target -> true);
+    public static EntityHitResult getEntityLookAt(Entity entity, double range, double radius) {
+        Vec3 start = entity.getEyePosition();
+        Vec3 view = entity.getViewVector(1.0F);
+        Vec3 end = start.add(view.x() * range, view.y() * range, view.z() * range);
+        return ProjectileUtil.getEntityHitResult(entity.level, entity, start, end, entity.getBoundingBox().expandTowards(end).inflate(radius), target -> !target.isSpectator() && target.isPickable());
     }
+
+    public static EntityHitResult getEntityEyesConnect(Entity entity, double range, double radius) {
+        Vec3 sourceEyePos = new Vec3(entity.getX(), entity.getEyeY() - 0.2D, entity.getZ());
+        Vec3 look = entity.getLookAngle().normalize().scale(range);
+        Vec3 end = sourceEyePos.add(look);
+
+        AABB box = entity.getBoundingBox().expandTowards(end).inflate(radius);
+
+        EntityHitResult hit = ProjectileUtil.getEntityHitResult(entity.level, entity, sourceEyePos, end, box, target -> true);
+
+        if (hit != null) {
+            Entity target = hit.getEntity();
+            Vec3 targetEyePos = new Vec3(target.getX(), target.getEyeY() - 0.2D, target.getZ());
+
+            Vec3 targetToSource = sourceEyePos.subtract(targetEyePos).normalize();
+            Vec3 targetLookVector = target.getLookAngle().normalize();
+
+            if (targetLookVector.dot(targetToSource) > Math.cos(Math.toRadians(15))) {
+                return hit;
+            }
+        }
+        return null;
+    }
+
 
     public static int toRGB24(int r, int g, int b, int a) {
         return ((a & 0xFF) << 24) |

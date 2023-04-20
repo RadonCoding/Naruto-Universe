@@ -1,6 +1,5 @@
 package radon.naruto_universe.ability.special;
 
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
@@ -8,13 +7,23 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.ability.event.AbilityTriggerEvent;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.util.HelperMethods;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class Copy extends Ability implements Ability.IChanneled {
-    private static final double RANGE = 50.0D;
+    private static final double RAYCAST_RANGE = 50.0D;
+    private static final double RAYCAST_RADIUS = 1.0D;
+
+    @Override
+    public List<NinjaTrait> getRequirements() {
+        return List.of(NinjaTrait.SHARINGAN);
+    }
 
     @Override
     public float getCost(LivingEntity owner) {
@@ -28,12 +37,12 @@ public class Copy extends Ability implements Ability.IChanneled {
 
     @Override
     public AbilityDisplayInfo getDisplay(LivingEntity owner) {
-        return null;
+        return new AbilityDisplayInfo(this.getId().getPath(), 10.0F, 0.0F);
     }
 
     @Override
     public Ability getParent() {
-        return null;
+        return NarutoAbilities.SHARINGAN.get();
     }
 
     @Override
@@ -43,14 +52,20 @@ public class Copy extends Ability implements Ability.IChanneled {
 
     @Override
     public boolean isUnlocked(LivingEntity owner) {
-        return true;
+        AtomicBoolean result = new AtomicBoolean(false);
+
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            result.set(cap.hasUnlockedAbility(NarutoAbilities.SHARINGAN.get()));
+        });
+        return result.get();
     }
+
 
     @SubscribeEvent
     public static void onAbilityTrigger(AbilityTriggerEvent event) {
         LivingEntity target = event.getEntity();
 
-        AABB bounds = new AABB(target.getX() - RANGE, target.getY() - RANGE, target.getZ() - RANGE, target.getX() + RANGE, target.getY() + RANGE, target.getZ() + RANGE);
+        AABB bounds = new AABB(target.getX() - RAYCAST_RANGE, target.getY() - RAYCAST_RANGE, target.getZ() - RAYCAST_RANGE, target.getX() + RAYCAST_RANGE, target.getY() + RAYCAST_RANGE, target.getZ() + RAYCAST_RANGE);
 
         for (LivingEntity owner : target.level.getEntitiesOfClass(LivingEntity.class, bounds)) {
             owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
@@ -58,7 +73,7 @@ public class Copy extends Ability implements Ability.IChanneled {
                     Ability ability = event.getAbility();
 
                     if (ability.isUnlockable(owner)) {
-                        EntityHitResult hit = HelperMethods.getEntityLookAt(owner, RANGE);
+                        EntityHitResult hit = HelperMethods.getEntityLookAt(owner, RAYCAST_RANGE, RAYCAST_RADIUS);
 
                         if (hit != null && hit.getEntity() == target) {
                             NarutoAbilities.unlockAbility(owner, ability);

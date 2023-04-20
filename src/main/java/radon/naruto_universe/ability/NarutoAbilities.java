@@ -16,12 +16,13 @@ import radon.naruto_universe.ability.special.Copy;
 import radon.naruto_universe.ability.special.Genjutsu;
 import radon.naruto_universe.ability.special.Susanoo;
 import radon.naruto_universe.ability.utility.*;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaTrait;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.NarutoKeys;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 public class NarutoAbilities {
@@ -148,7 +149,7 @@ public class NarutoAbilities {
 
     public static void unlockAbility(LivingEntity owner, Ability ability) {
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            if (ability.checkRequirements(owner)) {
+            if ((owner instanceof Player player && player.getAbilities().instabuild) || ability.checkRequirements(owner)) {
                 if (owner.level.isClientSide) {
                     owner.sendSystemMessage(Component.translatable("ability.unlock", ability.getChatMessage()));
                 }
@@ -182,6 +183,16 @@ public class NarutoAbilities {
             else {
                 result.set(false);
             }
+        });
+
+        return result.get();
+    }
+
+    public static float getExperience(LivingEntity owner, Ability ability) {
+        AtomicReference<Float> result = new AtomicReference<>(0.0F);
+
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            result.set(cap.getAbilityExperience(ability));
         });
 
         return result.get();

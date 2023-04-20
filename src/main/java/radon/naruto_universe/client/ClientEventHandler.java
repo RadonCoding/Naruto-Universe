@@ -28,7 +28,7 @@ import radon.naruto_universe.client.gui.DojutsuScreen;
 import radon.naruto_universe.client.gui.NinjaScreen;
 import radon.naruto_universe.client.gui.overlay.ChakraBarOverlay;
 import radon.naruto_universe.client.layer.NarutoEyesLayer;
-import radon.naruto_universe.client.particle.FlameParticle;
+import radon.naruto_universe.client.particle.FireParticle;
 import radon.naruto_universe.client.particle.NarutoParticles;
 import radon.naruto_universe.client.particle.VaporParticle;
 import radon.naruto_universe.client.render.EmptyRenderer;
@@ -36,11 +36,8 @@ import radon.naruto_universe.client.render.FireballRenderer;
 import radon.naruto_universe.client.render.SusanooRenderer;
 import radon.naruto_universe.client.render.ThrownKunaiRenderer;
 import radon.naruto_universe.entity.NarutoEntities;
-import radon.naruto_universe.entity.SusanooEntity;
 import radon.naruto_universe.item.NarutoItems;
 import radon.naruto_universe.network.PacketHandler;
-import radon.naruto_universe.network.packet.ChangeSusanooStageC2SPacket;
-import radon.naruto_universe.network.packet.SusanooControlC2SPacket;
 import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;
 
 public class ClientEventHandler {
@@ -64,10 +61,6 @@ public class ClientEventHandler {
             ClientAbilityHandler.registerAbilityKey(event, NarutoKeys.KEY_HAND_SIGN_TWO, () -> ClientAbilityHandler.handleAbilityKey(2));
             ClientAbilityHandler.registerAbilityKey(event, NarutoKeys.KEY_HAND_SIGN_THREE, () -> ClientAbilityHandler.handleAbilityKey(3));
             ClientAbilityHandler.registerAbilityKey(event, NarutoKeys.KEY_ACTIVATE_SPECIAL, ClientAbilityHandler::handleSpecialKey);
-
-            event.register(NarutoKeys.KEY_CHAKRA_JUMP);
-            event.register(NarutoKeys.OPEN_NINJA_SCREEN);
-
             NarutoKeys.register(event);
         }
 
@@ -81,12 +74,12 @@ public class ClientEventHandler {
         @SubscribeEvent
         public static void onRegisterParticleProviders(RegisterParticleProvidersEvent event) {
             event.register(NarutoParticles.VAPOR.get(), VaporParticle.Provider::new);
-            event.register(NarutoParticles.FLAME.get(), FlameParticle.Provider::new);
+            event.register(NarutoParticles.FIRE.get(), FireParticle.Provider::new);
         }
 
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(NarutoEntities.FIREBALL_JUTSU.get(), FireballRenderer::new);
+            event.registerEntityRenderer(NarutoEntities.FIREBALL.get(), FireballRenderer::new);
             event.registerEntityRenderer(NarutoEntities.THROWN_KUNAI.get(), ThrownKunaiRenderer::new);
             event.registerEntityRenderer(NarutoEntities.PARTICLE_SPAWNER.get(), EmptyRenderer::new);
             event.registerEntityRenderer(NarutoEntities.HIDING_IN_ASH.get(), EmptyRenderer::new);
@@ -159,17 +152,6 @@ public class ClientEventHandler {
                         SpecialAbilityHandler.scroll(-1);
                     }
                 }
-                else {
-                    if (mc.player.getVehicle() instanceof SusanooEntity susanoo) {
-                        if (event.getKey() == InputConstants.KEY_UP) {
-                            PacketHandler.sendToServer(new ChangeSusanooStageC2SPacket(1));
-                            susanoo.incrementStage();
-                        } else if (event.getKey() == InputConstants.KEY_DOWN) {
-                            PacketHandler.sendToServer(new ChangeSusanooStageC2SPacket(-1));
-                            susanoo.decrementStage();
-                        }
-                    }
-                }
 
                 if (NarutoKeys.SHOW_DOJUTSU_MENU.isDown()) {
                     mc.setScreen(new DojutsuScreen());
@@ -177,28 +159,6 @@ public class ClientEventHandler {
             } else if (event.getAction() == InputConstants.RELEASE) {
                 if (event.getKey() == NarutoKeys.SHOW_DOJUTSU_MENU.getKey().getValue() && mc.screen instanceof DojutsuScreen) {
                     mc.screen.onClose();
-                }
-            }
-        }
-
-        @SubscribeEvent
-        public static void onPlayerMouseClick(InputEvent.InteractionKeyMappingTriggered event) {
-            Minecraft mc = Minecraft.getInstance();
-
-            if (mc.player != null) {
-                if (mc.player.getVehicle() instanceof SusanooEntity susanoo) {
-                    if (mc.player.getMainHandItem().isEmpty() && mc.player.getOffhandItem().isEmpty()) {
-                        if (event.isAttack()) {
-                            PacketHandler.sendToServer(new SusanooControlC2SPacket(1));
-                            susanoo.onLeftClick();
-                        }
-                        else if (event.isUseItem()) {
-                            PacketHandler.sendToServer(new SusanooControlC2SPacket(-1));
-                            susanoo.onRightClick();
-                        }
-                        event.setCanceled(true);
-                        event.setSwingHand(false);
-                    }
                 }
             }
         }

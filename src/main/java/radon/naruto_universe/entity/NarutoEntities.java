@@ -12,9 +12,9 @@ import radon.naruto_universe.NarutoUniverse;
 public class NarutoEntities {
     public static DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, NarutoUniverse.MOD_ID);
 
-    public static RegistryObject<EntityType<FireballJutsuProjectile>> FIREBALL_JUTSU = ENTITIES.register("fireball_jutsu", () ->
-            EntityType.Builder.<FireballJutsuProjectile>of(FireballJutsuProjectile::new, MobCategory.MISC)
-                    .build(new ResourceLocation(NarutoUniverse.MOD_ID, "fireball_jutsu")
+    public static RegistryObject<EntityType<FireballProjectile>> FIREBALL = ENTITIES.register("fireball", () ->
+            EntityType.Builder.<FireballProjectile>of(FireballProjectile::new, MobCategory.MISC)
+                    .build(new ResourceLocation(NarutoUniverse.MOD_ID, "fireball")
                             .toString()));
 
     public static RegistryObject<EntityType<ParticleSpawnerProjectile>> PARTICLE_SPAWNER = ENTITIES.register("particle_spawner", () ->

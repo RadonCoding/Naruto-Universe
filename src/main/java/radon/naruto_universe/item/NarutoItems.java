@@ -3,6 +3,7 @@ package radon.naruto_universe.item;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -10,6 +11,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import radon.naruto_universe.NarutoUniverse;
+import radon.naruto_universe.block.NarutoBlocks;
 import radon.naruto_universe.item.armor.AkatsukiCloakItem;
 import radon.naruto_universe.item.armor.ModArmorMaterial;
 

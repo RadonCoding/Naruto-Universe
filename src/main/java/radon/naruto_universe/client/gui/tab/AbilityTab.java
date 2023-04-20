@@ -16,7 +16,7 @@ import radon.naruto_universe.client.gui.widget.AbilityWidget;
 
 import java.util.HashMap;
 
-public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.Scrollable, NinjaTab.Clickable {
+public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.Scrollable {
     private static final Component TITLE = Component.translatable("gui.tab.ability");
     private static final ResourceLocation ICON = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/gui/tab/ability.png");
 
@@ -50,22 +50,13 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
     }
 
     @Override
-    public void mouseClicked(int pMouseX, int pMouseY) {
-        int i = Mth.floor(this.scrollX);
-        int j = Mth.floor(this.scrollY);
-
-        if (pMouseX > 0 && pMouseX < 234 && pMouseY > 0 && pMouseY < HEIGHT) {
-            for (AbilityWidget widget : this.abilities.values()) {
-                if (widget.isMouseOver(i, j, pMouseX, pMouseY)) {
-                    widget.unlock();
-                    break;
-                }
-            }
-        }
-    }
-
-    @Override
     public void drawContents(PoseStack pPoseStack) {
+        if (!this.centered) {
+            this.scrollX = 117 - (this.maxX + this.minX) / 2.0F;
+            this.scrollY = 56 - (this.maxY + this.minY) / 2.0F;
+            this.centered = true;
+        }
+
         pPoseStack.pushPose();
         pPoseStack.translate(0.0D, 0.0D, 950.0D);
         RenderSystem.enableDepthTest();
@@ -74,21 +65,21 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
         RenderSystem.colorMask(true, true, true, true);
         pPoseStack.translate(0.0D, 0.0D, -950.0D);
         RenderSystem.depthFunc(518);
-        fill(pPoseStack, 234, 113, 0, 0, -16777216);
+        fill(pPoseStack, WIDTH, HEIGHT, 0, 0, -16777216);
         RenderSystem.depthFunc(515);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
-        
-        super.drawContents(pPoseStack);
-
-        if (!this.centered) {
-            this.scrollX = 117 - (this.maxX + this.minX) / 2.0F;
-            this.scrollY = 56 - (this.maxY + this.minY) / 2.0F;
-            this.centered = true;
-        }
 
         int i = Mth.floor(this.scrollX);
         int j = Mth.floor(this.scrollY);
+        int k = i % 16;
+        int l = j % 16;
+
+        for(int i1 = -1; i1 <= 15; ++i1) {
+            for(int j1 = -1; j1 <= 8; ++j1) {
+                blit(pPoseStack, k + 16 * i1, l + 16 * j1, 0.0F, 0.0F, 16, 16, 16, 16);
+            }
+        }
 
         this.root.drawConnectivity(pPoseStack, i, j, true);
         this.root.drawConnectivity(pPoseStack, i, j, false);
@@ -104,7 +95,7 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
     }
 
     @Override
-    public void drawTooltips(PoseStack pPoseStack, int pMouseX, int pMouseY, int p, int pHeight) {
+    public void drawTooltips(PoseStack pPoseStack, int pMouseX, int pMouseY, int pOffsetX, int pOffsetY) {
         pPoseStack.pushPose();
         pPoseStack.translate(0.0D, 0.0D, -200.0D);
         fill(pPoseStack, 0, 0, WIDTH, HEIGHT, Mth.floor(this.fade * 255.0F) << 24);
@@ -112,11 +103,11 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
         int i = Mth.floor(this.scrollX);
         int j = Mth.floor(this.scrollY);
 
-        if (pMouseX > 0 && pMouseX < 234 && pMouseY > 0 && pMouseY < HEIGHT) {
+        if (pMouseX > 0 && pMouseX < WIDTH && pMouseY > 0 && pMouseY < HEIGHT) {
             for (AbilityWidget widget : this.abilities.values()) {
                 if (widget.isMouseOver(i, j, pMouseX, pMouseY)) {
                     hovered = true;
-                    widget.drawHover(pPoseStack, i, j, this.fade, p, pHeight);
+                    widget.drawHover(pPoseStack, i, j, this.fade, pOffsetX, pOffsetY);
                     break;
                 }
             }
@@ -133,8 +124,8 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
 
     @Override
     public void scroll(double pDragX, double pDragY) {
-        if (this.maxX - this.minX > 234) {
-            this.scrollX = Mth.clamp(this.scrollX + pDragX, -(this.maxX - 234), 0.0D);
+        if (this.maxX - this.minX > WIDTH) {
+            this.scrollX = Mth.clamp(this.scrollX + pDragX, -(this.maxX - WIDTH), 0.0D);
         }
 
         if (this.maxY - this.minY > HEIGHT) {

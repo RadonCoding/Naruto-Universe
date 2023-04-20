@@ -6,18 +6,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.NinjaPlayer;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaPlayer;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaRank;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.client.particle.VaporParticle;
+import radon.naruto_universe.effect.NarutoEffects;
 import radon.naruto_universe.sound.NarutoSounds;
 import radon.naruto_universe.util.HelperMethods;
 
@@ -66,9 +63,9 @@ public class PowerCharge extends Ability implements Ability.IChanneled {
                     Math.max(NinjaPlayer.POWER_CHARGE_AMOUNT, (cap.getRank().ordinal() * 10.0F) * NinjaPlayer.POWER_CHARGE_AMOUNT);
             cap.addPower(amount);
             cap.setPowerResetTimer(0);
-
-            owner.setDeltaMovement(Vec3.ZERO.add(0.0D, owner.getDeltaMovement().y(), 0.0D));
         });
+
+        owner.addEffect(new MobEffectInstance(NarutoEffects.STUN.get(), 1, 0, false, false, false));
     }
 
     @Override

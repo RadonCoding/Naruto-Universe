@@ -20,7 +20,7 @@ public class AbilityHandler {
             SoundEvent sound = ability.getActivationSound();
 
             if (sound != null) {
-                owner.level.playSound(null, owner.blockPosition(), sound, SoundSource.PLAYERS, 10.0F, 1.0F);
+                owner.level.playSound(null, owner.blockPosition(), sound, SoundSource.PLAYERS, 1.0F, 1.0F);
             }
         } else if (ability.getActivationType() == Ability.ActivationType.CHANNELED) {
             NarutoAbilities.setChanneledAbility(owner, ability);

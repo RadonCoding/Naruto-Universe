@@ -5,8 +5,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.client.NarutoKeyMapping;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,11 +61,11 @@ public class SpecialAbilityHandler {
         assert player != null;
 
         player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            List<Ability> abilities = cap.getSpecialAbilities();
+            List<Ability> abilities = cap.getSpecialAbilities(player);
 
             if (_abilities.isEmpty() || !_abilities.equals(abilities)) {
                 _abilities.clear();
-                _abilities.addAll(cap.getSpecialAbilities());
+                _abilities.addAll(abilities);
             }
         });
 

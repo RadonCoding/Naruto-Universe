@@ -1,42 +1,58 @@
 package radon.naruto_universe.ability.special;
 
-import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.entity.SusanooEntity;
+import radon.naruto_universe.sound.NarutoSounds;
 
-import static net.minecraftforge.common.ForgeMod.REACH_DISTANCE;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-@Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class Susanoo extends Ability implements Ability.IToggled {
     @Override
+    public List<NinjaTrait> getRequirements() {
+        return List.of(NinjaTrait.UNLOCKED_MANGEKYO);
+    }
+
+    @Override
     public NinjaRank getRank() {
-        return null;
+        return NinjaRank.UNRANKED;
     }
 
     @Override
     public AbilityDisplayInfo getDisplay(LivingEntity owner) {
-        return null;
+        return new AbilityDisplayInfo(this.getId().getPath(), 10.0F, 1.0F);
+    }
+
+    @Override
+    public boolean shouldLog(LivingEntity owner) {
+        return false;
     }
 
     @Override
     public Ability getParent() {
-        return null;
+        return NarutoAbilities.MANGEKYO.get();
+    }
+
+    @Override
+    public SoundEvent getActivationSound() {
+        return NarutoSounds.SUSANOO.get();
     }
 
     @Override
     public boolean isUnlocked(LivingEntity owner) {
-        return true;
+        AtomicBoolean result = new AtomicBoolean(false);
+
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            result.set(cap.hasUnlockedAbility(NarutoAbilities.MANGEKYO.get()));
+        });
+        return result.get();
     }
 
     @Override
@@ -57,24 +73,6 @@ public class Susanoo extends Ability implements Ability.IToggled {
     @Override
     public int getCooldown() {
         return 5 * 60 * 20; // 5 minute cooldown
-    }
-
-    @SubscribeEvent
-    public static void onLivingAttack(LivingAttackEvent event) {
-        DamageSource source = event.getSource();
-
-        if (!source.isBypassArmor()) {
-            LivingEntity owner = event.getEntity();
-
-            owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                if (cap.hasToggledAbility(NarutoAbilities.SUSANOO.get())) {
-                    if (owner.getVehicle() instanceof SusanooEntity susanoo) {
-                        susanoo.hurt(source, event.getAmount());
-                        event.setCanceled(true);
-                    }
-                }
-            });
-        }
     }
 
     @Override

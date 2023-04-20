@@ -2,14 +2,15 @@ package radon.naruto_universe.ability.jutsu.fire;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.fml.LogicalSide;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaRank;
-import radon.naruto_universe.capability.NinjaTrait;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.client.particle.VaporParticle;
 import radon.naruto_universe.entity.HidingInAshEntity;
@@ -74,8 +75,7 @@ public class HidingInAsh extends Ability {
                 int lifetime = 10;
                 float scalar = Math.max(5.0F, rand.nextFloat() * 5.0F);
 
-                ParticleOptions particle = new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.SMOKE_COLOR,
-                        scalar, 0.75F, false, lifetime);
+                ParticleOptions particle = new VaporParticle.VaporParticleOptions(VaporParticle.VaporParticleOptions.SMOKE_COLOR,scalar, 0.75F, false, lifetime);
                 owner.level.addFreshEntity(new HidingInAshEntity(owner, this.getPower(), this.getDamage(), particle, duration, 10.0F, 1.0F));
             }, 20, LogicalSide.SERVER);
         });

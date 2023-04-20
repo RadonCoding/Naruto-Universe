@@ -11,7 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.client.gui.tab.AbilityTab;
 import radon.naruto_universe.client.gui.tab.InfoTab;
 import radon.naruto_universe.client.gui.tab.NinjaTab;
-import radon.naruto_universe.client.gui.tab.SettingsTab;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +40,6 @@ public class NinjaScreen extends Screen {
         int index = 0;
         this.tabs.add(new InfoTab(this, this.minecraft, index++));
         this.tabs.add(new AbilityTab(this, this.minecraft, index++));
-        this.tabs.add(new SettingsTab(this, this.minecraft, index++));
         this.setTab(this.tabs.get(0));
     }
 

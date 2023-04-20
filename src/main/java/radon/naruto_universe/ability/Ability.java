@@ -6,9 +6,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaRank;
-import radon.naruto_universe.capability.NinjaTrait;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.sound.NarutoSounds;
 
@@ -33,6 +33,7 @@ public abstract class Ability {
 
     // Used for storing the power that was used to activate the jutsu
     private float power = 0.0F;
+    private float experience = 0.0F;
 
     // A way to avoid hardcoding the dojutsu in AbilityRegistry::getDojutsuAbilities
     public boolean isDojutsu() {
@@ -97,6 +98,7 @@ public abstract class Ability {
         return 0.0F;
     }
     public float getPower() { return this.power; }
+    public float getExperience() { return this.experience; }
 
     // Used for checking if a toggled ability can still be used
     public Status checkTriggerable(LivingEntity owner) {
@@ -118,6 +120,7 @@ public abstract class Ability {
 
                     if (minPower > 0.0F) {
                         cost *= power;
+                        cost -= cap.getAbilityExperience(this) * 0.25F;
                     }
 
                     if (cap.getChakra() < cost) {
@@ -140,8 +143,13 @@ public abstract class Ability {
 
             if (result.get() == Status.SUCCESS) {
                 if (minPower > 0.0F) {
+                    cap.addAbilityExperience(this, 0.01F * (power / cap.getMaxPower()));
+
                     cap.resetPower();
+                } else {
+                    cap.addAbilityExperience(this, 0.001F);
                 }
+                this.experience = cap.getAbilityExperience(this);
             }
         });
         return result.get();
@@ -183,6 +191,9 @@ public abstract class Ability {
     }
 
     public interface IChanneled {
+        default void onStart(LivingEntity owner, boolean isClientSide) {}
+        default void onStop(LivingEntity owner, boolean isClientSide) {}
+
         default Component getStartMessage() {
             Ability ability = (Ability) this;
             ResourceLocation key = ability.getId();
@@ -222,6 +233,6 @@ public abstract class Ability {
     }
 
     public interface ISpecial {
-        List<Ability> getSpecialAbilities();
+        List<Ability> getSpecialAbilities(LivingEntity owner);
     }
 }

@@ -2,13 +2,6 @@ package radon.naruto_universe.client.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.NinjaTrait;
-import radon.naruto_universe.client.NarutoKeys;
-import radon.naruto_universe.client.gui.tab.AbilityTab;
-import radon.naruto_universe.network.PacketHandler;
-import radon.naruto_universe.network.packet.UnlockAbilityC2SPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.StringSplitter;
 import net.minecraft.client.gui.GuiComponent;
@@ -16,9 +9,13 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import radon.naruto_universe.ability.Ability;
+import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
+import radon.naruto_universe.client.NarutoKeys;
+import radon.naruto_universe.client.gui.tab.AbilityTab;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +23,7 @@ import java.util.List;
 public class AbilityWidget extends GuiComponent {
     private static final ResourceLocation WIDGETS_LOCATION = new ResourceLocation("textures/gui/advancements/widgets.png");
     private static final int[] TEST_SPLIT_OFFSETS = new int[] { 0, 10, -10, 25, -25 };
+    private static final int MAX_LINE_WIDTH = 192;
 
     private final Ability ability;
 
@@ -43,7 +41,7 @@ public class AbilityWidget extends GuiComponent {
     private final List<FormattedCharSequence> description;
 
     private final int width;
-    private boolean unlockable;
+    private final int height;
     private boolean unlocked;
     private AbilityFrameType frame;
     private final AbilityDisplayInfo display;
@@ -59,6 +57,8 @@ public class AbilityWidget extends GuiComponent {
         this.title = Language.getInstance().getVisualOrder(this.mc.font.substrByWidth(ability.getName(), 163));
         int len = 29 + this.mc.font.width(this.title);
 
+        assert mc.player != null;
+
         MutableComponent component = this.ability.getDescription().copy();
         component.append("\n");
         component.append("\n");
@@ -67,6 +67,24 @@ public class AbilityWidget extends GuiComponent {
         component.append(this.ability.getRank().getIdentifier());
         component.append("\n");
         component.append("\n");
+
+        float cost = this.ability.getCost(mc.player);
+
+        if (cost > 0.0F) {
+            component.append(Component.literal("Cost: "));
+
+            if (this.ability.getActivationType() == Ability.ActivationType.INSTANT) {
+                if (this.ability.getMinPower() > 0.0F) {
+                    component.append(String.format("%s * power", cost));
+                } else {
+                    component.append(String.valueOf(cost));
+                }
+            } else {
+                component.append(String.format("%s/s", cost));
+            }
+            component.append("\n");
+            component.append("\n");
+        }
 
         List<NinjaTrait> requirements = new ArrayList<>(this.ability.getRequirements());
 
@@ -80,24 +98,28 @@ public class AbilityWidget extends GuiComponent {
         if (!requirements.isEmpty()) {
             for (NinjaTrait requirement : requirements) {
                 component.append(requirement.getIdentifier());
+                component.append("\n");
             }
         }
         else {
             component.append("None");
+            component.append("\n");
         }
 
         if (this.ability == NarutoAbilities.CHAKRA_JUMP.get()) {
-            component.append("\n");
-            component.append("\n");
             component.append(Component.literal("Combo: "));
             component.append(String.valueOf((char) NarutoKeys.KEY_CHAKRA_JUMP.getKey().getValue()));
+            component.append("\n");
         }
         else if (this.ability.hasCombo()) {
-            component.append("\n");
-            component.append("\n");
             component.append(Component.literal("Combo: "));
             component.append(NarutoAbilities.getStringFromCombo(NarutoAbilities.getCombo(ability)));
+            component.append("\n");
         }
+        component.append("\n");
+
+        component.append(Component.literal("Experience: "));
+        component.append(String.format("%.2f", NarutoAbilities.getExperience(mc.player, this.ability)));
 
         this.description = Language.getInstance().getVisualOrder(this.splitComponent(ComponentUtils.mergeStyles(component.copy(),
                 Style.EMPTY)));
@@ -107,15 +129,15 @@ public class AbilityWidget extends GuiComponent {
         }
 
         this.width = len + 3 + 5;
+        this.height = 6 + this.description.size() * 9;
 
         this.update();
     }
 
     public void update() {
         assert this.mc.player != null;
-        this.unlockable = this.ability.isUnlockable(this.mc.player);
         this.unlocked = this.ability.isUnlocked(this.mc.player);
-        this.frame = this.unlockable ? (this.unlocked ? AbilityFrameType.UNLOCKED : AbilityFrameType.UNLOCKABLE) : AbilityFrameType.NORMAL;
+        this.frame = this.unlocked ? AbilityFrameType.UNLOCKED : AbilityFrameType.UNLOCKABLE;
     }
 
     private List<FormattedText> splitComponent(Component pComponent) {
@@ -124,7 +146,6 @@ public class AbilityWidget extends GuiComponent {
         float f = Float.MAX_VALUE;
 
         for (int i : TEST_SPLIT_OFFSETS) {
-            int MAX_LINE_WIDTH = 200;
             List<FormattedText> tmp = splitter.splitLines(pComponent, MAX_LINE_WIDTH - i, Style.EMPTY);
             float f1 = Math.abs(getMaxWidth(splitter, tmp) - (float) MAX_LINE_WIDTH);
 
@@ -208,21 +229,11 @@ public class AbilityWidget extends GuiComponent {
         return pMouseX >= i && pMouseX <= j && pMouseY >= k && pMouseY <= l;
     }
 
-    public void unlock() {
-        if (this.unlockable && !this.unlocked) {
-            assert this.mc.player != null;
-            this.mc.player.playSound(SoundEvents.PLAYER_LEVELUP, 1.0F, 1.0F);
-            PacketHandler.sendToServer(new UnlockAbilityC2SPacket(NarutoAbilities.getKey(this.ability)));
-            NarutoAbilities.unlockAbility(this.mc.player, this.ability);
-            this.update();
-        }
-    }
-
     public void drawHover(PoseStack pPoseStack, int pX, int pY, float pFade, int pWidth, int pHeight) {
         boolean drawLeft = pWidth + pX + this.x + this.width + 26 >= this.tab.getScreen().width;
-        boolean newLine = 113 - pY - this.y - 26 <= 6 + this.description.size() * 9;
+        boolean drawAbove = pHeight + pY + this.y + this.height + 46 >= this.tab.getScreen().height;
 
-        int j = this.unlockable ? this.width : 0;
+        int j;
 
         AbilityWidgetType type1;
         AbilityWidgetType type2;
@@ -233,11 +244,8 @@ public class AbilityWidget extends GuiComponent {
             type1 = AbilityWidgetType.OBTAINED;
             type2 = AbilityWidgetType.OBTAINED;
             type3 = AbilityWidgetType.OBTAINED;
-        } else if (this.unlockable) {
-            type1 = AbilityWidgetType.OBTAINED;
-            type2 = AbilityWidgetType.UNOBTAINED;
-            type3 = AbilityWidgetType.UNOBTAINED;
-        } else {
+        }
+        else {
             j = this.width / 2;
             type1 = AbilityWidgetType.UNOBTAINED;
             type2 = AbilityWidgetType.UNOBTAINED;
@@ -258,9 +266,9 @@ public class AbilityWidget extends GuiComponent {
             i1 = pX + this.x;
         }
 
-        int j1 = 32 + this.description.size() * 9;
+        int j1 = this.height + 26;
 
-        if (newLine) {
+        if (drawAbove) {
             this.render9Sprite(pPoseStack, i1, l + 26 - j1, this.width, j1, 10, 200, 26, 0, 52);
         } else {
             this.render9Sprite(pPoseStack, i1, l, this.width, j1, 10, 200, 26, 0, 52);
@@ -276,7 +284,7 @@ public class AbilityWidget extends GuiComponent {
             this.mc.font.drawShadow(pPoseStack, this.title, (float)(pX + this.x + 32), (float)(pY + this.y + 9), -1);
         }
 
-        if (newLine) {
+        if (drawAbove) {
             for (int k1 = 0; k1 < this.description.size(); ++k1) {
                 this.mc.font.draw(pPoseStack, this.description.get(k1), (float)(i1 + 5), (float)(l + 26 - j1 + 7 + k1 * 9), -5592406);
             }

@@ -9,6 +9,9 @@ import radon.naruto_universe.entity.SusanooEntity;
 import java.util.function.Supplier;
 
 public class SusanooControlC2SPacket {
+    public static final int LEFT = 1;
+    public static final int RIGHT = 2;
+
     private final int click;
 
     public SusanooControlC2SPacket(int click) {
@@ -32,9 +35,9 @@ public class SusanooControlC2SPacket {
             assert player != null;
 
             if (player.getVehicle() instanceof SusanooEntity susanoo) {
-                if (this.click == 1) {
+                if (this.click == LEFT) {
                     susanoo.onLeftClick();
-                } else {
+                } else if (this.click == RIGHT) { // Verbosity
                     susanoo.onRightClick();
                 }
             }

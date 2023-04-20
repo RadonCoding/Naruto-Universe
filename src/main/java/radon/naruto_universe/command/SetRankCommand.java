@@ -7,8 +7,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.server.command.EnumArgument;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaRank;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
 

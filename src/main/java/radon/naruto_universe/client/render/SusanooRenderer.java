@@ -8,7 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
-import radon.naruto_universe.capability.SusanooStage;
+import radon.naruto_universe.capability.ninja.SusanooStage;
 import radon.naruto_universe.client.model.SusanooRibcageModel;
 import radon.naruto_universe.client.model.SusanooSkeletalModel;
 import radon.naruto_universe.entity.SusanooEntity;
@@ -28,11 +28,6 @@ public class SusanooRenderer extends EntityRenderer<SusanooEntity> {
 
     @Override
     public void render(@NotNull SusanooEntity pEntity, float pEntityYaw, float pPartialTick, @NotNull PoseStack pPoseStack, @NotNull MultiBufferSource pBuffer, int pPackedLight) {
-        LivingEntity owner = pEntity.getOwner();
-        owner.animationSpeed = pEntity.animationSpeed;
-        owner.animationSpeedOld = pEntity.animationSpeedOld;
-        owner.yBodyRot = pEntity.yBodyRot;
-        owner.yBodyRotO = pEntity.yBodyRotO;
         this.renderers.get(pEntity.getStage()).render(pEntity, pEntityYaw, pPartialTick, pPoseStack, pBuffer, pPackedLight);
     }
 

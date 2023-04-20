@@ -77,4 +77,16 @@ public class NarutoSounds {
     public static RegistryObject<SoundEvent> POWER_CHARGE =
             SOUNDS.register("power_charge", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
                     "power_charge")));
+
+    public static RegistryObject<SoundEvent> GENJUTSU =
+            SOUNDS.register("genjutsu", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
+                    "genjutsu")));
+
+    public static RegistryObject<SoundEvent> AMATERASU =
+            SOUNDS.register("amaterasu", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
+                    "amaterasu")));
+
+    public static RegistryObject<SoundEvent> SUSANOO =
+            SOUNDS.register("susanoo", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
+                    "susanoo")));
 }

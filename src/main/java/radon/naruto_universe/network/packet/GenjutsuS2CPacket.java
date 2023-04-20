@@ -3,32 +3,30 @@ package radon.naruto_universe.network.packet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.network.NetworkEvent;
-import radon.naruto_universe.capability.MangekyoType;
-import radon.naruto_universe.capability.ToggledEyes;
+import radon.naruto_universe.capability.ninja.MangekyoType;
+import radon.naruto_universe.capability.ninja.ToggledEyes;
 import radon.naruto_universe.client.genjutsu.ClientGenjutsuHandler;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 
 public class GenjutsuS2CPacket {
-    private final int entityId;
+    private final ToggledEyes eyes;
     private final int duration;
 
-    public GenjutsuS2CPacket(int entityId, int duration) {
-        this.entityId = entityId;
+    public GenjutsuS2CPacket(ToggledEyes eyes, int duration) {
+        this.eyes = eyes;
         this.duration = duration;
     }
 
     public GenjutsuS2CPacket(FriendlyByteBuf buf) {
-        this(buf.readInt(), buf.readInt());
+        this(new ToggledEyes(buf), buf.readInt());
     }
 
     public void encode(FriendlyByteBuf buf) {
-        buf.writeInt(this.entityId);
+        this.eyes.serialize(buf);
         buf.writeInt(this.duration);
     }
 
@@ -41,7 +39,7 @@ public class GenjutsuS2CPacket {
 
             assert player != null;
 
-            ClientGenjutsuHandler.trigger(this.entityId, this.duration);
+            ClientGenjutsuHandler.trigger(this.eyes, this.duration);
         }));
         ctx.setPacketHandled(true);
     }

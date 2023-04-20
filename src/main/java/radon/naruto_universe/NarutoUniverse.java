@@ -10,18 +10,15 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.block.NarutoBlocks;
 import radon.naruto_universe.client.particle.NarutoParticles;
 import radon.naruto_universe.config.ConfigHolder;
+import radon.naruto_universe.effect.NarutoEffects;
 import radon.naruto_universe.entity.NarutoEntities;
 import radon.naruto_universe.item.NarutoItems;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.sound.NarutoSounds;
-import radon.naruto_universe.util.HelperMethods;
 import software.bernie.example.GeckoLibMod;
-
-// TODO: Come up with a system for special abilities that don't use hand signs
-// Potential idea: Display a wheel type thing in top right where the player can choose a ability using shift + scroll or arrow keys.
-// The wheel will display the next ability above and below as transparent so it's easier to see what's next. The abilities are triggered using the B key which will have the combo of -2 instead of -1 for X
 
 @Mod(NarutoUniverse.MOD_ID)
 public class NarutoUniverse {
@@ -29,6 +26,8 @@ public class NarutoUniverse {
 
     public NarutoUniverse()
     {
+        System.setProperty(GeckoLibMod.DISABLE_EXAMPLES_PROPERTY_KEY, "true");
+
         ModLoadingContext ctx = ModLoadingContext.get();
         ctx.registerConfig(ModConfig.Type.CLIENT, ConfigHolder.CLIENT_SPEC);
         ctx.registerConfig(ModConfig.Type.COMMON, ConfigHolder.SERVER_SPEC);
@@ -39,6 +38,8 @@ public class NarutoUniverse {
         NarutoSounds.SOUNDS.register(bus);
         NarutoParticles.PARTICLES.register(bus);
         NarutoItems.ITEMS.register(bus);
+        NarutoEffects.EFFECTS.register(bus);
+        NarutoBlocks.BLOCKS.register(bus);
 
         NarutoAbilities.ABILITIES.register(bus);
 

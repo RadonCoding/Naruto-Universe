@@ -4,18 +4,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.fml.LogicalSide;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaRank;
-import radon.naruto_universe.capability.NinjaTrait;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
-import radon.naruto_universe.entity.FireballJutsuProjectile;
+import radon.naruto_universe.entity.FireballProjectile;
 import radon.naruto_universe.sound.NarutoSounds;
 import net.minecraft.ChatFormatting;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
-
-import java.util.List;
 
 public class GreatFireball extends Ability {
     @Override
@@ -70,7 +68,7 @@ public class GreatFireball extends Ability {
 
             cap.delayTickEvent((ownerClone) -> {
                 Vec3 look = ownerClone.getLookAngle();
-                FireballJutsuProjectile fireball = new FireballJutsuProjectile(ownerClone, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), 1.5F, 3.0F);
+                FireballProjectile fireball = new FireballProjectile(ownerClone, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(), 2.0F, 2.5F);
                 ownerClone.level.addFreshEntity(fireball);
                 ownerClone.level.playSound(null, ownerClone.blockPosition(), SoundEvents.FIRECHARGE_USE,
                         SoundSource.PLAYERS, 1.0F, 1.0F);

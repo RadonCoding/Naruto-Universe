@@ -2,6 +2,7 @@ package radon.naruto_universe.client.gui.tab;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.util.Mth;
 import radon.naruto_universe.client.gui.NinjaScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
@@ -55,16 +56,7 @@ public abstract class NinjaTab extends GuiComponent {
         this.type.drawIcon(pPoseStack, this, this.icon, pOffsetX, pOffsetY, this.index);
     }
 
-    public void drawContents(PoseStack pPoseStack) {
-        int k = WIDTH % 16;
-        int l = HEIGHT % 16;
-
-        for(int i1 = -1; i1 <= 15; ++i1) {
-            for(int j1 = -1; j1 <= 8; ++j1) {
-                blit(pPoseStack, k + 16 * i1, l + 16 * j1, 0.0F, 0.0F, 16, 16, 16, 16);
-            }
-        }
-    }
+    public abstract void drawContents(PoseStack pPoseStack);
 
     public boolean isMouseOver(int pOffsetX, int pOffsetY, double pMouseX, double pMouseY) {
         return this.type.isMouseOver(pOffsetX, pOffsetY, pMouseX, pMouseY, this.index);

@@ -1,7 +1,7 @@
 package radon.naruto_universe.client.gui.overlay;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.NarutoUniverse;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.player.LocalPlayer;

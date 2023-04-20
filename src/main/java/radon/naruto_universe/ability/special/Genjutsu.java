@@ -1,22 +1,37 @@
 package radon.naruto_universe.ability.special;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaRank;
-import radon.naruto_universe.capability.ToggledEyes;
+import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
+import radon.naruto_universe.capability.ninja.ToggledEyes;
+import radon.naruto_universe.client.gui.tab.NinjaTab;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
+import radon.naruto_universe.effect.NarutoEffects;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.GenjutsuS2CPacket;
+import radon.naruto_universe.sound.NarutoSounds;
 import radon.naruto_universe.util.HelperMethods;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class Genjutsu extends Ability {
-    private static final double RANGE = 30.0D;
+    private static final double RAYCAST_RANGE = 30.0D;
+    private static final double RAYCAST_RADIUS = 1.0D;
+
+    @Override
+    public List<NinjaTrait> getRequirements() {
+        return List.of(NinjaTrait.SHARINGAN, NinjaTrait.MANGEKYO);
+    }
 
     @Override
     public NinjaRank getRank() {
@@ -25,17 +40,22 @@ public class Genjutsu extends Ability {
 
     @Override
     public AbilityDisplayInfo getDisplay(LivingEntity owner) {
-        return null;
+        return new AbilityDisplayInfo(this.getId().getPath(), 9.0F, 0.0F);
     }
 
     @Override
     public Ability getParent() {
-        return null;
+        return NarutoAbilities.SHARINGAN.get();
     }
 
     @Override
     public boolean isUnlocked(LivingEntity owner) {
-        return true;
+        AtomicBoolean result = new AtomicBoolean(false);
+
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            result.set(cap.hasUnlockedAbility(NarutoAbilities.SHARINGAN.get()) || cap.hasToggledAbility(NarutoAbilities.MANGEKYO.get()));
+        });
+        return result.get();
     }
 
     @Override
@@ -49,26 +69,40 @@ public class Genjutsu extends Ability {
     }
 
     @Override
-    public Status checkTriggerable(LivingEntity owner) {
-        EntityHitResult hit = HelperMethods.getEntityLookAt(owner, RANGE);
+    public SoundEvent getActivationSound() {
+        return NarutoSounds.GENJUTSU.get();
+    }
 
-        if (hit == null) {
+    @Override
+    public Status checkTriggerable(LivingEntity owner) {
+        EntityHitResult hit = HelperMethods.getEntityEyesConnect(owner, RAYCAST_RANGE, RAYCAST_RADIUS);
+
+        if (hit == null || !(hit.getEntity() instanceof LivingEntity)) {
             return Status.FAILURE;
         }
         return super.checkTriggerable(owner);
     }
 
     @Override
+    public int getCooldown() {
+        return 30 * 20;
+    }
+
+    @Override
     public void runServer(LivingEntity owner) {
-        //EntityHitResult hit = HelperMethods.getEntityLookAt(owner, RANGE);
-        //Entity target = hit.getEntity();
+        EntityHitResult hit = HelperMethods.getEntityEyesConnect(owner, RAYCAST_RANGE, RAYCAST_RADIUS);
 
-        //if (target instanceof Player player) {
-        //    int duration = 20 * 20; // TEMPORARY
-        //    PacketHandler.sendToClient(new GenjutsuS2CPacket(owner.getId(), duration), (ServerPlayer) player);
-        //}
+        if (hit.getEntity() instanceof LivingEntity target) {
+            int duration = Math.max(10, Math.round(this.getExperience() * 0.25F)) * 20;
+            target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, duration, 5));
+            target.addEffect(new MobEffectInstance(NarutoEffects.STUN.get(), duration, 0, false, false, false));
 
-        int duration = 20 * 20;
-        PacketHandler.sendToClient(new GenjutsuS2CPacket(owner.getId(), duration), (ServerPlayer) owner);
+            if (target instanceof Player player) {
+                owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(ownerCap -> {
+                    ToggledEyes eyes = new ToggledEyes(ownerCap.getCurrentEyes().getId(), ownerCap.getSharinganLevel(), ownerCap.getMangekyoType());
+                    PacketHandler.sendToClient(new GenjutsuS2CPacket(eyes, duration), (ServerPlayer) player);
+                });
+            }
+        }
     }
 }

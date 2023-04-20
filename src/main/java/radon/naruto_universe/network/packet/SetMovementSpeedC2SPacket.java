@@ -3,7 +3,7 @@ package radon.naruto_universe.network.packet;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 
 import java.util.function.Supplier;
 

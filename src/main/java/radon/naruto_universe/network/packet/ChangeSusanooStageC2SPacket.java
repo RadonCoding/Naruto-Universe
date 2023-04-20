@@ -8,6 +8,9 @@ import radon.naruto_universe.entity.SusanooEntity;
 import java.util.function.Supplier;
 
 public class ChangeSusanooStageC2SPacket {
+    public static final int UP = 1;
+    public static final int DOWN = -1;
+
     private final int direction;
 
     public ChangeSusanooStageC2SPacket(int direction) {
@@ -31,10 +34,10 @@ public class ChangeSusanooStageC2SPacket {
             assert player != null;
 
             if (player.getVehicle() instanceof SusanooEntity susanoo) {
-                if (this.direction == 1) {
+                if (this.direction == UP) {
                     susanoo.incrementStage();
                 }
-                else {
+                else if (this.direction == DOWN) { // Verbosity
                     susanoo.decrementStage();
                 }
             }

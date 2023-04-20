@@ -25,6 +25,6 @@ public class SusanooStageRenderer extends GeoEntityRenderer<SusanooEntity> {
 
     @Override
     public RenderType getRenderType(SusanooEntity animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
-        return NarutoRenderTypes.susanoo(texture);
+        return NarutoRenderTypes.glow(texture);
     }
 }

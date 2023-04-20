@@ -1,25 +1,24 @@
 package radon.naruto_universe.ability.utility;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.LivingEntity;
-import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaRank;
-import radon.naruto_universe.capability.NinjaTrait;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.sound.NarutoSounds;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Mangekyo extends Ability implements Ability.IToggled, Ability.ISpecial {
     @Override
     public NinjaRank getRank() {
-        return NinjaRank.ACADEMY_STUDENT;
+        return NinjaRank.UNRANKED;
     }
 
     @Override
@@ -28,7 +27,7 @@ public class Mangekyo extends Ability implements Ability.IToggled, Ability.ISpec
 
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             String iconName = cap.getMangekyoType().getIconName();
-            display.set(new AbilityDisplayInfo(iconName, 7.0F, 0.0F));
+            display.set(new AbilityDisplayInfo(iconName, 8.0F, 1.0F));
         });
         return display.get();
     }
@@ -55,7 +54,7 @@ public class Mangekyo extends Ability implements Ability.IToggled, Ability.ISpec
 
     @Override
     public List<NinjaTrait> getRequirements() {
-        return List.of(NinjaTrait.UNLOCKED_ITACHI_MANGEKYO);
+        return List.of(NinjaTrait.UNLOCKED_MANGEKYO);
     }
 
     @Override
@@ -74,7 +73,16 @@ public class Mangekyo extends Ability implements Ability.IToggled, Ability.ISpec
     }
 
     @Override
-    public List<Ability> getSpecialAbilities() {
-        return List.of(NarutoAbilities.GENJUTSU.get(), NarutoAbilities.SUSANOO.get());
+    public List<Ability> getSpecialAbilities(LivingEntity owner) {
+        List<Ability> abilities = new ArrayList<>();
+        abilities.add(NarutoAbilities.GENJUTSU.get());
+
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            switch (cap.getMangekyoType()) {
+                case ITACHI -> abilities.add(NarutoAbilities.AMATERASU.get());
+                case SASUKE -> abilities.add(NarutoAbilities.AMATERASU.get());
+            }
+        });
+        return abilities;
     }
 }

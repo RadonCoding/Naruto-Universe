@@ -16,9 +16,9 @@ import net.minecraftforge.fml.common.Mod;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaRank;
-import radon.naruto_universe.capability.NinjaTrait;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.CameraShakeHandler;
 import radon.naruto_universe.client.ability.ClientAbilityHandler;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
@@ -107,7 +107,7 @@ public class Lariat extends Ability {
         });
 
         if (owner instanceof LocalPlayer) {
-            CameraShakeHandler.shakeCamera(2.5F, 5.0F, 20);
+            CameraShakeHandler.shakeCamera(2.5F, 5.0F, 5);
         }
     }
 

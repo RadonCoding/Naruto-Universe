@@ -4,10 +4,13 @@
   "package": "radon.naruto_universe.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "client.MinecraftMixin",
+    "client.EntityRenderDispatcherMixin",
+    "client.LivingEntityRendererAccessor",
     "client.LivingRendererMixin",
+    "client.MinecraftMixin",
     "client.PlayerModelMixin",
     "client.PostChainAccessor",
+    "client.ScreenEffectRendererMixin",
     "common.PlayerMixin"
   ],
   "server": [

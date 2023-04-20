@@ -83,5 +83,20 @@
     "sounds": [
       "naruto_universe:power_charge"
     ]
+  },
+  "genjutsu": {
+    "sounds": [
+      "naruto_universe:genjutsu"
+    ]
+  },
+  "amaterasu": {
+    "sounds": [
+      "naruto_universe:amaterasu"
+    ]
+  },
+  "susanoo": {
+    "sounds": [
+      "naruto_universe:susanoo"
+    ]
   }
 }

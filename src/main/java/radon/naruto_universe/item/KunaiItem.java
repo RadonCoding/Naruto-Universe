@@ -57,7 +57,7 @@ public class KunaiItem extends Item implements Vanishable {
         if (pLivingEntity instanceof Player player) {
             if (this.getUseDuration(pStack) - pTimeCharged >= THROW_THRESHOLD_TIME) {
                 if (!pLevel.isClientSide) {
-                    ThrownKunaiEntity thrownKunai = new ThrownKunaiEntity(pLevel, player, pStack);
+                    ThrownKunaiEntity thrownKunai = new ThrownKunaiEntity(pLevel, player);
                     thrownKunai.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, SHOOT_POWER, 1.0F);
 
                     if (player.getAbilities().instabuild) {

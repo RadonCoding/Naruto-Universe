@@ -1,9 +1,7 @@
 package radon.naruto_universe.network.packet;
 
 import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.ability.Ability;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;

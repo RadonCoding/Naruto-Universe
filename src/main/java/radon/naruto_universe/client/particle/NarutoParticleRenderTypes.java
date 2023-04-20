@@ -11,7 +11,7 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import org.jetbrains.annotations.NotNull;
-import radon.naruto_universe.client.NarutoEffects;
+import radon.naruto_universe.client.NarutoShaders;
 
 public class NarutoParticleRenderTypes {
     public static ParticleRenderType GLOW = new ParticleRenderType() {
@@ -41,7 +41,7 @@ public class NarutoParticleRenderTypes {
             RenderSystem.enableBlend();
             RenderSystem.enableCull();
             RenderSystem.enableDepthTest();
-            RenderSystem.setShader(NarutoEffects::getTranslucentParticleShader);
+            RenderSystem.setShader(NarutoShaders::getTranslucentParticleShader);
             RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
             RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_PARTICLES);
             buffer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE);

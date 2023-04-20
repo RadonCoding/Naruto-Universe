@@ -53,8 +53,7 @@
   "naruto_universe:mangekyo.name": "Activate Mangekyo",
   "naruto_universe:mangekyo.desc": "Activates your mangekyo.",
   "naruto_universe:mangekyo.enable": "Activated mangekyo",
-  "naruto_universe:mangekyo.disable": "Deactivated sharingan",
-
+  "naruto_universe:mangekyo.disable": "Deactivated mangekyo",
 
   "naruto_universe:rinnegan.name": "Activate Rinnegan",
   "naruto_universe:rinnegan.desc": "Activates your rinnegan.",
@@ -62,13 +61,16 @@
   "naruto_universe:rinnegan.disable": "Deactivated rinnegan",
 
   "naruto_universe:genjutsu.name": "Genjutsu",
+  "naruto_universe:genjutsu.desc": "Stuns the target for a certain amount of time. For non-player's removes free will.",
+
   "naruto_universe:amaterasu.name": "Amaterasu",
+  "naruto_universe:amaterasu.desc": "The eternal flames of amaterasu will not extinguish until the target is burnt to ashes.",
 
   "naruto_universe:susanoo.name": "Susanoo",
-  "naruto_universe:susanoo.enable": "Activated susanoo",
-  "naruto_universe:susanoo.disable": "Deactivated susanoo",
+  "naruto_universe:susanoo.desc": "Susanoo is a gigantic, humanoid avatar made of the user's chakra which surrounds them and fights on their behalf.",
 
   "naruto_universe:copy.name": "Copy",
+  "naruto_universe:copy.desc": "The user is able to copy almost any jutsu they see.",
   "naruto_universe:copy.start": "Copying abilities...",
   "naruto_universe:copy.stop": "Stopped copying abilities",
 
@@ -93,6 +95,7 @@
   "trait.wind_release": "Wind Release",
   "trait.lightning_release": "Lightning Release",
   "trait.sharingan": "Sharingan",
+  "trait.mangekyo": "Mangekyo",
   "trait.rinnegan": "Rinnegan",
   "trait.unlocked_sharingan": "Unlocked Sharingan",
   "trait.unlocked_mangekyo": "Unlocked Mangekyo",
@@ -110,8 +113,11 @@
 
   "item_group.naruto_universe.tab": "Naruto Universe",
 
+  "death.attack.amaterasu": "%1$s was burnt to ashes by the eternal black flames",
+
   "death.attack.kunai": "%1$s was stabbed by %2$s",
   "death.attack.kunai.item": "%1$s was stabbed by %2$s with %3$s",
 
-  "death.attack.jutsu": "%1$s was killed by %2$s using jutsu"
+  "death.attack.jutsu": "%1$s was killed by %2$s using jutsu",
+  "death.attack.amaterasu.player": "%1$s was burnt to ashes by %2$s"
 }

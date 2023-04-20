@@ -1,6 +1,6 @@
 package radon.naruto_universe.network.packet;
 
-import radon.naruto_universe.capability.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.sound.NarutoSounds;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;

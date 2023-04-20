@@ -4,16 +4,10 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.phys.Vec3;
-import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
 
 public class AnimationHandler {
     public static void animate(LivingEntity entity, HumanoidModel<?> model) {
-        Vec3 movement = entity.getDeltaMovement();
-        double speed = Math.sqrt(movement.x() * movement.x() + movement.z() * movement.z());
-
-        if (speed >= 0.15D && !entity.isSwimming() && !(entity instanceof LocalPlayer player && player.getAbilities().flying)) {
+        if (entity.isSprinting() && !entity.isSwimming() && !(entity instanceof LocalPlayer player && player.getAbilities().flying)) {
             model.body.xRot = 0.5F;
 
             boolean rotateLeftArm = true, rotateRightArm = true;

@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
@@ -37,26 +36,11 @@ public class NarutoRenderTypes extends RenderType {
     });
 
     private static final Function<ResourceLocation, RenderType> GLOW = Util.memoize((pLocation) -> {
-        RenderStateShard.TextureStateShard shard = new RenderStateShard.TextureStateShard(pLocation, true, false);
-        return create("glow", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, 256,
-                false, false, CompositeState.builder()
-                        .setLayeringState(POLYGON_OFFSET_LAYERING)
-                        .setShaderState(new ShaderStateShard(GameRenderer::getPositionColorTexLightmapShader))
-                        .setTransparencyState(GLOWING_TRANSPARENCY)
-                        .setTextureState(shard)
-                        .setDepthTestState(LEQUAL_DEPTH_TEST)
-                        .setCullState(NO_CULL)
-                        .setWriteMaskState(COLOR_DEPTH_WRITE)
-                        .setLightmapState(NO_LIGHTMAP)
-                        .createCompositeState(false));
-    });
-
-    private static final Function<ResourceLocation, RenderType> SUSANOO = Util.memoize((pLocation) -> {
         TextureStateShard shard = new TextureStateShard(pLocation, false, false);
         return create("susanoo", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, 256,
                 false, true, CompositeState.builder()
                         .setLayeringState(POLYGON_OFFSET_LAYERING)
-                        .setShaderState(new ShaderStateShard(GameRenderer::getPositionColorTexLightmapShader))
+                        .setShaderState(POSITION_COLOR_TEX_LIGHTMAP_SHADER)
                         .setTextureState(shard)
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                         .setCullState(NO_CULL)
@@ -77,9 +61,5 @@ public class NarutoRenderTypes extends RenderType {
 
     public static RenderType glow(ResourceLocation pLocation) {
         return GLOW.apply(pLocation);
-    }
-
-    public static RenderType susanoo(ResourceLocation pLocation) {
-        return SUSANOO.apply(pLocation);
     }
 }

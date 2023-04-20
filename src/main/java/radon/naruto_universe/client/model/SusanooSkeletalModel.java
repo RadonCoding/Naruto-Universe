@@ -8,6 +8,7 @@ import software.bernie.geckolib.model.GeoModel;
 public class SusanooSkeletalModel extends GeoModel<SusanooEntity> {
 	private static final ResourceLocation MODEL = new ResourceLocation(NarutoUniverse.MOD_ID, "geo/susanoo_skeletal.geo.json");
 	private static final ResourceLocation TEXTURE = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/entity/susanoo_skeletal.png");
+	private static final ResourceLocation ANIMATION = new ResourceLocation(NarutoUniverse.MOD_ID, "animations/entity/susanoo_skeletal.animation.json");
 
 	@Override
 	public ResourceLocation getModelResource(SusanooEntity animatable) {
@@ -21,6 +22,6 @@ public class SusanooSkeletalModel extends GeoModel<SusanooEntity> {
 
 	@Override
 	public ResourceLocation getAnimationResource(SusanooEntity animatable) {
-		return null;
+		return ANIMATION;
 	}
 }

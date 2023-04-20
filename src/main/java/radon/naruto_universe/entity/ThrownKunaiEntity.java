@@ -1,6 +1,5 @@
 package radon.naruto_universe.entity;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -14,7 +13,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
-import radon.naruto_universe.ModDamageSource;
+import radon.naruto_universe.NarutoDamageSource;
 import radon.naruto_universe.item.NarutoItems;
 import radon.naruto_universe.sound.NarutoSounds;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
@@ -26,17 +25,14 @@ import javax.annotation.Nullable;
 
 public class ThrownKunaiEntity extends AbstractArrow implements GeoAnimatable {
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    private ItemStack kunaiItem = new ItemStack(NarutoItems.KUNAI.get());
     private boolean dealtDamage;
 
     public ThrownKunaiEntity(EntityType<? extends ThrownKunaiEntity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
     }
 
-    public ThrownKunaiEntity(Level pLevel, LivingEntity pShooter, ItemStack pStack) {
+    public ThrownKunaiEntity(Level pLevel, LivingEntity pShooter) {
         super(NarutoEntities.THROWN_KUNAI.get(), pShooter, pLevel);
-
-        this.kunaiItem = pStack.copy();
     }
 
     @Override
@@ -59,7 +55,7 @@ public class ThrownKunaiEntity extends AbstractArrow implements GeoAnimatable {
 
     @Override
     protected @NotNull ItemStack getPickupItem() {
-        return this.kunaiItem.copy();
+        return new ItemStack(NarutoItems.KUNAI.get());
     }
 
     @Nullable
@@ -77,12 +73,8 @@ public class ThrownKunaiEntity extends AbstractArrow implements GeoAnimatable {
         Entity target = pResult.getEntity();
         float damage = 8.0F;
 
-        if (target instanceof LivingEntity livingTarget) {
-            damage += EnchantmentHelper.getDamageBonus(this.kunaiItem, livingTarget.getMobType());
-        }
-
         Entity owner = this.getOwner();
-        DamageSource source = ModDamageSource.kunai(this, owner == null ? this : owner);
+        DamageSource source = NarutoDamageSource.kunai(this, owner == null ? this : owner);
         this.dealtDamage = true;
 
         if (target.hurt(source, damage)) {
@@ -113,22 +105,6 @@ public class ThrownKunaiEntity extends AbstractArrow implements GeoAnimatable {
         if (this.ownedBy(pEntity) || this.getOwner() == null) {
             super.playerTouch(pEntity);
         }
-    }
-
-    @Override
-    public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-
-        if (pCompound.contains("kunai", 10)) {
-            this.kunaiItem = ItemStack.of(pCompound.getCompound("kunai"));
-        }
-    }
-
-    @Override
-    public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
-
-        pCompound.put("kunai", this.kunaiItem.save(new CompoundTag()));
     }
 
     @Override

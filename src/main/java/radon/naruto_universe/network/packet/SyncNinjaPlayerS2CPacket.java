@@ -1,7 +1,7 @@
 package radon.naruto_universe.network.packet;
 
 import radon.naruto_universe.client.gui.NinjaScreen;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.nbt.CompoundTag;
@@ -42,7 +42,7 @@ public class SyncNinjaPlayerS2CPacket {
                 screen.updateAbilities();
             }
         }));
-        ctx.setPacketHandled(true);
 
+        ctx.setPacketHandled(true);
     }
 }

@@ -13,8 +13,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
-import radon.naruto_universe.ModDamageSource;
-import radon.naruto_universe.capability.NinjaTrait;
+import radon.naruto_universe.NarutoDamageSource;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.particle.NarutoParticles;
 
 public class HidingInAshEntity extends JutsuProjectile {
@@ -35,6 +35,7 @@ public class HidingInAshEntity extends JutsuProjectile {
 
         pShooter.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, lifetime, 1, false, false, false));
 
+        this.entityData.set(DATA_PARTICLE, particle);
         this.entityData.set(DATA_PARTICLE, particle);
         this.entityData.set(DATA_LIFETIME, lifetime);
         this.entityData.set(DATA_RANGE, range);
@@ -62,10 +63,6 @@ public class HidingInAshEntity extends JutsuProjectile {
         return false;
     }
 
-    private ParticleOptions getParticle() {
-        return this.entityData.get(DATA_PARTICLE);
-    }
-
     private int getTicks() {
         return this.entityData.get(DATA_TICKS);
     }
@@ -80,6 +77,7 @@ public class HidingInAshEntity extends JutsuProjectile {
     private float getRange() {
         return this.entityData.get(DATA_RANGE);
     }
+
     private float getThickness() {
         return this.entityData.get(DATA_THICKNESS);
     }
@@ -88,11 +86,12 @@ public class HidingInAshEntity extends JutsuProjectile {
     public void tick() {
         super.tick();
 
-        int ticks = this.getTicks();
-
         Entity owner = this.getOwner();
 
-        if (ticks >= this.getLifetime()) {
+        int ticks = this.getTicks();
+        int lifetime = this.getLifetime();
+
+        if (ticks >= lifetime) {
             this.discard();
         }
         else if (!this.level.isClientSide && (owner == null || !owner.isAlive())) {
@@ -102,30 +101,26 @@ public class HidingInAshEntity extends JutsuProjectile {
             float power = Math.max(10.0F, this.getPower());
             float range = this.getRange() * (power * 0.1F);
 
-            Vec3 look = owner.getLookAngle();
-            double angle = Math.atan(1.0D) * 180.0D / Math.PI;
+            float thickness = this.getThickness();
 
-            Vec3 center = new Vec3(owner.getX() + look.x(), owner.getEyeY() - 0.2D + look.y(), owner.getZ() + look.z());
+            Vec3 center = new Vec3(owner.getX(), owner.getEyeY() - 0.2D, owner.getZ());
             AABB box = new AABB(center.x() - range / 2.0D, center.y() - range / 2.0D, center.z() - range / 2.0D,
-                    center.x() + range / 2.0D, center.y() + range / 2.0D, center.z() + range / 2.0D).deflate(this.getThickness());
+                    center.x() + range / 2.0D, center.y() + range / 2.0D, center.z() + range / 2.0D)
+                    .deflate(thickness);
 
-            for (Entity entity : this.level.getEntities(null, box)) {
-                Vec3 direction = entity.position().subtract(owner.position()).normalize();
-                double angleBetween = Math.toDegrees(Math.acos(look.dot(direction) / (look.length() * direction.length())));
-
-                if (angleBetween <= angle) {
-                    if (entity.hurt(ModDamageSource.jutsu(this, owner), this.getDamage())) {
-                        if (this.getRelease() == NinjaTrait.FIRE_RELEASE) {
-                            entity.setSecondsOnFire(Math.round(this.getPower()));
-                        }
+            for (Entity entity : this.level.getEntities(owner, box)) {
+                if (entity.hurt(NarutoDamageSource.jutsu(this, owner), this.getDamage())) {
+                    if (this.getRelease() == NinjaTrait.FIRE_RELEASE) {
+                        entity.setSecondsOnFire(Math.round(this.getPower()));
                     }
                 }
                 this.onHitEntity(new EntityHitResult(entity));
             }
 
+            ParticleOptions particle = this.entityData.get(DATA_PARTICLE);
 
-            for (int i = 0; i < range * this.getThickness(); i++) {
-                this.level.addParticle(this.getParticle(), owner.getX(), owner.getEyeY() - 0.2D, owner.getZ(), range * (this.random.nextDouble() - 0.5D) * 0.1D,
+            for (int i = 0; i < range * thickness; i++) {
+                this.level.addParticle(particle, owner.getX(), owner.getEyeY() - 0.2D, owner.getZ(), range * (this.random.nextDouble() - 0.5D) * 0.1D,
                         range * (this.random.nextDouble() - 0.5D) * 0.1D, range * (this.random.nextDouble() - 0.5D) * 0.1D);
             }
 

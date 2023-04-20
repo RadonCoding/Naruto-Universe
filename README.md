@@ -12,6 +12,9 @@
 - Chakra Jump
 - Mangekyo Sharingan
 - Power Charge
+- Amaterasu
+- Genjutsu
+- Sharingan Copy
 
 ### Items / Armor
 - Kunai
@@ -29,9 +32,9 @@
 - Survival progression
 - Ninja missions
 - More releases
-- Genjutsu
 - More mangekyo abilities
 - Eternal mangekyo sharingan
 - Rinnegan abilities
 - Tailed beasts
 - NPCs / bosses
+- Player animations

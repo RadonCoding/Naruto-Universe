@@ -53,26 +53,6 @@ public class PacketHandler {
                 .encoder(ChangeSusanooStageC2SPacket::encode)
                 .consumerMainThread(ChangeSusanooStageC2SPacket::handle)
                 .add();
-        INSTANCE.messageBuilder(EyeStatusRequestC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(EyeStatusRequestC2SPacket::new)
-                .encoder(EyeStatusRequestC2SPacket::encode)
-                .consumerMainThread(EyeStatusRequestC2SPacket::handle)
-                .add();
-        INSTANCE.messageBuilder(EyeStatusResponseS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(EyeStatusResponseS2CPacket::new)
-                .encoder(EyeStatusResponseS2CPacket::encode)
-                .consumerMainThread(EyeStatusResponseS2CPacket::handle)
-                .add();
-        INSTANCE.messageBuilder(UpdateEyeStatusS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(UpdateEyeStatusS2CPacket::new)
-                .encoder(UpdateEyeStatusS2CPacket::encode)
-                .consumerMainThread(UpdateEyeStatusS2CPacket::handle)
-                .add();
-        INSTANCE.messageBuilder(ClearEyeStatusS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(ClearEyeStatusS2CPacket::new)
-                .encoder(ClearEyeStatusS2CPacket::encode)
-                .consumerMainThread(ClearEyeStatusS2CPacket::handle)
-                .add();
         INSTANCE.messageBuilder(GenjutsuS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(GenjutsuS2CPacket::new)
                 .encoder(GenjutsuS2CPacket::encode)
@@ -82,6 +62,26 @@ public class PacketHandler {
                 .decoder(SusanooControlC2SPacket::new)
                 .encoder(SusanooControlC2SPacket::encode)
                 .consumerMainThread(SusanooControlC2SPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(SyncNarutoDataRemoteS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(SyncNarutoDataRemoteS2CPacket::new)
+                .encoder(SyncNarutoDataRemoteS2CPacket::encode)
+                .consumerMainThread(SyncNarutoDataRemoteS2CPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(SyncNarutoDataLocalS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(SyncNarutoDataLocalS2CPacket::new)
+                .encoder(SyncNarutoDataLocalS2CPacket::encode)
+                .consumerMainThread(SyncNarutoDataLocalS2CPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(RequestNarutoDataC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(RequestNarutoDataC2SPacket::new)
+                .encoder(RequestNarutoDataC2SPacket::encode)
+                .consumerMainThread(RequestNarutoDataC2SPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(SyncSusanooAnimationS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(SyncSusanooAnimationS2CPacket::new)
+                .encoder(SyncSusanooAnimationS2CPacket::encode)
+                .consumerMainThread(SyncSusanooAnimationS2CPacket::handle)
                 .add();
     }
 

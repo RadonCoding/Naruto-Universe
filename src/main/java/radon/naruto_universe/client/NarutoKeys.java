@@ -29,5 +29,6 @@ public class NarutoKeys {
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(OPEN_NINJA_SCREEN);
         event.register(SHOW_DOJUTSU_MENU);
+        event.register(KEY_CHAKRA_JUMP);
     }
 }

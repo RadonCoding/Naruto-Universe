@@ -59,7 +59,7 @@ public class VaporParticle<T extends VaporParticle.VaporParticleOptions> extends
         public static Vector3f SMOKE_COLOR = Vec3.fromRGB24(4342338).toVector3f();
 
         public static Deserializer<VaporParticleOptions> DESERIALIZER = new Deserializer<>() {
-            public @NotNull VaporParticleOptions fromCommand(ParticleType<VaporParticleOptions> type, StringReader reader) throws CommandSyntaxException {
+            public @NotNull VaporParticleOptions fromCommand(@NotNull ParticleType<VaporParticleOptions> type, @NotNull StringReader reader) throws CommandSyntaxException {
                 Vector3f color = VaporParticleOptions.readColorVector3f(reader);
                 reader.expect(' ');
                 return new VaporParticleOptions(color, reader.readFloat(), reader.readFloat(), reader.readBoolean(), reader.readInt());

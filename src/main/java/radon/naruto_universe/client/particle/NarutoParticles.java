@@ -19,7 +19,8 @@ public class NarutoParticles {
                     return null;
                 }
             });
-    public static RegistryObject<SimpleParticleType> FLAME = PARTICLES.register("flame", () ->
+
+    public static RegistryObject<SimpleParticleType> FIRE = PARTICLES.register("fire", () ->
             new SimpleParticleType(false));
     public static RegistryObject<SimpleParticleType> EMPTY = PARTICLES.register("empty", () ->
             new SimpleParticleType(false));

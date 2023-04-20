@@ -7,15 +7,14 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.LogicalSide;
 import radon.naruto_universe.ability.Ability;
 import radon.naruto_universe.ability.NarutoAbilities;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
-import radon.naruto_universe.capability.NinjaRank;
-import radon.naruto_universe.capability.NinjaTrait;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaRank;
+import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.client.particle.NarutoParticles;
 import radon.naruto_universe.entity.ParticleSpawnerProjectile;
 import radon.naruto_universe.sound.NarutoSounds;
 
-import java.util.List;
 import java.util.Random;
 
 public class GreatFlame extends Ability {
@@ -80,7 +79,7 @@ public class GreatFlame extends Ability {
 
                 Vec3 look = ownerClone.getLookAngle();
                 owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(),
-                        NinjaTrait.FIRE_RELEASE, NarutoParticles.FLAME.get(), duration, 10.0F, 15.0F, 0.25F, true));
+                        NinjaTrait.FIRE_RELEASE, NarutoParticles.FIRE.get(), duration, 10.0F, 15.0F, 0.25F, true));
             }, 20, LogicalSide.SERVER);
         });
     }

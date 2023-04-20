@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.GameRenderer;
 import radon.naruto_universe.NarutoUniverse;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.client.gui.NinjaScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -34,7 +34,14 @@ public class InfoTab extends NinjaTab{
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderTexture(0, BACKGROUND_LOCATION);
 
-        super.drawContents(pPoseStack);
+        int k = WIDTH % 16;
+        int l = HEIGHT % 16;
+
+        for(int i1 = -1; i1 <= 15; ++i1) {
+            for(int j1 = -1; j1 <= 8; ++j1) {
+                blit(pPoseStack, k + 16 * i1, l + 16 * j1, 0.0F, 0.0F, 16, 16, 16, 16);
+            }
+        }
 
         LocalPlayer player = this.mc.player;
 

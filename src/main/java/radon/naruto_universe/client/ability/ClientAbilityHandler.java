@@ -3,7 +3,7 @@ package radon.naruto_universe.client.ability;
 import net.minecraftforge.common.MinecraftForge;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.ability.event.AbilityTriggerEvent;
-import radon.naruto_universe.capability.NinjaPlayerHandler;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.client.NarutoKeyMapping;
 import radon.naruto_universe.client.NarutoKeys;
 import radon.naruto_universe.network.PacketHandler;
