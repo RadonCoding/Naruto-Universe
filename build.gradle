@@ -74,12 +74,19 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
     maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     implementation fg.deobf('software.bernie.geckolib:geckolib-forge-1.19.3:4.0.4')
+    implementation fg.deobf("curse.maven:spark-361579:4159881")
 }
 
 jar {

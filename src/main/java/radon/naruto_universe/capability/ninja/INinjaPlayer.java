@@ -75,7 +75,4 @@ public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
     void setChanneledAbility(LivingEntity entity, Ability ability);
     void stopChanneledAbility(LivingEntity entity);
     boolean isChannelingAbility(Ability ability);
-
-    void setMovementSpeed(double movementSpeed);
-    double getMovementSpeed();
 }

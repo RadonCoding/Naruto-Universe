@@ -15,6 +15,7 @@ import radon.naruto_universe.client.particle.NarutoParticles;
 import radon.naruto_universe.config.ConfigHolder;
 import radon.naruto_universe.effect.NarutoEffects;
 import radon.naruto_universe.entity.NarutoEntities;
+import radon.naruto_universe.entity.serialize.NarutoEntityDataSerializers;
 import radon.naruto_universe.item.NarutoItems;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.sound.NarutoSounds;
@@ -40,6 +41,7 @@ public class NarutoUniverse {
         NarutoItems.ITEMS.register(bus);
         NarutoEffects.EFFECTS.register(bus);
         NarutoBlocks.BLOCKS.register(bus);
+        NarutoEntityDataSerializers.SERIALIZERS.register(bus);
 
         NarutoAbilities.ABILITIES.register(bus);
 

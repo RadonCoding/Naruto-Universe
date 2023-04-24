@@ -39,10 +39,7 @@ public class Amaterasu extends Ability implements Ability.IChanneled {
     @Override
     public boolean isUnlocked(LivingEntity owner) {
         AtomicBoolean result = new AtomicBoolean(false);
-
-        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            result.set(cap.hasUnlockedAbility(NarutoAbilities.MANGEKYO.get()));
-        });
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> result.set(cap.hasUnlockedAbility(NarutoAbilities.MANGEKYO.get())));
         return result.get();
     }
 
@@ -100,7 +97,7 @@ public class Amaterasu extends Ability implements Ability.IChanneled {
 
                         if (!state.is(NarutoBlocks.AMATERASU.get())) {
                             if (state.getBlock().defaultDestroyTime() > -1.0F) {
-                                owner.level.setBlock(pos, AmaterasuBlock.getState(owner.level, pos), 11);
+                                owner.level.setBlock(pos, AmaterasuBlock.getState(owner.level, pos), 2);
                             }
                         }
                     }
@@ -144,12 +141,12 @@ public class Amaterasu extends Ability implements Ability.IChanneled {
     public void onStart(LivingEntity owner, boolean isClientSide) {
         if (!owner.isShiftKeyDown()) {
             if (isClientSide) {
-                owner.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.AMATERASU.get(), SoundSource.MASTER, 1.0F, 1.0F, false);
+                owner.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.AMATERASU.get(), SoundSource.MASTER, 3.0F, 1.0F, false);
             } else {
                 if (owner instanceof Player player) {
-                    owner.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.AMATERASU.get(), SoundSource.MASTER, 1.0F, 1.0F);
+                    owner.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.AMATERASU.get(), SoundSource.MASTER, 3.0F, 1.0F);
                 } else {
-                    owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.AMATERASU.get(), SoundSource.MASTER, 1.0F, 1.0F);
+                    owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.AMATERASU.get(), SoundSource.MASTER, 3.0F, 1.0F);
                 }
             }
         }

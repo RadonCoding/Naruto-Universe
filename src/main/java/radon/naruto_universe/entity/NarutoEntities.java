@@ -37,7 +37,22 @@ public class NarutoEntities {
             EntityType.Builder.<SusanooEntity>of(SusanooEntity::new, MobCategory.MISC)
                     .build(new ResourceLocation(NarutoUniverse.MOD_ID, "susanoo").toString()));
 
+    public static RegistryObject<EntityType<MeteoriteEntity>> METEORITE = ENTITIES.register("meteorite", () ->
+            EntityType.Builder.<MeteoriteEntity>of(MeteoriteEntity::new, MobCategory.MISC)
+                    .build(new ResourceLocation(NarutoUniverse.MOD_ID, "meteorite").toString()));
+
+    public static RegistryObject<EntityType<ChibakuTenseiEntity>> CHIBAKU_TENSEI = ENTITIES.register("chibaku_tensei", () ->
+            EntityType.Builder.<ChibakuTenseiEntity>of(ChibakuTenseiEntity::new, MobCategory.MISC)
+                    .sized(1.0F, 1.0F)
+                    .build(new ResourceLocation(NarutoUniverse.MOD_ID, "chibaku_tensei").toString()));
+
+    public static RegistryObject<EntityType<BlockAppearanceEntity>> BLOCK_APPEARANCE = ENTITIES.register("block_appearance", () ->
+            EntityType.Builder.<BlockAppearanceEntity>of(BlockAppearanceEntity::new, MobCategory.MISC)
+                    .sized(1.0F, 1.0F)
+                    .build(new ResourceLocation(NarutoUniverse.MOD_ID, "block_appearance").toString()));
+
     public static void createAttributes(EntityAttributeCreationEvent event) {
         event.put(SUSANOO.get(), SusanooEntity.createAttributes().build());
+        event.put(CHIBAKU_TENSEI.get(), ChibakuTenseiEntity.createAttributes().build());
     }
 }

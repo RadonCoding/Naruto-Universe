@@ -37,19 +37,18 @@ public class NarutoRenderTypes extends RenderType {
 
     private static final Function<ResourceLocation, RenderType> GLOW = Util.memoize((pLocation) -> {
         TextureStateShard shard = new TextureStateShard(pLocation, false, false);
-        return create("susanoo", DefaultVertexFormat.POSITION_COLOR_TEX_LIGHTMAP, VertexFormat.Mode.QUADS, 256,
+        return create("susanoo", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256,
                 false, true, CompositeState.builder()
                         .setLayeringState(POLYGON_OFFSET_LAYERING)
                         .setShaderState(POSITION_COLOR_TEX_LIGHTMAP_SHADER)
                         .setTextureState(shard)
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                         .setCullState(NO_CULL)
-                        .setWriteMaskState(COLOR_WRITE)
+                        .setWriteMaskState(COLOR_DEPTH_WRITE)
                         .setLightmapState(LIGHTMAP)
                         .setOverlayState(OVERLAY)
                         .createCompositeState(false));
     });
-
 
     public NarutoRenderTypes(String pName, VertexFormat pFormat, VertexFormat.Mode pMode, int pBufferSize, boolean pAffectsCrumbling, boolean pSortOnUpload, Runnable pSetupState, Runnable pClearState) {
         super(pName, pFormat, pMode, pBufferSize, pAffectsCrumbling, pSortOnUpload, pSetupState, pClearState);

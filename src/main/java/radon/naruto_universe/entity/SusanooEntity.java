@@ -1,7 +1,6 @@
 package radon.naruto_universe.entity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -22,7 +21,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -41,17 +39,17 @@ import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 import software.bernie.geckolib.util.RenderUtils;
-import software.bernie.geckolib.core.animation.AnimationState;
 
 import javax.annotation.Nullable;
 import java.util.Random;
 import java.util.UUID;
 
-public class SusanooEntity extends LivingEntity implements GeoAnimatable {
+public class SusanooEntity extends Mob implements GeoAnimatable {
     public static final RawAnimation GRAB = RawAnimation.begin().thenPlayAndHold("attack.grab");
     public static final RawAnimation SWING = RawAnimation.begin().thenPlay("attack.swing");
     public static final RawAnimation CRUSH = RawAnimation.begin().thenLoop("attack.crush");
@@ -61,17 +59,13 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
     private static final EntityDataAccessor<Integer> DATA_STAGE = SynchedEntityData.defineId(SusanooEntity.class, EntityDataSerializers.INT);
 
     private static final double GRAB_RAYCAST_RANGE = 10.0D;
-    private static final double GRAB_RAYCAST_RADIUS = 1.0D;
     private static final float LAUNCH_POWER = 10.0F;
 
     private UUID ownerUUID;
     private LivingEntity cachedOwner;
 
-    private SusanooAnimationState state;
+    private SusanooAnimationState state = new SusanooAnimationState();
     private Entity grabbed;
-
-    private final NonNullList<ItemStack> handItems = NonNullList.withSize(2, ItemStack.EMPTY);
-    private final NonNullList<ItemStack> armorItems = NonNullList.withSize(4, ItemStack.EMPTY);
 
     public SusanooEntity(EntityType<? extends SusanooEntity> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -97,8 +91,6 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
 
         owner.startRiding(this);
         this.setOwner(owner);
-
-        this.state = new SusanooAnimationState();
 
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             this.entityData.set(DATA_VARIANT, cap.getMangekyoType().ordinal());
@@ -181,7 +173,7 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
             this.swing(InteractionHand.MAIN_HAND, true);
 
             LivingEntity owner = this.getOwner();
-            EntityHitResult result = HelperMethods.getEntityLookAt(owner, this.getReach(), 1.0F);
+            EntityHitResult result = HelperMethods.getLivingEntityLookAt(owner, this.getReach(), 1.0F);
 
             if (result != null) {
                 Entity target = result.getEntity();
@@ -194,10 +186,10 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
                     Random rand = new Random();
 
                     if (owner instanceof Player player) {
-                        this.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 1.0F, 1.0F);
+                        this.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 1.0F);
                     }
                     else {
-                        this.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 1.0F, 1.0F);
+                        this.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 1.0F);
                     }
 
                     for (int i = 0; i < 5; i++) {
@@ -213,7 +205,7 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
                                 0, 1.0D, 1.0D, 1.0D, 0.1D);
                     }
                 } else {
-                    this.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 1.0F, 1.0F, false);
+                    this.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.MASTER, 3.0F, 1.0F, false);
                 }
             }
         }
@@ -226,7 +218,7 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
 
         if (stage == SusanooStage.RIBCAGE || stage == SusanooStage.SKELETAL) {
             if (!this.state.grabbing) {
-                EntityHitResult hit = HelperMethods.getEntityLookAt(owner, GRAB_RAYCAST_RANGE, GRAB_RAYCAST_RADIUS);
+                EntityHitResult hit = HelperMethods.getLivingEntityLookAt(owner, GRAB_RAYCAST_RANGE, 1.0F);
 
                 if (hit != null) {
                     Entity entity = hit.getEntity();
@@ -274,7 +266,7 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 500.0D);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 500.0D).add(Attributes.MOVEMENT_SPEED, 1.0D);
     }
 
     @Override
@@ -291,6 +283,7 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
     public double getPassengersRidingOffset() {
         return switch (this.getStage()) {
             case RIBCAGE, SKELETAL -> 0.35D;
+            case HUMANOID -> 3.5D;
             default -> super.getPassengersRidingOffset();
         };
     }
@@ -303,29 +296,6 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
     @Override
     public boolean causeFallDamage(float pFallDistance, float pMultiplier, @NotNull DamageSource pSource) {
         return false;
-    }
-
-    public @NotNull Iterable<ItemStack> getHandSlots() {
-        return this.handItems;
-    }
-
-    public @NotNull Iterable<ItemStack> getArmorSlots() {
-        return this.armorItems;
-    }
-
-    public @NotNull ItemStack getItemBySlot(EquipmentSlot pSlot) {
-        return switch (pSlot.getType()) {
-            case HAND -> this.handItems.get(pSlot.getIndex());
-            case ARMOR -> this.armorItems.get(pSlot.getIndex());
-        };
-    }
-
-    public void setItemSlot(EquipmentSlot pSlot, @NotNull ItemStack pStack) {
-        this.verifyEquippedItem(pStack);
-        switch (pSlot.getType()) {
-            case HAND -> this.onEquipItem(pSlot, this.handItems.set(pSlot.getIndex(), pStack), pStack);
-            case ARMOR -> this.onEquipItem(pSlot, this.armorItems.set(pSlot.getIndex(), pStack), pStack);
-        }
     }
 
     @Override
@@ -373,6 +343,7 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
         return switch (this.getStage()) {
             case RIBCAGE -> EntityDimensions.fixed(1.8F, 2.6F);
             case SKELETAL -> EntityDimensions.fixed(2.4F, 4.0F);
+            case HUMANOID -> EntityDimensions.fixed(2.8F, 6.0F);
             default -> super.getDimensions(pPose);
         };
     }
@@ -386,7 +357,7 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
     @Override
     public float getStepHeight() {
         return switch (this.getStage()) {
-            case RIBCAGE, SKELETAL -> 1.0F;
+            case RIBCAGE, SKELETAL, HUMANOID -> 1.0F;
             default -> super.getStepHeight();
         };
     }
@@ -418,26 +389,12 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
             this.flyingSpeed = this.getSpeed() * 0.1F;
 
             if (this.isControlledByLocalInstance()) {
-                this.setSpeed((float) owner.getAttributeValue(Attributes.MOVEMENT_SPEED));
+                this.setSpeed((float) this.getAttributeValue(Attributes.MOVEMENT_SPEED));
                 super.travel(new Vec3(f, pTravelVector.y(), f1));
             } else if (owner instanceof Player) {
                 this.setDeltaMovement(this.getX() - this.xOld, this.getY() - this.yOld, this.getZ() - this.zOld);
             }
         }
-    }
-
-    @Override
-    protected void serverAiStep() {
-        super.serverAiStep();
-
-        this.updateSwingTime();
-    }
-
-    @Override
-    public void aiStep() {
-        super.aiStep();
-
-        this.updateSwingTime();
     }
 
     @Override
@@ -469,12 +426,12 @@ public class SusanooEntity extends LivingEntity implements GeoAnimatable {
 
                 for (int i = 0; i < particleCount; i++) {
                     double xPos = bounds.minX + rand.nextDouble() * bbWidth;
-                    double yPos = bounds.minY + rand.nextDouble() * bbHeight;
+                    double yPos = bounds.minY + (rand.nextDouble() * bbHeight * 0.25F);
                     double zPos = bounds.minZ + rand.nextDouble() * bbDepth;
 
                     float particleSize = Math.min(2.5F, (float) bbSize * 5.0F);
 
-                    this.level.addParticle(new VaporParticle.VaporParticleOptions(this.getVariant().getSusanooColor(), particleSize, 0.1F, false, 1),
+                    this.level.addParticle(new VaporParticle.VaporParticleOptions(this.getVariant().getSusanooColor(), particleSize, 0.15F, false, 3),
                             xPos, yPos, zPos, 0.0D, rand.nextDouble(), 0.0D);
                 }
             }

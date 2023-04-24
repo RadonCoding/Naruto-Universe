@@ -30,7 +30,6 @@ public class FireballProjectile extends JutsuProjectile implements GeoAnimatable
     public static final RawAnimation SPIN = RawAnimation.begin().thenLoop("misc.spin");
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
-
     private static final EntityDataAccessor<Float> DATA_SIZE = SynchedEntityData.defineId(FireballProjectile.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> DATA_TIME = SynchedEntityData.defineId(FireballProjectile.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_LIFE = SynchedEntityData.defineId(FireballProjectile.class, EntityDataSerializers.INT);
@@ -46,13 +45,6 @@ public class FireballProjectile extends JutsuProjectile implements GeoAnimatable
     }
 
     @Override
-    public void onAddedToWorld() {
-        super.onAddedToWorld();
-
-        this.refreshDimensions();
-    }
-
-    @Override
     protected void defineSynchedData() {
         super.defineSynchedData();
 
@@ -62,10 +54,27 @@ public class FireballProjectile extends JutsuProjectile implements GeoAnimatable
     }
 
     @Override
+    public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
+        super.addAdditionalSaveData(pCompound);
+
+        pCompound.putFloat("size", this.entityData.get(DATA_SIZE));
+        pCompound.putInt("time", this.entityData.get(DATA_TIME));
+        pCompound.putInt("life", this.entityData.get(DATA_LIFE));
+    }
+
+    @Override
+    public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
+        super.readAdditionalSaveData(pCompound);
+
+        this.entityData.set(DATA_SIZE, pCompound.getFloat("size"));
+        this.entityData.set(DATA_TIME, pCompound.getInt("time"));
+        this.entityData.set(DATA_LIFE, pCompound.getInt("life"));
+    }
+
+    @Override
     public @NotNull EntityDimensions getDimensions(@NotNull Pose pPose) {
         return EntityDimensions.fixed(this.getSize(), this.getSize());
     }
-
 
     public float getSize() {
         return this.entityData.get(DATA_SIZE);
@@ -109,7 +118,7 @@ public class FireballProjectile extends JutsuProjectile implements GeoAnimatable
         if (this.isInWater() || life <= 0) {
             this.level.addAlwaysVisibleParticle(ParticleTypes.CLOUD, this.getX(), this.getY() + this.getBbHeight(), this.getZ(),
                     0.0D, 0.0D, 0.0D);
-            this.level.playSound(null, this.blockPosition(), SoundEvents.LAVA_EXTINGUISH, SoundSource.MASTER, 1.0F, 1.0F);
+            this.level.playSound(null, this.blockPosition(), SoundEvents.LAVA_EXTINGUISH, SoundSource.MASTER, 3.0F, 1.0F);
             this.discard();
         }
 
@@ -138,6 +147,7 @@ public class FireballProjectile extends JutsuProjectile implements GeoAnimatable
         return true;
     }
 
+    @Override
     protected void onHit(@NotNull HitResult pResult) {
         super.onHit(pResult);
 
@@ -151,6 +161,7 @@ public class FireballProjectile extends JutsuProjectile implements GeoAnimatable
         }
     }
 
+    @Override
     protected void onHitEntity(@NotNull EntityHitResult pResult) {
         super.onHitEntity(pResult);
 

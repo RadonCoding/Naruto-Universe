@@ -77,7 +77,7 @@ public class PowerCharge extends Ability implements Ability.IChanneled {
 
         if (owner.level.getGameTime() % 10 == 0) {
             owner.level.playLocalSound(owner.blockPosition(), NarutoSounds.POWER_CHARGE.get(),
-                    SoundSource.MASTER, 1.0F, 1.0F, false);
+                    SoundSource.MASTER, 3.0F, 1.0F, false);
         }
     }
 
@@ -91,10 +91,10 @@ public class PowerCharge extends Ability implements Ability.IChanneled {
         if (level.getGameTime() % 10 == 0) {
             if (owner instanceof Player player) {
                 level.playSound(player, owner.blockPosition(), NarutoSounds.POWER_CHARGE.get(),
-                        SoundSource.MASTER, 1.0F, 1.0F);
+                        SoundSource.MASTER, 3.0F, 1.0F);
             } else {
                 level.playSound(null, owner.blockPosition(), NarutoSounds.POWER_CHARGE.get(),
-                        SoundSource.MASTER, 1.0F, 1.0F);
+                        SoundSource.MASTER, 3.0F, 1.0F);
             }
         }
 

@@ -89,4 +89,12 @@ public class NarutoSounds {
     public static RegistryObject<SoundEvent> SUSANOO =
             SOUNDS.register("susanoo", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
                     "susanoo")));
+
+    public static RegistryObject<SoundEvent> EXPLOSION =
+            SOUNDS.register("explosion", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
+                    "explosion")));
+
+    public static RegistryObject<SoundEvent> CHIBAKU_TENSEI =
+            SOUNDS.register("chibaku_tensei", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(NarutoUniverse.MOD_ID,
+                    "chibaku_tensei")));
 }

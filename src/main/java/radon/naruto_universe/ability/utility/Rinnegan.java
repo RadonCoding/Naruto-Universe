@@ -12,7 +12,7 @@ import net.minecraft.sounds.SoundEvent;
 
 import java.util.List;
 
-public class Rinnegan extends Ability implements Ability.IToggled {
+public class Rinnegan extends Ability implements Ability.IToggled, Ability.ISpecial {
     @Override
     public boolean isDojutsu() {
         return true;
@@ -56,6 +56,11 @@ public class Rinnegan extends Ability implements Ability.IToggled {
     @Override
     public SoundEvent getActivationSound() {
         return NarutoSounds.RINNEGAN_ACTIVATE.get();
+    }
+
+    @Override
+    public List<Ability> getSpecialAbilities(LivingEntity owner) {
+        return List.of(NarutoAbilities.TENGAI_SHINSEI.get(), NarutoAbilities.CHIBAKU_TENSEI.get());
     }
 }
 

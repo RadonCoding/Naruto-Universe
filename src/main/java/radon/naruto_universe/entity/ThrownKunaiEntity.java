@@ -47,7 +47,6 @@ public class ThrownKunaiEntity extends AbstractArrow implements GeoAnimatable {
             if (!this.level.isClientSide && this.pickup == AbstractArrow.Pickup.ALLOWED) {
                 this.spawnAtLocation(this.getPickupItem(), 0.1F);
             }
-
             this.discard();
         }
         super.tick();
@@ -91,8 +90,13 @@ public class ThrownKunaiEntity extends AbstractArrow implements GeoAnimatable {
             }
         }
 
-        this.playSound(NarutoSounds.KUNAI_HIT.get(), 1.0F, 1.0F);
-        this.discard();
+        if (target instanceof ThrownKunaiEntity) {
+            this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01D, -0.1D, -0.01D));
+            this.playSound(NarutoSounds.AMATERASU.get(), 10.0F, 1.0F);
+        } else {
+            this.playSound(NarutoSounds.KUNAI_HIT.get(), 1.0F, 1.0F);
+            this.discard();
+        }
     }
 
     @Override

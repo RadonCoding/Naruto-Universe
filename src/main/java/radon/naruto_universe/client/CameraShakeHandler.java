@@ -43,7 +43,7 @@ public class CameraShakeHandler {
         public ShakeEvent(float intensity, float speed, int duration) {
             this.intensity = intensity;
             this.speed = speed;
-            this.duration = duration * 10;
+            this.duration = duration;
         }
     }
 }

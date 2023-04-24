@@ -12,7 +12,7 @@ import java.security.SecureRandom;
 import java.util.Optional;
 
 public class HelperMethods {
-    private static final SecureRandom RANDOM = new SecureRandom();
+    public static final SecureRandom RANDOM = new SecureRandom();
 
     public static <T extends Enum<?>> T randomEnum(Class<T> enumClass){
         int x = RANDOM.nextInt(enumClass.getEnumConstants().length);
@@ -56,19 +56,20 @@ public class HelperMethods {
         return getHitResult(entity.level, entity, start, end, radius);
     }
 
-    public static EntityHitResult getEntityLookAt(Entity entity, double range, double radius) {
+    public static EntityHitResult getLivingEntityLookAt(Entity entity, double range, double radius) {
         Vec3 start = entity.getEyePosition();
         Vec3 view = entity.getViewVector(1.0F);
-        Vec3 end = start.add(view.x() * range, view.y() * range, view.z() * range);
-        return ProjectileUtil.getEntityHitResult(entity.level, entity, start, end, entity.getBoundingBox().expandTowards(end).inflate(radius), target -> !target.isSpectator() && target.isPickable());
+        Vec3 end = start.add(view.scale(range));
+        return ProjectileUtil.getEntityHitResult(entity.level, entity, start, end, entity.getBoundingBox().expandTowards(end).inflate(radius),
+                target -> !target.isSpectator() && target.isPickable());
     }
 
-    public static EntityHitResult getEntityEyesConnect(Entity entity, double range, double radius) {
+    public static EntityHitResult getEntityEyesConnect(Entity entity, double range) {
         Vec3 sourceEyePos = new Vec3(entity.getX(), entity.getEyeY() - 0.2D, entity.getZ());
         Vec3 look = entity.getLookAngle().normalize().scale(range);
         Vec3 end = sourceEyePos.add(look);
 
-        AABB box = entity.getBoundingBox().expandTowards(end).inflate(radius);
+        AABB box = entity.getBoundingBox().expandTowards(end).inflate(1.0F);
 
         EntityHitResult hit = ProjectileUtil.getEntityHitResult(entity.level, entity, sourceEyePos, end, box, target -> true);
 
@@ -86,7 +87,6 @@ public class HelperMethods {
         return null;
     }
 
-
     public static int toRGB24(int r, int g, int b, int a) {
         return ((a & 0xFF) << 24) |
                 ((r & 0xFF) << 16) |
@@ -97,19 +97,5 @@ public class HelperMethods {
     public static double round(double value, int precision) {
         int scale = (int) Math.pow(10, precision);
         return (double) Math.round(value * scale) / scale;
-    }
-
-    public static Quaternionf getQuaternion(float x, float y, float z, float w) {
-        w *= (float)Math.PI / 180;
-        float f = (float) Math.sin(w / 2.0F);
-        float i = x * f;
-        float j = y * f;
-        float k = z * f;
-        float r = (float) Math.cos(w / 2.0F);
-        return new Quaternionf(i, j, k, r);
-    }
-
-    public static void rotateQ(float w, float x, float y, float z, PoseStack matrix) {
-        matrix.mulPose(getQuaternion(x, y, z, w));
     }
 }

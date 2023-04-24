@@ -77,6 +77,9 @@
   "naruto_universe:lariat.name": "Lariat",
   "naruto_universe:lariat.desc": "High speed melee attack which is triggered when the player is moving at a very fast speed and punches a entity.",
 
+  "naruto_universe:tengai_shinsei.name": "Tengai Shinsei",
+  "naruto_universe:chibaku_tensei.name": "Chibaku Tensei",
+
   "gui.ninja": "Ninja",
   "gui.tab.info": "Info",
   "gui.tab.ability": "Abilities",

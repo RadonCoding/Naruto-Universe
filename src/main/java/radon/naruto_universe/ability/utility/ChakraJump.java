@@ -77,7 +77,7 @@ public class ChakraJump extends Ability {
     public void runClient(LivingEntity owner) {
         jump(owner);
 
-        owner.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.CHAKRA_JUMP.get(), SoundSource.MASTER, 1.0F, 1.0F, false);
+        owner.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.CHAKRA_JUMP.get(), SoundSource.MASTER, 3.0F, 1.0F, false);
     }
 
     @Override
@@ -85,10 +85,10 @@ public class ChakraJump extends Ability {
         jump(owner);
 
         if (owner instanceof Player player) {
-            owner.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.CHAKRA_JUMP.get(), SoundSource.MASTER, 1.0F, 1.0F);
+            owner.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.CHAKRA_JUMP.get(), SoundSource.MASTER, 3.0F, 1.0F);
         }
         else {
-            owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.CHAKRA_JUMP.get(), SoundSource.MASTER, 1.0F, 1.0F);
+            owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.CHAKRA_JUMP.get(), SoundSource.MASTER, 3.0F, 1.0F);
         }
     }
 }

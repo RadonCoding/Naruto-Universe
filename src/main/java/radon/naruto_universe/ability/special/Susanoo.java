@@ -63,7 +63,8 @@ public class Susanoo extends Ability implements Ability.IToggled {
             return switch (susanoo.getStage()) {
                 case RIBCAGE -> 1.0F;
                 case SKELETAL -> 2.5F;
-                case ARMORED -> 5.0F;
+                case HUMANOID -> 5.0F;
+                case ARMORED -> 7.5F;
                 case PERFECT -> 10.0F;
             };
         }

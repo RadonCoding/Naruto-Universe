@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Copy extends Ability implements Ability.IChanneled {
     private static final double RAYCAST_RANGE = 50.0D;
-    private static final double RAYCAST_RADIUS = 1.0D;
 
     @Override
     public List<NinjaTrait> getRequirements() {
@@ -73,7 +72,7 @@ public class Copy extends Ability implements Ability.IChanneled {
                     Ability ability = event.getAbility();
 
                     if (ability.isUnlockable(owner)) {
-                        EntityHitResult hit = HelperMethods.getEntityLookAt(owner, RAYCAST_RANGE, RAYCAST_RADIUS);
+                        EntityHitResult hit = HelperMethods.getLivingEntityLookAt(owner, RAYCAST_RANGE, 1.0F);
 
                         if (hit != null && hit.getEntity() == target) {
                             NarutoAbilities.unlockAbility(owner, ability);

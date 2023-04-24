@@ -11,10 +11,7 @@ import net.minecraftforge.registries.RegistryObject;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.jutsu.fire.*;
 import radon.naruto_universe.ability.jutsu.lightning.Lariat;
-import radon.naruto_universe.ability.special.Amaterasu;
-import radon.naruto_universe.ability.special.Copy;
-import radon.naruto_universe.ability.special.Genjutsu;
-import radon.naruto_universe.ability.special.Susanoo;
+import radon.naruto_universe.ability.special.*;
 import radon.naruto_universe.ability.utility.*;
 import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.capability.ninja.NinjaTrait;
@@ -63,7 +60,10 @@ public class NarutoAbilities {
             ABILITIES.register("lariat", Lariat::new);
     public static RegistryObject<Ability> COPY =
             ABILITIES.register("copy", Copy::new);
-
+    public static RegistryObject<Ability> TENGAI_SHINSEI =
+            ABILITIES.register("tengai_shinsei", TengaiShinsei::new);
+    public static RegistryObject<Ability> CHIBAKU_TENSEI =
+            ABILITIES.register("chibaku_tensei", ChibakuTensei::new);
     private static final HashMap<Long, ResourceLocation> COMBO_MAP = new HashMap<>();
 
     public static class ComboGenerator implements Iterator<Long> {

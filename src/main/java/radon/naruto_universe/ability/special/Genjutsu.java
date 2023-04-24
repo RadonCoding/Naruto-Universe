@@ -4,6 +4,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
@@ -13,7 +14,6 @@ import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.capability.ninja.NinjaRank;
 import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.capability.ninja.ToggledEyes;
-import radon.naruto_universe.client.gui.tab.NinjaTab;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
 import radon.naruto_universe.effect.NarutoEffects;
 import radon.naruto_universe.network.PacketHandler;
@@ -26,7 +26,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Genjutsu extends Ability {
     private static final double RAYCAST_RANGE = 30.0D;
-    private static final double RAYCAST_RADIUS = 1.0D;
 
     @Override
     public List<NinjaTrait> getRequirements() {
@@ -53,7 +52,7 @@ public class Genjutsu extends Ability {
         AtomicBoolean result = new AtomicBoolean(false);
 
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            result.set(cap.hasUnlockedAbility(NarutoAbilities.SHARINGAN.get()) || cap.hasToggledAbility(NarutoAbilities.MANGEKYO.get()));
+            result.set(cap.hasToggledAbility(NarutoAbilities.SHARINGAN.get()) || cap.hasToggledAbility(NarutoAbilities.MANGEKYO.get()));
         });
         return result.get();
     }
@@ -75,9 +74,7 @@ public class Genjutsu extends Ability {
 
     @Override
     public Status checkTriggerable(LivingEntity owner) {
-        EntityHitResult hit = HelperMethods.getEntityEyesConnect(owner, RAYCAST_RANGE, RAYCAST_RADIUS);
-
-        if (hit == null || !(hit.getEntity() instanceof LivingEntity)) {
+        if (this.getTarget(owner) == null) {
             return Status.FAILURE;
         }
         return super.checkTriggerable(owner);
@@ -88,11 +85,29 @@ public class Genjutsu extends Ability {
         return 30 * 20;
     }
 
+    private LivingEntity getTarget(LivingEntity owner) {
+        EntityHitResult look = HelperMethods.getLivingEntityLookAt(owner, RAYCAST_RANGE, 1.0D);
+
+        if (look != null) {
+            if (look.getEntity() instanceof LivingEntity target) {
+                if (target instanceof Player) {
+                    EntityHitResult hit = HelperMethods.getEntityEyesConnect(owner, RAYCAST_RANGE);
+
+                    if (hit != null && (hit.getEntity() instanceof Player player)) {
+                        return player;
+                    }
+                }
+                return target;
+            }
+        }
+        return null;
+    }
+
     @Override
     public void runServer(LivingEntity owner) {
-        EntityHitResult hit = HelperMethods.getEntityEyesConnect(owner, RAYCAST_RANGE, RAYCAST_RADIUS);
+        LivingEntity target = this.getTarget(owner);
 
-        if (hit.getEntity() instanceof LivingEntity target) {
+        if (target != null) {
             int duration = Math.max(10, Math.round(this.getExperience() * 0.25F)) * 20;
             target.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, duration, 5));
             target.addEffect(new MobEffectInstance(NarutoEffects.STUN.get(), duration, 0, false, false, false));

@@ -1,29 +1,30 @@
 package radon.naruto_universe.client.ability;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.debug.DebugRenderer;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.projectile.AbstractArrow;
-import net.minecraft.world.item.*;
-import net.minecraft.world.phys.Vec2;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.client.gui.overlay.VanillaGuiOverlay;
+import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.client.event.MovementInputUpdateEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.joml.Matrix4f;
 import radon.naruto_universe.NarutoUniverse;
+import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.effect.NarutoEffects;
 import radon.naruto_universe.entity.SusanooEntity;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.ChangeSusanooStageC2SPacket;
 import radon.naruto_universe.network.packet.SusanooControlC2SPacket;
+import radon.naruto_universe.util.HelperMethods;
 
 @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ClientAbilityEvents {
@@ -77,54 +78,40 @@ public class ClientAbilityEvents {
 
         if (!mc.options.keyShift.isDown()) {
             if (mc.player.getVehicle() instanceof SusanooEntity susanoo) {
-                if (event.getKey() == InputConstants.KEY_UP) {
-                    PacketHandler.sendToServer(new ChangeSusanooStageC2SPacket(ChangeSusanooStageC2SPacket.UP));
-                    susanoo.incrementStage();
-                } else if (event.getKey() == InputConstants.KEY_DOWN) {
-                    PacketHandler.sendToServer(new ChangeSusanooStageC2SPacket(ChangeSusanooStageC2SPacket.DOWN));
-                    susanoo.decrementStage();
+                if (event.getAction() == InputConstants.PRESS) {
+                    if (event.getKey() == InputConstants.KEY_UP) {
+                        PacketHandler.sendToServer(new ChangeSusanooStageC2SPacket(ChangeSusanooStageC2SPacket.UP));
+                        susanoo.incrementStage();
+                    } else if (event.getKey() == InputConstants.KEY_DOWN) {
+                        PacketHandler.sendToServer(new ChangeSusanooStageC2SPacket(ChangeSusanooStageC2SPacket.DOWN));
+                        susanoo.decrementStage();
+                    }
                 }
             }
         }
     }
 
-    private static void renderBowTrajectory(PoseStack poseStack) {
+    @SubscribeEvent
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
         Minecraft mc = Minecraft.getInstance();
 
-        if (mc.player == null || mc.level == null) {
-            return;
-        }
+        if (mc.player == null) return;
 
-        Vec3 aimVector = mc.player.getLookAngle().normalize().scale(50.0);
+        mc.player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            if (cap.hasToggledAbility(NarutoAbilities.SHARINGAN.get())) {
+                ItemStack stack = mc.player.getUseItem();
+                Item item = stack.getItem();
 
-        MultiBufferSource.BufferSource buffer = mc.renderBuffers().bufferSource();
+                if (item.getUseAnimation(stack) == UseAnim.BOW || item.getUseAnimation(stack) == UseAnim.CROSSBOW ||
+                        item.getUseAnimation(stack) == UseAnim.SPEAR) {
+                    EntityHitResult hit = HelperMethods.getLivingEntityLookAt(mc.player, 100.0F, 5.0F);
 
-        double px = mc.player.getX();
-        double py = mc.player.getY() + mc.player.getEyeHeight();
-        double pz = mc.player.getZ();
-
-        Vec3 result = new Vec3(px, py, pz).add(aimVector);
-
-        VertexConsumer consumer = buffer.getBuffer(RenderType.lines());
-        Matrix4f pose = poseStack.last().pose();
-        consumer.vertex(pose, (float) px, (float) py, (float) pz).color(1.0F, 1.0F, 1.0F, 1.0F).normal(0.0F, 0.0F, -1.0F).endVertex();
-        consumer.vertex(pose, (float) result.x(), (float) result.y(), (float) result.z()).color(1.0F, 1.0F, 1.0F, 1.0F).normal(0.0F, 0.0F, -1.0F).endVertex();
-        buffer.endBatch(RenderType.lines());
-    }
-
-
-    @SubscribeEvent
-    public static void onRenderGuiOverlayPost(RenderGuiOverlayEvent.Post event) {
-        if (event.getOverlay() == VanillaGuiOverlay.CROSSHAIR.type()) {
-            Minecraft mc = Minecraft.getInstance();
-
-            assert mc.player != null;
-
-            ItemStack heldItem = mc.player.getMainHandItem();
-
-            if (heldItem.getItem() instanceof BowItem || heldItem.getItem() instanceof TridentItem) {
-                renderBowTrajectory(event.getPoseStack());
+                    if (hit != null) {
+                        Entity target = hit.getEntity();
+                        mc.player.lookAt(EntityAnchorArgument.Anchor.EYES, target.getEyePosition());
+                    }
+                }
             }
-        }
+        });
     }
 }

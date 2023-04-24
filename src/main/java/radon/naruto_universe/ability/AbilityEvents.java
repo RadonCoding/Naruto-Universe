@@ -9,6 +9,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
@@ -17,11 +18,15 @@ import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import radon.naruto_universe.NarutoUniverse;
+import radon.naruto_universe.ability.jutsu.lightning.Lariat;
 import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.capability.ninja.NinjaTrait;
+import radon.naruto_universe.client.ability.ClientAbilityHandler;
 import radon.naruto_universe.entity.SusanooEntity;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
+import radon.naruto_universe.network.packet.TriggerAbilityC2SPacket;
+import radon.naruto_universe.network.packet.TriggerLariatC2SPacket;
 
 import java.util.Random;
 
@@ -66,8 +71,9 @@ public class AbilityEvents {
                 if (cap.hasToggledAbility(NarutoAbilities.SHARINGAN.get()) || cap.hasToggledAbility(NarutoAbilities.MANGEKYO.get())) {
                     Random rand = new Random();
                     double speed = Math.sqrt(entity.getDeltaMovement().x() * entity.getDeltaMovement().x() + entity.getDeltaMovement().y() * entity.getDeltaMovement().y() + entity.getDeltaMovement().z() * entity.getDeltaMovement().z());
+                    double chance = 1.0D / (1.0D + Math.abs(speed));
 
-                    if (rand.nextDouble(speed) < 1.0D) {
+                    if (rand.nextDouble() < chance) {
                         if (entity.level instanceof ServerLevel serverLevel) {
                             serverLevel.sendParticles(ParticleTypes.CLOUD, entity.getX(), entity.getY() + (entity.getBbHeight() / 2.0F), entity.getZ(), 0,
                                     0.0D, 0.0D, 0.0D, 0.0D);
@@ -114,6 +120,40 @@ public class AbilityEvents {
                     }
                 }
             });
+        }
+
+        if (event.getSource().msgId.equals("mob") || event.getSource().msgId.equals("player")) {
+            if (event.getSource().getEntity() instanceof LivingEntity attacker) {
+                attacker.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+                    if (cap.hasUnlockedAbility(NarutoAbilities.LARIAT.get())) {
+                        Vec3 movement = attacker.getDeltaMovement();
+                        double speed = Math.sqrt(movement.x() * movement.x() + movement.z() * movement.z());
+
+                        Entity target = event.getEntity();
+
+                        if (attacker instanceof Player) {
+                            if (attacker.level.isClientSide) {
+                                if (speed >= Lariat.REQUIRED_SPEED) {
+                                    attacker.setLastHurtMob(target);
+                                    ClientAbilityHandler.triggerAbility(NarutoAbilities.LARIAT.get());
+
+                                    PacketHandler.sendToServer(new TriggerLariatC2SPacket(movement, target.getId()));
+                                }
+                            }
+                        } else {
+                            if (speed >= Lariat.REQUIRED_SPEED) {
+                                attacker.setLastHurtMob(target);
+
+                                if (attacker.level.isClientSide) {
+                                    ClientAbilityHandler.triggerAbility(NarutoAbilities.LARIAT.get());
+                                } else {
+                                    AbilityHandler.triggerAbility(attacker, NarutoAbilities.LARIAT.get());
+                                }
+                            }
+                        }
+                    }
+                });
+            }
         }
     }
 }

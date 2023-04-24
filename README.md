@@ -15,6 +15,8 @@
 - Amaterasu
 - Genjutsu
 - Sharingan Copy
+- Chibaku Tensei
+- Tengai Shinsei
 
 ### Items / Armor
 - Kunai

@@ -6,9 +6,9 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 import radon.naruto_universe.capability.ninja.SusanooStage;
+import radon.naruto_universe.client.model.SusanooHumanoidModel;
 import radon.naruto_universe.client.model.SusanooRibcageModel;
 import radon.naruto_universe.client.model.SusanooSkeletalModel;
 import radon.naruto_universe.entity.SusanooEntity;
@@ -24,6 +24,7 @@ public class SusanooRenderer extends EntityRenderer<SusanooEntity> {
 
         this.renderers.put(SusanooStage.RIBCAGE, new SusanooStageRenderer(pContext, new SusanooRibcageModel()));
         this.renderers.put(SusanooStage.SKELETAL, new SusanooSkeletalRenderer(pContext, new SusanooSkeletalModel()));
+        this.renderers.put(SusanooStage.HUMANOID, new SusanooHumanoidRenderer(pContext, new SusanooHumanoidModel()));
     }
 
     @Override
@@ -34,10 +35,5 @@ public class SusanooRenderer extends EntityRenderer<SusanooEntity> {
     @Override
     public @NotNull ResourceLocation getTextureLocation(SusanooEntity pEntity) {
         return this.renderers.get(pEntity.getStage()).getTextureLocation(pEntity);
-    }
-
-    @Override
-    protected int getBlockLightLevel(@NotNull SusanooEntity pEntity, @NotNull BlockPos pPos) {
-        return 15;
     }
 }

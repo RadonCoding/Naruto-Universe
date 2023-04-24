@@ -43,11 +43,6 @@ public class PacketHandler {
                 .encoder(UnlockAbilityC2SPacket::encode)
                 .consumerMainThread(UnlockAbilityC2SPacket::handle)
                 .add();
-        INSTANCE.messageBuilder(SetMovementSpeedC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(SetMovementSpeedC2SPacket::new)
-                .encoder(SetMovementSpeedC2SPacket::encode)
-                .consumerMainThread(SetMovementSpeedC2SPacket::handle)
-                .add();
         INSTANCE.messageBuilder(ChangeSusanooStageC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(ChangeSusanooStageC2SPacket::new)
                 .encoder(ChangeSusanooStageC2SPacket::encode)
@@ -82,6 +77,21 @@ public class PacketHandler {
                 .decoder(SyncSusanooAnimationS2CPacket::new)
                 .encoder(SyncSusanooAnimationS2CPacket::encode)
                 .consumerMainThread(SyncSusanooAnimationS2CPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(CameraShakeS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(CameraShakeS2CPacket::new)
+                .encoder(CameraShakeS2CPacket::encode)
+                .consumerMainThread(CameraShakeS2CPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(SetDeltaMovementS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(SetDeltaMovementS2CPacket::new)
+                .encoder(SetDeltaMovementS2CPacket::encode)
+                .consumerMainThread(SetDeltaMovementS2CPacket::handle)
+                .add();
+        INSTANCE.messageBuilder(TriggerLariatC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
+                .decoder(TriggerLariatC2SPacket::new)
+                .encoder(TriggerLariatC2SPacket::encode)
+                .consumerMainThread(TriggerLariatC2SPacket::handle)
                 .add();
     }
 

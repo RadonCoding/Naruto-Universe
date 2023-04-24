@@ -44,7 +44,7 @@ public class GreatFlame extends Ability {
 
     @Override
     public float getDamage() {
-        return 1.5F;
+        return 3.5F;
     }
 
     @Override
@@ -63,11 +63,6 @@ public class GreatFlame extends Ability {
     }
 
     @Override
-    public void runClient(LivingEntity owner) {
-
-    }
-
-    @Override
     public void runServer(LivingEntity owner) {
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             owner.level.playSound(null, owner.blockPosition(), NarutoSounds.GREAT_FLAME.get(),
@@ -79,7 +74,7 @@ public class GreatFlame extends Ability {
 
                 Vec3 look = ownerClone.getLookAngle();
                 owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(),
-                        NinjaTrait.FIRE_RELEASE, NarutoParticles.FIRE.get(), duration, 10.0F, 15.0F, 0.25F, true));
+                        NinjaTrait.FIRE_RELEASE, NarutoParticles.FIRE.get(), duration, 10.0F, 15.0F, 0.5F, true));
             }, 20, LogicalSide.SERVER);
         });
     }

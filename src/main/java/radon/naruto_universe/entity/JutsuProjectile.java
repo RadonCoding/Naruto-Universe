@@ -38,18 +38,18 @@ public class JutsuProjectile extends AbstractHurtingProjectile {
     public void addAdditionalSaveData(@NotNull CompoundTag pCompound) {
         super.addAdditionalSaveData(pCompound);
 
-        pCompound.putFloat("power", this.power);
-        pCompound.putFloat("damage", this.damage);
-        pCompound.putInt("release", this.release.ordinal());
+        pCompound.putFloat("ability_power", this.power);
+        pCompound.putFloat("ability_damage", this.damage);
+        pCompound.putInt("ability_release", this.release.ordinal());
     }
 
     @Override
     public void readAdditionalSaveData(@NotNull CompoundTag pCompound) {
         super.readAdditionalSaveData(pCompound);
 
-        this.power = pCompound.getFloat("power");
-        this.damage = pCompound.getFloat("damage");
-        this.release = NinjaTrait.values()[pCompound.getInt("release")];
+        this.power = pCompound.getFloat("ability_power");
+        this.damage = pCompound.getFloat("ability_damage");
+        this.release = NinjaTrait.values()[pCompound.getInt("ability_release")];
     }
 
     public float getPower() {
@@ -67,7 +67,7 @@ public class JutsuProjectile extends AbstractHurtingProjectile {
     private void extinguish() {
         this.level.addAlwaysVisibleParticle(ParticleTypes.CLOUD, this.getX(), this.getY() + this.getBbHeight(), this.getZ(),
                 0.0D, 0.0D, 0.0D);
-        this.level.playSound(null, this.blockPosition(), SoundEvents.LAVA_EXTINGUISH, SoundSource.MASTER, 1.0F, 1.0F);
+        this.level.playSound(null, this.blockPosition(), SoundEvents.LAVA_EXTINGUISH, SoundSource.MASTER, 3.0F, 1.0F);
         this.discard();
     }
 

@@ -31,10 +31,7 @@ import radon.naruto_universe.client.layer.NarutoEyesLayer;
 import radon.naruto_universe.client.particle.FireParticle;
 import radon.naruto_universe.client.particle.NarutoParticles;
 import radon.naruto_universe.client.particle.VaporParticle;
-import radon.naruto_universe.client.render.EmptyRenderer;
-import radon.naruto_universe.client.render.FireballRenderer;
-import radon.naruto_universe.client.render.SusanooRenderer;
-import radon.naruto_universe.client.render.ThrownKunaiRenderer;
+import radon.naruto_universe.client.render.*;
 import radon.naruto_universe.entity.NarutoEntities;
 import radon.naruto_universe.item.NarutoItems;
 import radon.naruto_universe.network.PacketHandler;
@@ -66,7 +63,7 @@ public class ClientEventHandler {
 
         @SubscribeEvent
         public static void onRegisterGuiOverlays(RegisterGuiOverlaysEvent event) {
-            event.registerAboveAll("chakra_bar",  ChakraBarOverlay.HUD_CHAKRA_BAR);
+            event.registerBelowAll("chakra_bar",  ChakraBarOverlay.HUD_CHAKRA_BAR);
             event.registerAboveAll("special_ability", SpecialAbilityHandler.SPECIAL_ABILITY);
             event.registerAboveAll("genjutsu_overlay", ClientGenjutsuHandler.GENJUTSU_OVERLAY);
         }
@@ -84,6 +81,9 @@ public class ClientEventHandler {
             event.registerEntityRenderer(NarutoEntities.PARTICLE_SPAWNER.get(), EmptyRenderer::new);
             event.registerEntityRenderer(NarutoEntities.HIDING_IN_ASH.get(), EmptyRenderer::new);
             event.registerEntityRenderer(NarutoEntities.SUSANOO.get(), SusanooRenderer::new);
+            event.registerEntityRenderer(NarutoEntities.METEORITE.get(), MeteoriteRenderer::new);
+            event.registerEntityRenderer(NarutoEntities.CHIBAKU_TENSEI.get(), ChibakuTenseiRenderer::new);
+            event.registerEntityRenderer(NarutoEntities.BLOCK_APPEARANCE.get(), BlockAppearanceRenderer::new);
         }
 
         @SubscribeEvent

@@ -45,7 +45,7 @@ public class GreatAnnihilation extends Ability {
 
     @Override
     public float getDamage() {
-        return 2.5F;
+        return 5.0F;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class GreatAnnihilation extends Ability {
 
                 Vec3 look = ownerClone.getLookAngle();
                 owner.level.addFreshEntity(new ParticleSpawnerProjectile(owner, look.x(), look.y(), look.z(), this.getPower(), this.getDamage(),
-                        NinjaTrait.FIRE_RELEASE, NarutoParticles.FIRE.get(), duration, 15.0F, 25.0F, 0.25F, true));
+                        NinjaTrait.FIRE_RELEASE, NarutoParticles.FIRE.get(), duration, 25.0F, 35.0F, 0.5F, true));
             }, 2 * 20, LogicalSide.SERVER);
         });
     }

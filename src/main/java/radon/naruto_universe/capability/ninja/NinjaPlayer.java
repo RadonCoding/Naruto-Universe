@@ -29,9 +29,6 @@ public class NinjaPlayer implements INinjaPlayer {
     private float mangekyoBlindess;
     private boolean initialized;
 
-    // Used for storing the player's movement speed from client for some abilities
-    private double movementSpeed;
-
     private Ability channeledAbility;
     private final List<Ability> toggledAbilities = new ArrayList<>();
     private final List<NinjaTrait> traits = new ArrayList<>();
@@ -326,12 +323,12 @@ public class NinjaPlayer implements INinjaPlayer {
 
             if (toggled.getActivationSound() != null) {
                 if (owner.level.isClientSide) {
-                    owner.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), toggled.getActivationSound(), SoundSource.MASTER, 1.0F, 1.0F, false);
+                    owner.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), toggled.getActivationSound(), SoundSource.MASTER, 3.0F, 1.0F, false);
                 } else {
                     if (owner instanceof Player player) {
-                        owner.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), toggled.getActivationSound(), SoundSource.MASTER, 1.0F, 1.0F);
+                        owner.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), toggled.getActivationSound(), SoundSource.MASTER, 3.0F, 1.0F);
                     } else {
-                        owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), toggled.getActivationSound(), SoundSource.MASTER, 1.0F, 1.0F);
+                        owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), toggled.getActivationSound(), SoundSource.MASTER, 3.0F, 1.0F);
                     }
                 }
             }
@@ -356,12 +353,12 @@ public class NinjaPlayer implements INinjaPlayer {
 
             if (toggled.getDectivationSound() != null) {
                 if (owner.level.isClientSide) {
-                    owner.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), toggled.getDectivationSound(), SoundSource.MASTER, 1.0F, 1.0F, false);
+                    owner.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), toggled.getDectivationSound(), SoundSource.MASTER, 3.0F, 1.0F, false);
                 } else {
                     if (owner instanceof Player player) {
-                        owner.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), toggled.getDectivationSound(), SoundSource.MASTER, 1.0F, 1.0F);
+                        owner.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), toggled.getDectivationSound(), SoundSource.MASTER, 3.0F, 1.0F);
                     } else {
-                        owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), toggled.getDectivationSound(), SoundSource.MASTER, 1.0F, 1.0F);
+                        owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), toggled.getDectivationSound(), SoundSource.MASTER, 3.0F, 1.0F);
                     }
                 }
             }
@@ -445,12 +442,12 @@ public class NinjaPlayer implements INinjaPlayer {
 
             if (this.channeledAbility.getActivationSound() != null) {
                 if (owner.level.isClientSide) {
-                    owner.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), this.channeledAbility.getActivationSound(), SoundSource.MASTER, 1.0F, 1.0F, false);
+                    owner.level.playLocalSound(owner.getX(), owner.getY(), owner.getZ(), this.channeledAbility.getActivationSound(), SoundSource.MASTER, 3.0F, 1.0F, false);
                 } else {
                     if (owner instanceof Player player) {
-                        owner.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), this.channeledAbility.getActivationSound(), SoundSource.MASTER, 1.0F, 1.0F);
+                        owner.level.playSound(player, owner.getX(), owner.getY(), owner.getZ(), this.channeledAbility.getActivationSound(), SoundSource.MASTER, 3.0F, 1.0F);
                     } else {
-                        owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), this.channeledAbility.getActivationSound(), SoundSource.MASTER, 1.0F, 1.0F);
+                        owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), this.channeledAbility.getActivationSound(), SoundSource.MASTER, 3.0F, 1.0F);
                     }
                 }
             }
@@ -477,16 +474,6 @@ public class NinjaPlayer implements INinjaPlayer {
             return false;
         }
         return this.channeledAbility == ability;
-    }
-
-    @Override
-    public void setMovementSpeed(double movementSpeed) {
-        this.movementSpeed = movementSpeed;
-    }
-
-    @Override
-    public double getMovementSpeed() {
-        return this.movementSpeed;
     }
 
     private void updateChanneledAbilities(LivingEntity owner, boolean isClientSide) {

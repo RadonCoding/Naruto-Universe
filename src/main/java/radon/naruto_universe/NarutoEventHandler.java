@@ -1,11 +1,13 @@
 package radon.naruto_universe;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
@@ -20,7 +22,6 @@ import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.entity.NarutoEntities;
 import radon.naruto_universe.network.PacketHandler;
 import radon.naruto_universe.network.packet.SyncNarutoDataLocalS2CPacket;
-import radon.naruto_universe.network.packet.SyncNarutoDataRemoteS2CPacket;
 import radon.naruto_universe.network.packet.SyncNinjaPlayerS2CPacket;
 
 public class NarutoEventHandler {
@@ -108,6 +109,13 @@ public class NarutoEventHandler {
             LivingEntity entity = event.getEntity();
             entity.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.tick(entity, entity.level.isClientSide));
             entity.getCapability(NarutoDataHandler.INSTANCE).ifPresent(cap -> cap.tick(entity, entity.level.isClientSide));
+        }
+
+        @SubscribeEvent
+        public static void onLevelTick(TickEvent.LevelTickEvent event) {
+            if (!event.level.isClientSide) {
+                ExplosionHandler.tick((ServerLevel) event.level);
+            }
         }
     }
 

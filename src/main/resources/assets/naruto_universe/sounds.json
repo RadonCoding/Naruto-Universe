@@ -98,5 +98,15 @@
     "sounds": [
       "naruto_universe:susanoo"
     ]
+  },
+  "explosion": {
+    "sounds": [
+      "naruto_universe:explosion"
+    ]
+  },
+  "chibaku_tensei": {
+    "sounds": [
+      "naruto_universe:chibaku_tensei"
+    ]
   }
 }
