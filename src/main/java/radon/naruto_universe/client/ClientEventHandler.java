@@ -23,7 +23,7 @@ import radon.naruto_universe.client.ability.DoubleJumpHandler;
 import radon.naruto_universe.client.ability.SpecialAbilityHandler;
 import radon.naruto_universe.client.animation.AnimationHandler;
 import radon.naruto_universe.client.event.PlayerModelEvent;
-import radon.naruto_universe.client.genjutsu.ClientGenjutsuHandler;
+import radon.naruto_universe.client.genjutsu.GenjutsuHandler;
 import radon.naruto_universe.client.gui.DojutsuScreen;
 import radon.naruto_universe.client.gui.NinjaScreen;
 import radon.naruto_universe.client.gui.overlay.ChakraBarOverlay;
@@ -65,7 +65,7 @@ public class ClientEventHandler {
         public static void onRegisterGuiOverlays(RegisterGuiOverlaysEvent event) {
             event.registerBelowAll("chakra_bar",  ChakraBarOverlay.HUD_CHAKRA_BAR);
             event.registerAboveAll("special_ability", SpecialAbilityHandler.SPECIAL_ABILITY);
-            event.registerAboveAll("genjutsu_overlay", ClientGenjutsuHandler.GENJUTSU_OVERLAY);
+            event.registerAboveAll("genjutsu_overlay", GenjutsuHandler.GENJUTSU_OVERLAY);
         }
 
         @SubscribeEvent

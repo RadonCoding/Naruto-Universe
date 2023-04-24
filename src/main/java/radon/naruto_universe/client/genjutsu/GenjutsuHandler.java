@@ -16,8 +16,7 @@ import radon.naruto_universe.client.layer.NarutoEyesLayer;
 
 import java.util.Random;
 
-@Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
-public class ClientGenjutsuHandler {
+public class GenjutsuHandler {
     private static GenjutsuInfo current;
 
     public static IGuiOverlay GENJUTSU_OVERLAY = (gui, poseStack, partialTicks, width, height) -> {

@@ -4,12 +4,10 @@ import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.MovementInputUpdateEvent;
@@ -19,6 +17,7 @@ import net.minecraftforge.fml.common.Mod;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
+import radon.naruto_universe.client.genjutsu.TsukuyomiHandler;
 import radon.naruto_universe.effect.NarutoEffects;
 import radon.naruto_universe.entity.SusanooEntity;
 import radon.naruto_universe.network.PacketHandler;
@@ -96,6 +95,8 @@ public class ClientAbilityEvents {
         Minecraft mc = Minecraft.getInstance();
 
         if (mc.player == null) return;
+
+        TsukuyomiHandler.tick();
 
         mc.player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             if (cap.hasToggledAbility(NarutoAbilities.SHARINGAN.get())) {

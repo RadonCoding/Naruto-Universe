@@ -59,12 +59,19 @@ public class TengaiShinsei extends Ability {
     }
 
     @Override
-    public void runServer(LivingEntity owner) {
+    public Status checkTriggerable(LivingEntity owner) {
+        if (this.getTarget(owner) == null) {
+            return Status.FAILURE;
+        }
+        return super.checkTriggerable(owner);
+    }
+
+    private BlockPos getTarget(LivingEntity owner) {
+        BlockPos pos = null;
+
         HitResult result = HelperMethods.getHitResult(owner, RANGE, 1.0D);
 
         if (result != null) {
-            BlockPos pos = null;
-
             if (result.getType() == HitResult.Type.ENTITY) {
                 EntityHitResult hit = (EntityHitResult) result;
                 pos = hit.getEntity().blockPosition();
@@ -73,21 +80,27 @@ public class TengaiShinsei extends Ability {
                 BlockHitResult hit = (BlockHitResult) result;
                 pos = hit.getBlockPos();
             }
+        }
+        return pos;
+    }
 
-            if (pos != null) {
-                MeteoriteEntity meteorite = new MeteoriteEntity(owner, pos.getX(), pos.getY() + HEIGHT, pos.getZ());
-                meteorite.setSize(64);
+    @Override
+    public void runServer(LivingEntity owner) {
+        BlockPos pos = this.getTarget(owner);
 
-                int count = HelperMethods.RANDOM.nextInt(4, 12);
+        if (pos != null) {
+            MeteoriteEntity meteorite = new MeteoriteEntity(owner, pos.getX(), pos.getY() + HEIGHT, pos.getZ());
+            meteorite.setSize(64);
 
-                for (int i = 0; i < count; i++) {
-                    meteorite.addBlock(BLOCKS.get(HelperMethods.RANDOM.nextInt(BLOCKS.size())));
-                }
+            int count = HelperMethods.RANDOM.nextInt(4, 12);
 
-                owner.level.addFreshEntity(meteorite);
-
-                meteorite.drop();
+            for (int i = 0; i < count; i++) {
+                meteorite.addBlock(BLOCKS.get(HelperMethods.RANDOM.nextInt(BLOCKS.size())));
             }
+
+            owner.level.addFreshEntity(meteorite);
+
+            meteorite.drop();
         }
     }
 }

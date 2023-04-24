@@ -93,6 +93,11 @@ public class PacketHandler {
                 .encoder(TriggerLariatC2SPacket::encode)
                 .consumerMainThread(TriggerLariatC2SPacket::handle)
                 .add();
+        INSTANCE.messageBuilder(TsukyomiS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(TsukyomiS2CPacket::new)
+                .encoder(TsukyomiS2CPacket::encode)
+                .consumerMainThread(TsukyomiS2CPacket::handle)
+                .add();
     }
 
     public static <MSG> void sendToServer(MSG message) {

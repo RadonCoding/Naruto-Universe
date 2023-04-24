@@ -26,11 +26,15 @@ public class ChibakuTenseiRenderer extends GeoEntityRenderer<ChibakuTenseiEntity
     }
 
     @Override
-    public void render(ChibakuTenseiEntity entity, float entityYaw, float partialTick, PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+    public void render(ChibakuTenseiEntity entity, float entityYaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource bufferSource, int packedLight) {
+        Minecraft mc = Minecraft.getInstance();
+
+        assert mc.player != null;
+
+        if (entity.isInvisibleTo(mc.player)) return;
+
         poseStack.pushPose();
         poseStack.translate(0.0D, entity.getBbHeight() / 2.0F, 0.0D);
-
-        Minecraft mc = Minecraft.getInstance();
 
         Entity viewer = mc.getCameraEntity();
 

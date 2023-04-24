@@ -11,5 +11,6 @@ public class NarutoPostEffects {
     static {
         EFFECTS.add(new BlindnessPostEffect());
         EFFECTS.add(new SharinganPostEffect());
+        EFFECTS.add(new TsukuyomiPostEffect());
     }
 }

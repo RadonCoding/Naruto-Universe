@@ -91,7 +91,7 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 1000.0D);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 100.0D);
     }
 
     public void setMeteorite(MeteoriteEntity meteorite) {
@@ -204,7 +204,7 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
         MeteoriteEntity meteorite = this.getMeteorite();
         return !this.entities.contains(entity) &&
                 entity != meteorite.getOwner() &&
-                !(entity instanceof MeteoriteEntity) &&
+                entity instanceof LivingEntity &&
                 !(entity instanceof ChibakuTenseiEntity) &&
                 !(entity instanceof Player player && player.getAbilities().instabuild);
     }
@@ -274,8 +274,6 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
                     this.level.addFreshEntity(block);
 
                     this.blocks.add(block);
-                } else {
-                    this.discard();
                 }
             }
         }
@@ -342,6 +340,11 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
     }
 
     @Override
+    public boolean isPersistenceRequired() {
+        return true;
+    }
+
+    @Override
     public void tick() {
         this.noPhysics = true;
         super.tick();
@@ -370,7 +373,7 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
 
                 for (int i = 0; i < particleCount; i++) {
                     double xPos = bounds.minX + rand.nextDouble() * bbWidth;
-                    double yPos = bounds.minY + (rand.nextDouble() * bbHeight * 0.25F);
+                    double yPos = bounds.minY + rand.nextDouble() * bbHeight;
                     double zPos = bounds.minZ + rand.nextDouble() * bbDepth;
                     double xSpeed = rand.nextDouble() * 0.2D - 0.1D;
                     double ySpeed = rand.nextDouble() * -0.1D - 0.2D;
@@ -406,6 +409,10 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
                                 Vec3 movement = new Vec3(xMove, yMove, zMove);
                                 this.move(MoverType.SELF, movement);
                                 meteorite.move(MoverType.SELF, movement);
+
+                                if (this.target != null) {
+                                    this.target.moveTo(this.position());
+                                }
                             } else {
                                 this.reached = true;
                             }
@@ -417,6 +424,17 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
                 }
                 this.update();
             }
+        }
+    }
+
+    @Override
+    public void die(@NotNull DamageSource pDamageSource) {
+        super.die(pDamageSource);
+
+        MeteoriteEntity meteorite = this.getMeteorite();
+
+        if (meteorite != null && meteorite.getSize() > 0) {
+            meteorite.drop();
         }
     }
 

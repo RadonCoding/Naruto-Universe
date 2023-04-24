@@ -64,6 +64,9 @@ public class NarutoAbilities {
             ABILITIES.register("tengai_shinsei", TengaiShinsei::new);
     public static RegistryObject<Ability> CHIBAKU_TENSEI =
             ABILITIES.register("chibaku_tensei", ChibakuTensei::new);
+    public static RegistryObject<Ability> TSUKUYOMI =
+            ABILITIES.register("tsukuyomi", Tsukuyomi::new);
+
     private static final HashMap<Long, ResourceLocation> COMBO_MAP = new HashMap<>();
 
     public static class ComboGenerator implements Iterator<Long> {

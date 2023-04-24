@@ -7,7 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 
 public class AnimationHandler {
     public static void animate(LivingEntity entity, HumanoidModel<?> model) {
-        if (entity.isSprinting() && !entity.isSwimming() && !(entity instanceof LocalPlayer player && player.getAbilities().flying)) {
+        /*if (entity.isSprinting() && !entity.isSwimming()) {
             model.body.xRot = 0.5F;
 
             boolean rotateLeftArm = true, rotateRightArm = true;
@@ -36,6 +36,6 @@ public class AnimationHandler {
             model.leftLeg.y = 12.2F;
             model.rightLeg.z = 4.0F;
             model.leftLeg.z = 4.0F;
-        }
+        }*/
     }
 }

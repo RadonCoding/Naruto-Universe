@@ -79,7 +79,7 @@ public class Mangekyo extends Ability implements Ability.IToggled, Ability.ISpec
 
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             switch (cap.getMangekyoType()) {
-                case ITACHI -> abilities.add(NarutoAbilities.AMATERASU.get());
+                case ITACHI -> abilities.addAll(List.of(NarutoAbilities.AMATERASU.get(), NarutoAbilities.TSUKUYOMI.get()));
                 case SASUKE -> abilities.add(NarutoAbilities.AMATERASU.get());
             }
         });

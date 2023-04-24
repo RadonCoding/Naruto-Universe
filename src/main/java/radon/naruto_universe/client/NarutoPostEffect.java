@@ -33,7 +33,9 @@ public abstract class NarutoPostEffect implements ResourceManagerReloadListener 
                 this.postChain = new PostChain(mc.getTextureManager(), pResourceManager, mc.getMainRenderTarget(), this.getEffect());
                 ((PostChain) this.postChain).resize(mc.getWindow().getWidth(), mc.getWindow().getHeight());
             }
-        } catch (JsonSyntaxException | IOException ignored) {}
+        } catch (JsonSyntaxException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void resize(int width, int heigtht) {

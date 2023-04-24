@@ -68,7 +68,7 @@ public class ExplosionHandler {
                                     level.sendParticles(ParticleTypes.EXPLOSION, x, y, z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
                                 }
 
-                                for (Entity entity : level.getEntities(null, new AABB(pos).inflate(10.0D))) {
+                                for (Entity entity : level.getEntities(null, new AABB(pos).inflate(1.0D))) {
                                     entity.hurt(DamageSource.explosion(null), explosion.radius);
                                 }
                             }

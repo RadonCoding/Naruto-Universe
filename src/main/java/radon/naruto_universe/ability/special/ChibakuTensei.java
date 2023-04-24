@@ -61,26 +61,26 @@ public class ChibakuTensei extends Ability {
             for (ChibakuTenseiEntity entity : owner.level.getEntitiesOfClass(ChibakuTenseiEntity.class, owner.getBoundingBox().inflate(100.0D))) {
                 MeteoriteEntity meteorite = entity.getMeteorite();
 
-                if (meteorite != null && !meteorite.isFalling()) {
+                if (meteorite != null && !meteorite.isFalling() && meteorite.getOwner() == owner) {
                     entity.drop();
-                    return;
+                    break;
                 }
             }
+        } else {
+            EntityHitResult result = HelperMethods.getLivingEntityLookAt(owner, RANGE, RADIUS);
+
+            ChibakuTenseiEntity entity;
+
+            if (result != null) {
+                Entity target = result.getEntity();
+                entity = new ChibakuTenseiEntity(owner, target);
+            } else {
+                entity = new ChibakuTenseiEntity(owner);
+            }
+
+            owner.level.addFreshEntity(entity);
+
+            owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.CHIBAKU_TENSEI.get(), SoundSource.MASTER, 3.0F, 1.0F);
         }
-
-        EntityHitResult result = HelperMethods.getLivingEntityLookAt(owner, RANGE, RADIUS);
-
-        ChibakuTenseiEntity entity;
-
-        if (result != null) {
-            Entity target = result.getEntity();
-            entity = new ChibakuTenseiEntity(owner, target);
-        } else  {
-            entity = new ChibakuTenseiEntity(owner);
-        }
-
-        owner.level.addFreshEntity(entity);
-
-        owner.level.playSound(null, owner.getX(), owner.getY(), owner.getZ(), NarutoSounds.CHIBAKU_TENSEI.get(), SoundSource.MASTER, 3.0F, 1.0F);
     }
 }

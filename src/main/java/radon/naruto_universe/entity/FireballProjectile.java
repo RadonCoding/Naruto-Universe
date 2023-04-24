@@ -167,14 +167,13 @@ public class FireballProjectile extends JutsuProjectile implements GeoAnimatable
 
         if (!this.level.isClientSide) {
             Entity target = pResult.getEntity();
-            LivingEntity owner = (LivingEntity) this.getOwner();
+            Entity owner = this.getOwner();
 
             if (owner != null) {
                 float power = this.getPower() * 0.75F;
                 float size = this.getSize() * 0.5F;
                 float damage = this.getDamage() * power * size;
                 target.hurt(NarutoDamageSource.jutsu(owner, this), damage);
-                this.doEnchantDamageEffects(owner, target);
             }
         }
     }

@@ -266,7 +266,7 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 500.0D).add(Attributes.MOVEMENT_SPEED, 1.0D);
+        return Mob.createMobAttributes().add(Attributes.MAX_HEALTH, 500.0D).add(Attributes.MOVEMENT_SPEED, 0.1D);
     }
 
     @Override
