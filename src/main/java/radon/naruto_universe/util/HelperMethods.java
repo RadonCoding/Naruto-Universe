@@ -64,6 +64,20 @@ public class HelperMethods {
                 target -> !target.isSpectator() && target.isPickable());
     }
 
+    public static Quaternionf getQuaternion(float x, float y, float z, float w) {
+        w *= (float)Math.PI / 180;
+        float f = (float) Math.sin(w / 2.0F);
+        float i = x * f;
+        float j = y * f;
+        float k = z * f;
+        float r = (float) Math.cos(w / 2.0F);
+        return new Quaternionf(i, j, k, r);
+    }
+
+    public static void rotateQ(float w, float x, float y, float z, PoseStack matrix) {
+        matrix.mulPose(getQuaternion(x, y, z, w));
+    }
+
     public static EntityHitResult getEntityEyesConnect(Entity entity, double range) {
         Vec3 sourceEyePos = new Vec3(entity.getX(), entity.getEyeY() - 0.2D, entity.getZ());
         Vec3 look = entity.getLookAngle().normalize().scale(range);

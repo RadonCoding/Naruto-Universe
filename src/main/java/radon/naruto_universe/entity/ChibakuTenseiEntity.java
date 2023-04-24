@@ -210,11 +210,6 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
     }
 
     @Override
-    public boolean isCurrentlyGlowing() {
-        return !this.isInvisible();
-    }
-
-    @Override
     public boolean isInvisible() {
         return this.entityData.get(DATA_HAS_TARGET);
     }
@@ -236,7 +231,10 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
 
     public void drop() {
         MeteoriteEntity meteorite = this.getMeteorite();
-        meteorite.drop();
+
+        if (meteorite.getSize() > 0) {
+            meteorite.drop();
+        }
     }
 
     private void suck() {
@@ -296,13 +294,7 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
     private void update() {
         MeteoriteEntity meteorite = this.getMeteorite();
 
-        double offset = (meteorite.getBbHeight() / 2.0F) - (this.getBbHeight() / 2.0F);
-
-        if (this.target != null) {
-            this.target.moveTo(this.position());
-        }
-
-        this.moveTo(meteorite.position().add(0.0D, offset, 0.0D));
+        this.moveTo(meteorite.position().add(0.0D, (meteorite.getBbHeight() / 2.0F) - (this.getBbHeight() / 2.0F), 0.0D));
 
         Iterator<BlockAppearanceEntity> blocksIter = this.blocks.iterator();
 
@@ -310,10 +302,16 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
             BlockAppearanceEntity block = blocksIter.next();
 
             if (block.getBoundingBox().intersects(this.getBoundingBox())) {
+                Vec3 pos = this.position().subtract(0.0D, (meteorite.getBbHeight() / 2.0F) - (this.getBbHeight() / 2.0F), 0.0D);
+
                 meteorite.addBlock(block.getBlockState().getBlock());
                 meteorite.setSize(meteorite.getSize() + 1);
                 blocksIter.remove();
                 block.discard();
+
+                this.moveTo(pos.add(0.0D, (meteorite.getBbHeight() / 2.0F) - (this.getBbHeight() / 2.0F), 0.0D));
+
+                meteorite.move(MoverType.SELF, new Vec3((this.random.nextDouble() - 0.5D) * 0.2D, (this.random.nextDouble() - 0.5D) * 0.2D, (this.random.nextDouble() - 0.5D) * 0.2D));
             } else {
                 this.flyTowards(block, this);
             }
@@ -372,10 +370,13 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
 
                 for (int i = 0; i < particleCount; i++) {
                     double xPos = bounds.minX + rand.nextDouble() * bbWidth;
-                    double yPos = bounds.minY + rand.nextDouble() * bbHeight;
+                    double yPos = bounds.minY + (rand.nextDouble() * bbHeight * 0.25F);
                     double zPos = bounds.minZ + rand.nextDouble() * bbDepth;
+                    double xSpeed = rand.nextDouble() * 0.2D - 0.1D;
+                    double ySpeed = rand.nextDouble() * -0.1D - 0.2D;
+                    double zSpeed = rand.nextDouble() * 0.2D - 0.1D;
                     this.level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, blocks.get(rand.nextInt(blocks.size())).defaultBlockState()),
-                            xPos, yPos, zPos, 0.0D, rand.nextDouble() * -3.0D, 0.0D);
+                            xPos, yPos, zPos, xSpeed, ySpeed, zSpeed);
                 }
             } else {
                 if (this.target != null && (!this.target.isAlive() || this.target.isRemoved())) {
@@ -397,13 +398,14 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
                             double distance = Math.sqrt(xDiff * xDiff + yDiff * yDiff + zDiff * zDiff);
 
                             if (distance > 0.1D) {
-                                double speed = 0.25D;
+                                double speed = Math.max(0.1D, Math.max(0.25D, Math.min(0.1D, Math.sqrt(distance))));
                                 double xMove = xDiff / distance * speed;
                                 double yMove = yDiff / distance * speed;
                                 double zMove = zDiff / distance * speed;
 
                                 Vec3 movement = new Vec3(xMove, yMove, zMove);
                                 this.move(MoverType.SELF, movement);
+                                meteorite.move(MoverType.SELF, movement);
                             } else {
                                 this.reached = true;
                             }

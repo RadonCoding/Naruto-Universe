@@ -426,7 +426,7 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
 
                 for (int i = 0; i < particleCount; i++) {
                     double xPos = bounds.minX + rand.nextDouble() * bbWidth;
-                    double yPos = bounds.minY + (rand.nextDouble() * bbHeight * 0.25F);
+                    double yPos = bounds.minY + rand.nextDouble() * bbHeight;
                     double zPos = bounds.minZ + rand.nextDouble() * bbDepth;
 
                     float particleSize = Math.min(2.5F, (float) bbSize * 5.0F);

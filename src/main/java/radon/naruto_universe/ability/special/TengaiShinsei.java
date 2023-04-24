@@ -34,6 +34,11 @@ public class TengaiShinsei extends Ability {
     }
 
     @Override
+    public boolean shouldLog(LivingEntity owner) {
+        return false;
+    }
+
+    @Override
     public List<NinjaTrait> getRequirements() {
         return List.of(NinjaTrait.RINNEGAN);
     }
