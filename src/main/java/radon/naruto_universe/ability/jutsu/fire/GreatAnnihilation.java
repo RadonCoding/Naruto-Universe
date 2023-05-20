@@ -20,6 +20,11 @@ import java.util.Random;
 
 public class GreatAnnihilation extends Ability {
     @Override
+    public int getPrice() {
+        return 25;
+    }
+
+    @Override
     public NinjaRank getRank() {
         return NinjaRank.CHUNIN;
     }

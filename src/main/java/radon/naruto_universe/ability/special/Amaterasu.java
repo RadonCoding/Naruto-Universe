@@ -38,9 +38,16 @@ public class Amaterasu extends Ability implements Ability.IChanneled {
 
     @Override
     public boolean isUnlocked(LivingEntity owner) {
-        AtomicBoolean result = new AtomicBoolean(false);
-        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> result.set(cap.hasUnlockedAbility(NarutoAbilities.MANGEKYO.get())));
+        AtomicBoolean result = new AtomicBoolean();
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap ->
+                result.set(((ISpecial) NarutoAbilities.MANGEKYO.get()).getSpecialAbilities(owner).contains(this) &&
+                        cap.hasToggledAbility(NarutoAbilities.MANGEKYO.get())));
         return result.get();
+    }
+
+    @Override
+    public boolean isUnlockable(LivingEntity owner) {
+        return false;
     }
 
     @Override
@@ -70,7 +77,7 @@ public class Amaterasu extends Ability implements Ability.IChanneled {
 
     @Override
     public AbilityDisplayInfo getDisplay(LivingEntity owner) {
-        return new AbilityDisplayInfo(this.getId().getPath(), 9.0F, 1.0F);
+        return new AbilityDisplayInfo(this.getId().getPath(), 11.0F, 1.0F);
     }
 
     @Override
@@ -150,7 +157,7 @@ public class Amaterasu extends Ability implements Ability.IChanneled {
                 }
             }
         }
-        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.increaseMangekyoBlindess(0.01F));
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.increaseMangekyoBlindness(0.01F));
     }
 
     @Override

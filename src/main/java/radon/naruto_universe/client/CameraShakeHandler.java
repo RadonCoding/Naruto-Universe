@@ -6,33 +6,30 @@ import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import radon.naruto_universe.NarutoUniverse;
-import java.util.concurrent.LinkedBlockingQueue;
 
 @Mod.EventBusSubscriber(modid = NarutoUniverse.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class CameraShakeHandler {
-    private static final LinkedBlockingQueue<ShakeEvent> shakes = new LinkedBlockingQueue<>();
+    private static ShakeEvent current;
 
     @SubscribeEvent
     public static void onComputeCameraAngles(ViewportEvent.ComputeCameraAngles event) {
-        if (shakes.isEmpty()) return;
-
-        ShakeEvent shake = shakes.peek();
+        if (current == null) return;
 
         float time = (float) (event.getCamera().getEntity().tickCount + event.getPartialTick());
-        float shakeX = Mth.cos(time * shake.speed) * shake.intensity;
-        float shakeY = Mth.sin(time * shake.speed) * shake.intensity;
+        float shakeX = Mth.cos(time * current.speed) * current.intensity;
+        float shakeY = Mth.sin(time * current.speed) * current.intensity;
         event.setPitch(event.getPitch() + shakeX);
         event.setYaw(event.getYaw() + shakeY);
 
-        shake.duration--;
+        current.duration--;
 
-        if (shake.duration <= 0) {
-            shakes.remove();
+        if (current.duration <= 0) {
+            current = null;
         }
     }
 
     public static void shakeCamera(float intensity, float speed, int duration) {
-        shakes.add(new ShakeEvent(intensity, speed, duration));
+        current = new ShakeEvent(intensity, speed, duration);
     }
 
     public static class ShakeEvent {

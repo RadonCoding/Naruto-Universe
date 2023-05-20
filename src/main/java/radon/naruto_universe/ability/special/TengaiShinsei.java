@@ -9,6 +9,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import radon.naruto_universe.ability.Ability;
+import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.capability.ninja.NinjaRank;
 import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
@@ -16,6 +18,7 @@ import radon.naruto_universe.entity.MeteoriteEntity;
 import radon.naruto_universe.util.HelperMethods;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TengaiShinsei extends Ability {
     private static final double RANGE = 50.0D;
@@ -59,11 +62,19 @@ public class TengaiShinsei extends Ability {
     }
 
     @Override
-    public Status checkTriggerable(LivingEntity owner) {
-        if (this.getTarget(owner) == null) {
-            return Status.FAILURE;
-        }
-        return super.checkTriggerable(owner);
+    public boolean isUnlocked(LivingEntity owner) {
+        AtomicBoolean result = new AtomicBoolean();
+
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            result.set(cap.hasToggledAbility(NarutoAbilities.RINNEGAN.get()));
+        });
+
+        return result.get();
+    }
+
+    @Override
+    public boolean canTrigger(LivingEntity owner) {
+        return this.getTarget(owner) != null;
     }
 
     private BlockPos getTarget(LivingEntity owner) {

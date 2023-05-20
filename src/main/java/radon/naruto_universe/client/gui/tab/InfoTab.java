@@ -56,6 +56,8 @@ public class InfoTab extends NinjaTab{
             Component rank = Component.literal("Rank: ").append(cap.getRank().getIdentifier());
             this.mc.font.drawShadow(pPoseStack, rank, i, j, 16777215);
             j += this.mc.font.lineHeight + 2;
+            Component ap = Component.literal("AP: ").append(String.valueOf(cap.getAbilityPoints()));
+            this.mc.font.drawShadow(pPoseStack, ap, i, j, 16777215);
         });
 
         RenderSystem.depthFunc(518);

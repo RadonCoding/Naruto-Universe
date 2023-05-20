@@ -33,7 +33,10 @@ public class UnlockAbilityC2SPacket {
             assert player != null;
 
             Ability ability = NarutoAbilities.getValue(this.key);
-            NarutoAbilities.unlockAbility(player, ability);
+
+            if (ability.checkRequirements(player)) {
+                NarutoAbilities.unlockAbility(player, ability);
+            }
         });
 
         ctx.setPacketHandled(true);

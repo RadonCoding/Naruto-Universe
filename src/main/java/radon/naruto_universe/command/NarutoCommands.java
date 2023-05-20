@@ -11,6 +11,5 @@ public class NarutoCommands {
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         SetRankCommand.register(event.getDispatcher());
         SetMangekyoTypeCommand.register(event.getDispatcher());
-        UnlockEverythingCommand.register(event.getDispatcher());
     }
 }

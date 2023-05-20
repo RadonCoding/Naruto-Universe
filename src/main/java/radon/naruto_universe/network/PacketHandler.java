@@ -73,11 +73,6 @@ public class PacketHandler {
                 .encoder(RequestNarutoDataC2SPacket::encode)
                 .consumerMainThread(RequestNarutoDataC2SPacket::handle)
                 .add();
-        INSTANCE.messageBuilder(SyncSusanooAnimationS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(SyncSusanooAnimationS2CPacket::new)
-                .encoder(SyncSusanooAnimationS2CPacket::encode)
-                .consumerMainThread(SyncSusanooAnimationS2CPacket::handle)
-                .add();
         INSTANCE.messageBuilder(CameraShakeS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(CameraShakeS2CPacket::new)
                 .encoder(CameraShakeS2CPacket::encode)
@@ -92,11 +87,6 @@ public class PacketHandler {
                 .decoder(TriggerLariatC2SPacket::new)
                 .encoder(TriggerLariatC2SPacket::encode)
                 .consumerMainThread(TriggerLariatC2SPacket::handle)
-                .add();
-        INSTANCE.messageBuilder(TsukyomiS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
-                .decoder(TsukyomiS2CPacket::new)
-                .encoder(TsukyomiS2CPacket::encode)
-                .consumerMainThread(TsukyomiS2CPacket::handle)
                 .add();
     }
 

@@ -26,6 +26,11 @@ public class Lariat extends Ability {
     private static final float SPEED_DAMAGE_MULTIPLIER = 50.0F;
 
     @Override
+    public int getPrice() {
+        return 25;
+    }
+
+    @Override
     public NinjaRank getRank() {
         return NinjaRank.CHUNIN;
     }

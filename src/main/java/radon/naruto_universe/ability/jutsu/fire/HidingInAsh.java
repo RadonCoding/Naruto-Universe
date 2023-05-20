@@ -20,6 +20,11 @@ import java.util.Random;
 
 public class HidingInAsh extends Ability {
     @Override
+    public int getPrice() {
+        return 10;
+    }
+
+    @Override
     public NinjaRank getRank() {
         return NinjaRank.CHUNIN;
     }

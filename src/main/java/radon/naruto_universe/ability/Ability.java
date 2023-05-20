@@ -101,7 +101,7 @@ public abstract class Ability {
     public float getExperience() { return this.experience; }
 
     // Used for checking if a toggled ability can still be used
-    public Status checkTriggerable(LivingEntity owner) {
+    public Status checkStatus(LivingEntity owner) {
         AtomicReference<Status> result = new AtomicReference<>(Status.SUCCESS);
 
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
@@ -163,6 +163,10 @@ public abstract class Ability {
         return 0.0F;
     }
 
+    public int getPrice() {
+        return 0;
+    }
+
     public void runClient(LivingEntity owner) {}
     public void runServer(LivingEntity owner) {}
 
@@ -186,9 +190,7 @@ public abstract class Ability {
 
     public ChatFormatting getChatColor() { return ChatFormatting.WHITE; }
 
-    public Status checkStatus(LivingEntity owner) {
-        return this.checkTriggerable(owner);
-    }
+    public boolean canTrigger(LivingEntity owner) { return true; };
 
     public interface IChanneled {
         default void onStart(LivingEntity owner, boolean isClientSide) {}

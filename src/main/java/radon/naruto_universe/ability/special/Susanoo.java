@@ -56,6 +56,11 @@ public class Susanoo extends Ability implements Ability.IToggled {
     }
 
     @Override
+    public boolean isUnlockable(LivingEntity owner) {
+        return false;
+    }
+
+    @Override
     public float getCost(LivingEntity owner) {
         SusanooEntity susanoo = (SusanooEntity) owner.getVehicle();
 
@@ -77,18 +82,15 @@ public class Susanoo extends Ability implements Ability.IToggled {
     }
 
     @Override
-    public Status checkStatus(LivingEntity owner) {
-        if (!(owner.getVehicle() instanceof SusanooEntity)) {
-            return Status.FAILURE;
-        }
-        return super.checkStatus(owner);
+    public boolean canTrigger(LivingEntity owner) {
+        return !owner.isShiftKeyDown();
     }
 
     @Override
     public void runServer(LivingEntity owner) {
         if (owner.getVehicle() instanceof SusanooEntity susanoo) {
             int multiplier = susanoo.getStage().ordinal();
-            owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.increaseMangekyoBlindess(multiplier * 0.001F));
+            owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.increaseMangekyoBlindness(multiplier * 0.001F));
         }
     }
 
@@ -96,7 +98,7 @@ public class Susanoo extends Ability implements Ability.IToggled {
     public void runClient(LivingEntity owner) {
         if (owner.getVehicle() instanceof SusanooEntity susanoo) {
             int multiplier = susanoo.getStage().ordinal();
-            owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.increaseMangekyoBlindess(multiplier * 0.001F));
+            owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> cap.increaseMangekyoBlindness(multiplier * 0.001F));
         }
     }
 

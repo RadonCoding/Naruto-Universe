@@ -6,7 +6,7 @@ import radon.naruto_universe.entity.FireballProjectile;
 import software.bernie.geckolib.model.GeoModel;
 
 public class FireballModel extends GeoModel<FireballProjectile> {
-    private static final ResourceLocation MODEL = new ResourceLocation(NarutoUniverse.MOD_ID, "geo/fireball.geo.json");
+    private static final ResourceLocation MODEL = new ResourceLocation(NarutoUniverse.MOD_ID, "geo/entity/fireball.geo.json");
     private static final ResourceLocation TEXTURE = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/entity/fireball.png");
     private static final ResourceLocation ANIMATION = new ResourceLocation(NarutoUniverse.MOD_ID, "animations/entity/fireball.animation.json");
 

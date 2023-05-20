@@ -152,12 +152,10 @@ public class NarutoAbilities {
 
     public static void unlockAbility(LivingEntity owner, Ability ability) {
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            if ((owner instanceof Player player && player.getAbilities().instabuild) || ability.checkRequirements(owner)) {
-                if (owner.level.isClientSide) {
-                    owner.sendSystemMessage(Component.translatable("ability.unlock", ability.getChatMessage()));
-                }
-                cap.unlockAbility(ability);
+            if (owner.level.isClientSide) {
+                owner.sendSystemMessage(Component.translatable("ability.unlock", ability.getChatMessage()));
             }
+            cap.unlockAbility(ability);
         });
     }
 
@@ -175,11 +173,15 @@ public class NarutoAbilities {
 
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             if (cap.getRank().ordinal() >= ability.getRank().ordinal()) {
-                List<NinjaTrait> requirements = ability.getRequirements();
+                if (cap.getAbilityPoints() < ability.getPrice()) {
+                    result.set(false);
+                } else {
+                    List<NinjaTrait> requirements = ability.getRequirements();
 
-                for (NinjaTrait requirement : requirements) {
-                    if (!cap.hasTrait(requirement)) {
-                        result.set(false);
+                    for (NinjaTrait requirement : requirements) {
+                        if (!cap.hasTrait(requirement)) {
+                            result.set(false);
+                        }
                     }
                 }
             }

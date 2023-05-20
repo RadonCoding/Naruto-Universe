@@ -1,4 +1,4 @@
-package radon.naruto_universe.client.render;
+package radon.naruto_universe.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;

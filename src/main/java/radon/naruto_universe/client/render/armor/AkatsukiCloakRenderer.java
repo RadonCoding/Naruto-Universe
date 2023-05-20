@@ -1,4 +1,4 @@
-package radon.naruto_universe.client.render;
+package radon.naruto_universe.client.render.armor;
 
 import net.minecraft.world.entity.EquipmentSlot;
 import radon.naruto_universe.client.model.AkatsukiCloakModel;

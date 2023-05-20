@@ -50,11 +50,11 @@ public class ChakraJump extends Ability {
     }
 
     @Override
-    public Status checkTriggerable(LivingEntity owner) {
+    public Status checkStatus(LivingEntity owner) {
         if (!ChakraControl.isWaterWalking(owner) && !owner.isOnGround() || owner.isPassenger()) {
             return Status.FAILURE;
         }
-        return super.checkTriggerable(owner);
+        return super.checkStatus(owner);
     }
 
     private void jump(LivingEntity owner) {

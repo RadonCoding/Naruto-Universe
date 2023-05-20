@@ -32,6 +32,7 @@ import radon.naruto_universe.client.particle.FireParticle;
 import radon.naruto_universe.client.particle.NarutoParticles;
 import radon.naruto_universe.client.particle.VaporParticle;
 import radon.naruto_universe.client.render.*;
+import radon.naruto_universe.client.render.entity.*;
 import radon.naruto_universe.entity.NarutoEntities;
 import radon.naruto_universe.item.NarutoItems;
 import radon.naruto_universe.network.PacketHandler;

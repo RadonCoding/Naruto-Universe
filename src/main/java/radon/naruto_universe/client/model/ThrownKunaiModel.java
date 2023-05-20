@@ -6,7 +6,7 @@ import radon.naruto_universe.entity.ThrownKunaiEntity;
 import software.bernie.geckolib.model.GeoModel;
 
 public class ThrownKunaiModel extends GeoModel<ThrownKunaiEntity> {
-    private static final ResourceLocation MODEL = new ResourceLocation(NarutoUniverse.MOD_ID, "geo/thrown_kunai.geo.json");
+    private static final ResourceLocation MODEL = new ResourceLocation(NarutoUniverse.MOD_ID, "geo/entity/thrown_kunai.geo.json");
     private static final ResourceLocation TEXTURE = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/entity/thrown_kunai.png");
 
     @Override

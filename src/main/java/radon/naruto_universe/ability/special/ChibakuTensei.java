@@ -6,6 +6,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.EntityHitResult;
 import radon.naruto_universe.ability.Ability;
+import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.capability.ninja.NinjaRank;
 import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
@@ -15,6 +17,7 @@ import radon.naruto_universe.sound.NarutoSounds;
 import radon.naruto_universe.util.HelperMethods;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChibakuTensei extends Ability {
     private static final double RANGE = 50.0D;
@@ -46,6 +49,17 @@ public class ChibakuTensei extends Ability {
     }
 
     @Override
+    public boolean isUnlocked(LivingEntity owner) {
+        AtomicBoolean result = new AtomicBoolean();
+
+        owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
+            result.set(cap.hasToggledAbility(NarutoAbilities.RINNEGAN.get()));
+        });
+
+        return result.get();
+    }
+
+    @Override
     public SoundEvent getActivationSound() {
         return null;
     }
@@ -53,6 +67,21 @@ public class ChibakuTensei extends Ability {
     @Override
     public boolean shouldLog(LivingEntity owner) {
         return false;
+    }
+
+    @Override
+    public boolean canTrigger(LivingEntity owner) {
+        if (owner.isShiftKeyDown()) {
+            for (ChibakuTenseiEntity entity : owner.level.getEntitiesOfClass(ChibakuTenseiEntity.class, owner.getBoundingBox().inflate(100.0D))) {
+                MeteoriteEntity meteorite = entity.getMeteorite();
+
+                if (meteorite != null && !meteorite.isFalling() && meteorite.getOwner() == owner) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 
     @Override

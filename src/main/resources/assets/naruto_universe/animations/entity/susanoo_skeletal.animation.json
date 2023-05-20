@@ -28,7 +28,7 @@
 				}
 			}
 		},
-		"attack.swing": {
+		"attack.swing_right": {
 			"animation_length": 0.375,
 			"bones": {
 				"right_arm": {
@@ -41,6 +41,29 @@
 						},
 						"0.1667": {
 							"vector": [-59.61975, -41.72447, -6.3188],
+							"easing": "easeInBack"
+						},
+						"0.375": {
+							"vector": [0, 0, 0],
+							"easing": "easeOutSine"
+						}
+					}
+				}
+			}
+		},
+		"attack.swing_left": {
+			"animation_length": 0.375,
+			"bones": {
+				"left_arm": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.0833": {
+							"vector": [74.85666, 7.8959, -62.1123]
+						},
+						"0.1667": {
+							"vector": [-59.61975, 41.7245, 6.3188],
 							"easing": "easeInBack"
 						},
 						"0.375": {

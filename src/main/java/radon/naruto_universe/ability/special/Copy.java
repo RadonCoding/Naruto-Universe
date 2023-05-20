@@ -36,7 +36,7 @@ public class Copy extends Ability implements Ability.IChanneled {
 
     @Override
     public AbilityDisplayInfo getDisplay(LivingEntity owner) {
-        return new AbilityDisplayInfo(this.getId().getPath(), 10.0F, 0.0F);
+        return new AbilityDisplayInfo(this.getId().getPath(), 11.0F, 0.0F);
     }
 
     @Override
@@ -54,11 +54,15 @@ public class Copy extends Ability implements Ability.IChanneled {
         AtomicBoolean result = new AtomicBoolean(false);
 
         owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-            result.set(cap.hasUnlockedAbility(NarutoAbilities.SHARINGAN.get()));
+            result.set(cap.hasToggledAbility(NarutoAbilities.SHARINGAN.get()));
         });
         return result.get();
     }
 
+    @Override
+    public boolean isUnlockable(LivingEntity owner) {
+        return false;
+    }
 
     @SubscribeEvent
     public static void onAbilityTrigger(AbilityTriggerEvent event) {

@@ -17,6 +17,11 @@ import net.minecraft.world.phys.Vec3;
 
 public class PhoenixSageFire extends Ability {
     @Override
+    public int getPrice() {
+        return 10;
+    }
+
+    @Override
     public NinjaRank getRank() {
         return NinjaRank.CHUNIN;
     }

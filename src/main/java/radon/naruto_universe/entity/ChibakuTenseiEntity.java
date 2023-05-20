@@ -340,8 +340,8 @@ public class ChibakuTenseiEntity extends Mob implements GeoAnimatable {
     }
 
     @Override
-    public boolean isPersistenceRequired() {
-        return true;
+    public boolean removeWhenFarAway(double pDistanceToClosestPlayer) {
+        return false;
     }
 
     @Override

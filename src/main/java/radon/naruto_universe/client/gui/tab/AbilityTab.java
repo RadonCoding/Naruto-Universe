@@ -16,7 +16,7 @@ import radon.naruto_universe.client.gui.widget.AbilityWidget;
 
 import java.util.HashMap;
 
-public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.Scrollable {
+public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.Scrollable, NinjaTab.Clickable {
     private static final Component TITLE = Component.translatable("gui.tab.ability");
     private static final ResourceLocation ICON = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/gui/tab/ability.png");
 
@@ -92,6 +92,21 @@ public class AbilityTab extends NinjaTab implements NinjaTab.Tooltip, NinjaTab.S
         RenderSystem.colorMask(true, true, true, true);
         RenderSystem.depthFunc(515);
         pPoseStack.popPose();
+    }
+
+    @Override
+    public void mouseClicked(int pMouseX, int pMouseY) {
+        int i = Mth.floor(this.scrollX);
+        int j = Mth.floor(this.scrollY);
+
+        if (pMouseX > 0 && pMouseX < 234 && pMouseY > 0 && pMouseY < HEIGHT) {
+            for (AbilityWidget widget : this.abilities.values()) {
+                if (widget.isMouseOver(i, j, pMouseX, pMouseY)) {
+                    widget.unlock();
+                    break;
+                }
+            }
+        }
     }
 
     @Override

@@ -1,4 +1,4 @@
-package radon.naruto_universe.client.render;
+package radon.naruto_universe.client.render.entity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -44,8 +44,8 @@ public class ChibakuTenseiRenderer extends GeoEntityRenderer<ChibakuTenseiEntity
             HelperMethods.rotateQ(360.0F - yaw, 0.0F, 1.0F, 0.0F, poseStack);
             HelperMethods.rotateQ(pitch + 90.0F, 1.0F, 0.0F, 0.0F, poseStack);
 
-            float texWidth = 1.0F;
-            float texHeight = 1.0F;
+            float texWidth = 0.5F;
+            float texHeight = 0.5F;
             float x1 = -texWidth;
             float y1 = -texHeight;
             float x2 = texWidth;

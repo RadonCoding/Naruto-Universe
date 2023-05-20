@@ -3,7 +3,6 @@ package radon.naruto_universe.entity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
@@ -21,6 +20,7 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
@@ -32,8 +32,8 @@ import radon.naruto_universe.capability.ninja.MangekyoType;
 import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.capability.ninja.SusanooStage;
 import radon.naruto_universe.client.particle.VaporParticle;
-import radon.naruto_universe.network.PacketHandler;
-import radon.naruto_universe.network.packet.SyncSusanooAnimationS2CPacket;
+import radon.naruto_universe.item.NarutoItems;
+import radon.naruto_universe.item.SusanooSwordItem;
 import radon.naruto_universe.util.HelperMethods;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -51,12 +51,18 @@ import java.util.UUID;
 
 public class SusanooEntity extends Mob implements GeoAnimatable {
     public static final RawAnimation GRAB = RawAnimation.begin().thenPlayAndHold("attack.grab");
-    public static final RawAnimation SWING = RawAnimation.begin().thenPlay("attack.swing");
+    public static final RawAnimation SWING_RIGHT = RawAnimation.begin().thenPlay("attack.swing_right");
+    public static final RawAnimation SWING_LEFT = RawAnimation.begin().thenPlay("attack.swing_left");
     public static final RawAnimation CRUSH = RawAnimation.begin().thenLoop("attack.crush");
+    public static final RawAnimation WALK = RawAnimation.begin().thenLoop("move.walk");
+
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     private static final EntityDataAccessor<Integer> DATA_VARIANT = SynchedEntityData.defineId(SusanooEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DATA_STAGE = SynchedEntityData.defineId(SusanooEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<Boolean> DATA_CRUSHING = SynchedEntityData.defineId(SusanooEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Boolean> DATA_GRABBING = SynchedEntityData.defineId(SusanooEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> DATA_CRUSHING_TIME = SynchedEntityData.defineId(SusanooEntity.class, EntityDataSerializers.INT);
 
     private static final double GRAB_RAYCAST_RANGE = 10.0D;
     private static final float LAUNCH_POWER = 10.0F;
@@ -64,7 +70,6 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     private UUID ownerUUID;
     private LivingEntity cachedOwner;
 
-    private SusanooAnimationState state = new SusanooAnimationState();
     private Entity grabbed;
 
     public SusanooEntity(EntityType<? extends SusanooEntity> pEntityType, Level pLevel) {
@@ -83,6 +88,9 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
 
         this.entityData.define(DATA_VARIANT, -1);
         this.entityData.define(DATA_STAGE, -1);
+        this.entityData.define(DATA_CRUSHING, false);
+        this.entityData.define(DATA_GRABBING, false);
+        this.entityData.define(DATA_CRUSHING_TIME, 0);
     }
 
     private void init(LivingEntity owner) {
@@ -135,6 +143,7 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
 
                 if (cap.getExperience() >= newStage.getExperience()) {
                     this.entityData.set(DATA_STAGE, newStage.ordinal());
+                    this.onStageChange(SusanooStage.values()[stage]);
                 }
             }
         });
@@ -145,6 +154,21 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
 
         if (stage > 0) {
             this.entityData.set(DATA_STAGE, --stage);
+        }
+        this.onStageChange(SusanooStage.values()[stage]);
+    }
+
+    private void onStageChange(SusanooStage stage) {
+        if (stage == SusanooStage.HUMANOID) {
+            if (this.getVariant() == MangekyoType.MADARA) {
+                ItemStack stack = new ItemStack(NarutoItems.SUSANOO_SWORD.get());
+                SusanooSwordItem.setVariant(stack, this.getVariant());
+                this.setItemInHand(InteractionHand.MAIN_HAND, stack);
+                this.setItemInHand(InteractionHand.OFF_HAND, stack);
+            }
+        } else {
+            this.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            this.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
         }
     }
 
@@ -164,13 +188,34 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
         };
     }
 
-    public void updateAnimationState(SusanooAnimationState state) {
-        this.state = state;
+    private boolean isGrabbing() {
+        return this.entityData.get(DATA_GRABBING);
+    }
+    private void setGrabbing(boolean grabbing) {
+        this.entityData.set(DATA_GRABBING, grabbing);
+    }
+
+    private boolean isCrushing() {
+        return this.entityData.get(DATA_CRUSHING);
+    }
+    private void setCrushing(boolean crushing) {
+        this.entityData.set(DATA_CRUSHING, crushing);
+    }
+
+    private int getCrushingTime() {
+        return this.entityData.get(DATA_CRUSHING_TIME);
+    }
+    private void setCrushingTime(int crushingTime) {
+        this.entityData.set(DATA_CRUSHING_TIME, crushingTime);
     }
 
     public void onLeftClick() {
-        if (!this.state.grabbing && !this.state.crushing) {
-            this.swing(InteractionHand.MAIN_HAND, true);
+        if (!this.isGrabbing() && !this.isCrushing()) {
+            if (this.getStage() != SusanooStage.RIBCAGE) {
+                this.swing(this.swingingArm == InteractionHand.MAIN_HAND ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND, true);
+            } else {
+                this.swing(InteractionHand.MAIN_HAND, true);
+            }
 
             LivingEntity owner = this.getOwner();
             EntityHitResult result = HelperMethods.getLivingEntityLookAt(owner, this.getReach(), 1.0F);
@@ -217,7 +262,7 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
         SusanooStage stage = this.getStage();
 
         if (stage == SusanooStage.RIBCAGE || stage == SusanooStage.SKELETAL) {
-            if (!this.state.grabbing) {
+            if (!this.isGrabbing()) {
                 EntityHitResult hit = HelperMethods.getLivingEntityLookAt(owner, GRAB_RAYCAST_RANGE, 1.0F);
 
                 if (hit != null) {
@@ -238,31 +283,19 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     }
 
     private void crush() {
-        this.state.crushingTime = 10 * 20;
-        this.state.crushing = true;
-
-        if (!this.level.isClientSide) {
-            PacketHandler.broadcast(new SyncSusanooAnimationS2CPacket(this.getId(), this.state));
-        }
+        this.setCrushingTime(10 * 20);
+        this.setCrushing(true);
     }
 
     private void release() {
-        this.state.crushing = false;
-        this.state.crushingTime = 0;
-        this.state.grabbing = false;
-
-        if (!this.level.isClientSide) {
-            PacketHandler.broadcast(new SyncSusanooAnimationS2CPacket(this.getId(), this.state));
-        }
+        this.setGrabbing(false);
+        this.setCrushing(false);
+        this.setCrushingTime(0);
     }
 
     private void grab(Entity grabbed) {
-        this.state.grabbing = true;
+        this.setGrabbing(true);
         this.grabbed = grabbed;
-
-        if (!this.level.isClientSide) {
-            PacketHandler.broadcast(new SyncSusanooAnimationS2CPacket(this.getId(), this.state));
-        }
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -341,9 +374,9 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     @Override
     public @NotNull EntityDimensions getDimensions(@NotNull Pose pPose) {
         return switch (this.getStage()) {
-            case RIBCAGE -> EntityDimensions.fixed(1.8F, 2.6F);
+            case RIBCAGE -> EntityDimensions.fixed(1.2F, 2.0F);
             case SKELETAL -> EntityDimensions.fixed(2.4F, 4.0F);
-            case HUMANOID -> EntityDimensions.fixed(2.8F, 6.0F);
+            case HUMANOID -> EntityDimensions.fixed(2.8F, 7.0F);
             default -> super.getDimensions(pPose);
         };
     }
@@ -431,12 +464,12 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
 
                     float particleSize = Math.min(2.5F, (float) bbSize * 5.0F);
 
-                    this.level.addParticle(new VaporParticle.VaporParticleOptions(this.getVariant().getSusanooColor(), particleSize, 0.15F, false, 3),
+                    this.level.addParticle(new VaporParticle.VaporParticleOptions(this.getVariant().getSusanooColor(), particleSize, 0.075F, false, 3),
                             xPos, yPos, zPos, 0.0D, rand.nextDouble(), 0.0D);
                 }
             }
 
-            if (this.state.grabbing) {
+            if (this.isGrabbing()) {
                 if (this.grabbed != null) {
                     if (this.grabbed.isRemoved() || !this.grabbed.isAlive()) {
                         this.release();
@@ -461,10 +494,11 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
                     }
                 }
 
-                if (this.state.crushing) {
-                    this.state.crushingTime--;
+                if (this.isCrushing()) {
+                    int crushingTime = this.getCrushingTime();
+                    this.setCrushingTime(--crushingTime);
 
-                    if (this.state.crushingTime > 0) {
+                    if (crushingTime > 0) {
                         if (this.grabbed != null) {
                             this.grabbed.hurt(DamageSource.indirectMobAttack(this, owner), this.getDamage() * 0.25F);
                         }
@@ -546,22 +580,33 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     }
 
     private PlayState attackPredicate(AnimationState<SusanooEntity> animationState) {
-        if (this.swinging && animationState.getController().getAnimationState() == AnimationController.State.STOPPED) {
+        if (this.swinging) {
             animationState.getController().forceAnimationReset();
-            animationState.setAnimation(SWING);
+            animationState.setAnimation(this.swingingArm == InteractionHand.MAIN_HAND ? SWING_RIGHT : SWING_LEFT);
             this.swinging = false;
         }
         return PlayState.CONTINUE;
     }
 
+    private PlayState movePredicate(AnimationState<SusanooEntity> animationState) {
+        SusanooStage stage = this.getStage();
+
+        if (stage == SusanooStage.HUMANOID) {
+            if (animationState.isMoving()) {
+                return animationState.setAndContinue(WALK);
+            }
+        }
+        return PlayState.STOP;
+    }
+
     private PlayState predicate(AnimationState<SusanooEntity> animationState) {
-        if (this.state.crushing) {
+        if (this.isCrushing()) {
             if (!animationState.isCurrentAnimation(CRUSH)) {
                 animationState.setAnimation(CRUSH);
             }
             return PlayState.CONTINUE;
         }
-        else if (this.state.grabbing) {
+        else if (this.isGrabbing()) {
             if (!animationState.isCurrentAnimation(GRAB)) {
                 animationState.setAnimation(GRAB);
             }
@@ -573,6 +618,7 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
         controllerRegistrar.add(new AnimationController<>(this, "controller", this::predicate));
+        controllerRegistrar.add(new AnimationController<>(this, "moveController", this::movePredicate));
         controllerRegistrar.add(new AnimationController<>(this, "attackController", this::attackPredicate));
     }
 
@@ -584,29 +630,5 @@ public class SusanooEntity extends Mob implements GeoAnimatable {
     @Override
     public double getTick(Object o) {
         return RenderUtils.getCurrentTick();
-    }
-
-    public static class SusanooAnimationState {
-        public boolean grabbing;
-        public boolean crushing;
-        public int crushingTime;
-
-        public SusanooAnimationState() {
-            this.grabbing = false;
-            this.crushing = false;
-            this.crushingTime = 0;
-        }
-
-        public SusanooAnimationState(FriendlyByteBuf buf) {
-            this.grabbing = buf.readBoolean();
-            this.crushing = buf.readBoolean();
-            this.crushingTime = buf.readInt();
-        }
-
-        public void serialize(FriendlyByteBuf buf) {
-            buf.writeBoolean(this.grabbing);
-            buf.writeBoolean(this.crushing);
-            buf.writeInt(this.crushingTime);
-        }
     }
 }

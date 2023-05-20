@@ -13,7 +13,7 @@ import radon.naruto_universe.item.armor.AkatsukiCloakItem;
 import software.bernie.geckolib.model.GeoModel;
 
 public class AkatsukiCloakModel extends GeoModel<AkatsukiCloakItem> {
-    private static final ResourceLocation MODEL = new ResourceLocation(NarutoUniverse.MOD_ID, "geo/akatsuki_cloak.geo.json");
+    private static final ResourceLocation MODEL = new ResourceLocation(NarutoUniverse.MOD_ID, "geo/item/armor/akatsuki_cloak.geo.json");
     private static final ResourceLocation TEXTURE = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/armor/akatsuki_cloak.png");
 
     @Override

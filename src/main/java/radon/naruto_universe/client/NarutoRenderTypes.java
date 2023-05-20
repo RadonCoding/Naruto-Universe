@@ -14,16 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Function;
 
 public class NarutoRenderTypes extends RenderType {
-    private static final TransparencyStateShard GLOWING_TRANSPARENCY = new TransparencyStateShard("glowing_transparency", () -> {
-        Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
-        RenderSystem.enableBlend();
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE);
-    }, () -> {
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.disableBlend();
-        Minecraft.getInstance().gameRenderer.lightTexture().turnOnLightLayer();
-    });
-    
     private static final Function<ResourceLocation, RenderType> EYES = Util.memoize((pLocation) -> {
         RenderStateShard.TextureStateShard shard = new RenderStateShard.TextureStateShard(pLocation, false, false);
         return create("eyes", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256,
@@ -37,18 +27,17 @@ public class NarutoRenderTypes extends RenderType {
 
     private static final Function<ResourceLocation, RenderType> GLOW = Util.memoize((pLocation) -> {
         TextureStateShard shard = new TextureStateShard(pLocation, false, false);
-        return create("susanoo", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256,
+        return create("glow", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256,
                 false, true, CompositeState.builder()
-                        .setLayeringState(POLYGON_OFFSET_LAYERING)
-                        .setShaderState(POSITION_COLOR_TEX_LIGHTMAP_SHADER)
+                        .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
                         .setTextureState(shard)
                         .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
                         .setCullState(NO_CULL)
-                        .setWriteMaskState(COLOR_DEPTH_WRITE)
-                        .setLightmapState(LIGHTMAP)
+                        .setWriteMaskState(COLOR_WRITE)
                         .setOverlayState(OVERLAY)
                         .createCompositeState(false));
     });
+
 
     public NarutoRenderTypes(String pName, VertexFormat pFormat, VertexFormat.Mode pMode, int pBufferSize, boolean pAffectsCrumbling, boolean pSortOnUpload, Runnable pSetupState, Runnable pClearState) {
         super(pName, pFormat, pMode, pBufferSize, pAffectsCrumbling, pSortOnUpload, pSetupState, pClearState);

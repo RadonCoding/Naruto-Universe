@@ -6,7 +6,7 @@ import radon.naruto_universe.entity.SusanooEntity;
 import software.bernie.geckolib.model.GeoModel;
 
 public class SusanooHumanoidModel extends GeoModel<SusanooEntity> {
-	private static final ResourceLocation MODEL = new ResourceLocation(NarutoUniverse.MOD_ID, "geo/susanoo_humanoid.geo.json");
+	private static final ResourceLocation MODEL = new ResourceLocation(NarutoUniverse.MOD_ID, "geo/entity/susanoo_humanoid.geo.json");
 	private static final ResourceLocation TEXTURE = new ResourceLocation(NarutoUniverse.MOD_ID, "textures/entity/susanoo_humanoid.png");
 	private static final ResourceLocation ANIMATION = new ResourceLocation(NarutoUniverse.MOD_ID, "animations/entity/susanoo_humanoid.animation.json");
 

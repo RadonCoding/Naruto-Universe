@@ -1,6 +1,7 @@
 package radon.naruto_universe.ability.utility;
 
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.ninja.NinjaRank;
 import radon.naruto_universe.client.gui.widget.AbilityDisplayInfo;
@@ -17,7 +18,7 @@ public class Rinnegan extends Ability implements Ability.IToggled, Ability.ISpec
     public boolean isDojutsu() {
         return true;
     }
-    
+
     @Override
     public NinjaRank getRank() {
         return NinjaRank.UNRANKED;

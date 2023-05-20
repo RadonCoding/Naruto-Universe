@@ -19,6 +19,11 @@ import java.util.Random;
 
 public class GreatFlame extends Ability {
     @Override
+    public int getPrice() {
+        return 15;
+    }
+
+    @Override
     public NinjaRank getRank() {
         return NinjaRank.CHUNIN;
     }

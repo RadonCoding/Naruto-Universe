@@ -8,7 +8,7 @@ import radon.naruto_universe.ability.event.AbilityTriggerEvent;
 
 public class AbilityHandler {
     public static void triggerAbility(LivingEntity owner, Ability ability) {
-        if (!ability.isUnlocked(owner) || ability.checkTriggerable(owner) != Ability.Status.SUCCESS) {
+        if (!ability.isUnlocked(owner) || !ability.canTrigger(owner) || ability.checkStatus(owner) != Ability.Status.SUCCESS) {
             return;
         }
 

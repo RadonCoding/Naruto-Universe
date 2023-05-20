@@ -7,7 +7,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
@@ -19,11 +18,14 @@ public interface INinjaPlayer extends INBTSerializable<CompoundTag> {
 
     void delayTickEvent(Consumer<LivingEntity> task, int delay, LogicalSide side);
 
+    int getAbilityPoints();
+    void useAbilityPoints(int count);
+
     float getAbilityExperience(Ability ability);
     void addAbilityExperience(Ability ability, float amount);
 
-    float getMangekyoBlindess();
-    void increaseMangekyoBlindess(float amount);
+    float getMangekyoBlindness();
+    void increaseMangekyoBlindness(float amount);
 
     boolean isInitialized();
 

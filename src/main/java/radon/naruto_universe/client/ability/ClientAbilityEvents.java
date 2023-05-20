@@ -17,7 +17,6 @@ import net.minecraftforge.fml.common.Mod;
 import radon.naruto_universe.NarutoUniverse;
 import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
-import radon.naruto_universe.client.genjutsu.TsukuyomiHandler;
 import radon.naruto_universe.effect.NarutoEffects;
 import radon.naruto_universe.entity.SusanooEntity;
 import radon.naruto_universe.network.PacketHandler;
@@ -50,18 +49,14 @@ public class ClientAbilityEvents {
                 event.setCanceled(true);
                 event.setSwingHand(false);
             }
-            else if (mc.player.getVehicle() instanceof SusanooEntity susanoo) {
+            else if (mc.player.getVehicle() instanceof SusanooEntity) {
                 if (event.isAttack()) {
                     PacketHandler.sendToServer(new SusanooControlC2SPacket(SusanooControlC2SPacket.LEFT));
-                    susanoo.onLeftClick();
-
                     event.setCanceled(true);
                     event.setSwingHand(false);
                 }
                 else if (event.isUseItem() && mc.player.getMainHandItem().isEmpty() && mc.player.getOffhandItem().isEmpty()) {
                     PacketHandler.sendToServer(new SusanooControlC2SPacket(SusanooControlC2SPacket.RIGHT));
-                    susanoo.onRightClick();
-
                     event.setCanceled(true);
                     event.setSwingHand(false);
                 }
@@ -95,8 +90,6 @@ public class ClientAbilityEvents {
         Minecraft mc = Minecraft.getInstance();
 
         if (mc.player == null) return;
-
-        TsukuyomiHandler.tick();
 
         mc.player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
             if (cap.hasToggledAbility(NarutoAbilities.SHARINGAN.get())) {

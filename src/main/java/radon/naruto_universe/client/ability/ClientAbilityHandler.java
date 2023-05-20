@@ -147,9 +147,9 @@ public class ClientAbilityHandler {
 
         Ability.Status status;
 
-        if (!ability.isUnlocked(owner)) {
+        if (!ability.isUnlocked(owner) || !ability.canTrigger(owner)) {
             return;
-        } else if ((status = ability.checkTriggerable(owner)) != Ability.Status.SUCCESS) {
+        } else if ((status = ability.checkStatus(owner)) != Ability.Status.SUCCESS) {
             owner.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
                 switch (status) {
                     case NO_CHAKRA -> owner.sendSystemMessage(Component.translatable("ability.fail.not_enough_chakra"));

@@ -6,6 +6,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.PostPass;
 import net.minecraft.resources.ResourceLocation;
 import radon.naruto_universe.ability.NarutoAbilities;
+import radon.naruto_universe.capability.ninja.NinjaPlayer;
 import radon.naruto_universe.capability.ninja.NinjaPlayerHandler;
 import radon.naruto_universe.client.NarutoPostEffect;
 
@@ -24,7 +25,7 @@ public class BlindnessPostEffect extends NarutoPostEffect {
             assert mc.player != null;
 
             mc.player.getCapability(NinjaPlayerHandler.INSTANCE).ifPresent(cap -> {
-                uniform.set((float) Math.min(25.0F, Math.floor(cap.getMangekyoBlindess())));
+                uniform.set(cap.getMangekyoBlindness());
             });
         }
     }

@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.locale.Language;
 import net.minecraft.network.chat.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import radon.naruto_universe.ability.Ability;
@@ -16,6 +17,8 @@ import radon.naruto_universe.ability.NarutoAbilities;
 import radon.naruto_universe.capability.ninja.NinjaTrait;
 import radon.naruto_universe.client.NarutoKeys;
 import radon.naruto_universe.client.gui.tab.AbilityTab;
+import radon.naruto_universe.network.PacketHandler;
+import radon.naruto_universe.network.packet.UnlockAbilityC2SPacket;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +46,7 @@ public class AbilityWidget extends GuiComponent {
     private final int width;
     private final int height;
     private boolean unlocked;
+    private boolean unlockable;
     private AbilityFrameType frame;
     private final AbilityDisplayInfo display;
 
@@ -86,6 +90,15 @@ public class AbilityWidget extends GuiComponent {
             component.append("\n");
         }
 
+        int price = this.ability.getPrice();
+
+        if (price > 0) {
+            component.append(Component.literal("Price: "));
+            component.append(String.format("%s AP", price));
+            component.append("\n");
+            component.append("\n");
+        }
+
         List<NinjaTrait> requirements = new ArrayList<>(this.ability.getRequirements());
 
         component.append(Component.literal("Requirements: "));
@@ -107,11 +120,13 @@ public class AbilityWidget extends GuiComponent {
         }
 
         if (this.ability == NarutoAbilities.CHAKRA_JUMP.get()) {
+            component.append("\n");
             component.append(Component.literal("Combo: "));
             component.append(String.valueOf((char) NarutoKeys.KEY_CHAKRA_JUMP.getKey().getValue()));
             component.append("\n");
         }
         else if (this.ability.hasCombo()) {
+            component.append("\n");
             component.append(Component.literal("Combo: "));
             component.append(NarutoAbilities.getStringFromCombo(NarutoAbilities.getCombo(ability)));
             component.append("\n");
@@ -136,6 +151,7 @@ public class AbilityWidget extends GuiComponent {
 
     public void update() {
         assert this.mc.player != null;
+        this.unlockable = this.ability.isUnlockable(this.mc.player);
         this.unlocked = this.ability.isUnlocked(this.mc.player);
         this.frame = this.unlocked ? AbilityFrameType.UNLOCKED : AbilityFrameType.UNLOCKABLE;
     }
@@ -229,11 +245,23 @@ public class AbilityWidget extends GuiComponent {
         return pMouseX >= i && pMouseX <= j && pMouseY >= k && pMouseY <= l;
     }
 
+    public void unlock() {
+        if (this.unlockable && !this.unlocked) {
+            assert this.mc.player != null;
+            this.mc.player.playSound(SoundEvents.PLAYER_LEVELUP, 1.0F, 1.0F);
+
+            PacketHandler.sendToServer(new UnlockAbilityC2SPacket(NarutoAbilities.getKey(this.ability)));
+            NarutoAbilities.unlockAbility(this.mc.player, ability);
+
+            this.update();
+        }
+    }
+
     public void drawHover(PoseStack pPoseStack, int pX, int pY, float pFade, int pWidth, int pHeight) {
         boolean drawLeft = pWidth + pX + this.x + this.width + 26 >= this.tab.getScreen().width;
         boolean drawAbove = pHeight + pY + this.y + this.height + 46 >= this.tab.getScreen().height;
 
-        int j;
+        int j = this.unlockable ? this.width : 0;
 
         AbilityWidgetType type1;
         AbilityWidgetType type2;
@@ -244,6 +272,11 @@ public class AbilityWidget extends GuiComponent {
             type1 = AbilityWidgetType.OBTAINED;
             type2 = AbilityWidgetType.OBTAINED;
             type3 = AbilityWidgetType.OBTAINED;
+        }
+        else if (this.unlockable) {
+            type1 = AbilityWidgetType.OBTAINED;
+            type2 = AbilityWidgetType.UNOBTAINED;
+            type3 = AbilityWidgetType.UNOBTAINED;
         }
         else {
             j = this.width / 2;

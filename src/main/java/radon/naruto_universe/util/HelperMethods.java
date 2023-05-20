@@ -50,9 +50,9 @@ public class HelperMethods {
     }
 
     public static HitResult getHitResult(Entity entity, double range, double radius) {
-        Vec3 look = entity.getLookAngle().normalize().scale(range);
-        Vec3 start = new Vec3(entity.getX(), entity.getEyeY() - 0.2D, entity.getZ());
-        Vec3 end = start.add(look);
+        Vec3 start = entity.getEyePosition();
+        Vec3 view = entity.getViewVector(1.0F);
+        Vec3 end = start.add(view.scale(range));
         return getHitResult(entity.level, entity, start, end, radius);
     }
 

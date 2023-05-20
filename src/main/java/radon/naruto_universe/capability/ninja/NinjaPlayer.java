@@ -3,6 +3,8 @@ package radon.naruto_universe.capability.ninja;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -28,6 +30,7 @@ public class NinjaPlayer implements INinjaPlayer {
     private MangekyoType mangekyoType;
     private float mangekyoBlindess;
     private boolean initialized;
+    private int abilityPoints;
 
     private Ability channeledAbility;
     private final List<Ability> toggledAbilities = new ArrayList<>();
@@ -50,6 +53,7 @@ public class NinjaPlayer implements INinjaPlayer {
     public static final float POWER_CHARGE_AMOUNT = 0.01F;
     public static final float CHAKRA_AMOUNT = 100.0F;
     public static final float MAX_EXPERIENCE = 100.0F;
+    public static final float MAX_MANGEKYO_BLINDNESS = 10.0F;
 
     public NinjaPlayer() {
         this.power = 0.0F;
@@ -119,6 +123,16 @@ public class NinjaPlayer implements INinjaPlayer {
     }
 
     @Override
+    public int getAbilityPoints() {
+        return this.abilityPoints;
+    }
+
+    @Override
+    public void useAbilityPoints(int count) {
+        this.abilityPoints -= count;
+    }
+
+    @Override
     public float getAbilityExperience(Ability ability) {
         return this.experiences.getOrDefault(ability, 0.0F);
     }
@@ -129,13 +143,13 @@ public class NinjaPlayer implements INinjaPlayer {
     }
 
     @Override
-    public float getMangekyoBlindess() {
+    public float getMangekyoBlindness() {
         return this.mangekyoBlindess;
     }
 
     @Override
-    public void increaseMangekyoBlindess(float amount) {
-        this.mangekyoBlindess += amount;
+    public void increaseMangekyoBlindness(float amount) {
+        this.mangekyoBlindess = Math.min(MAX_MANGEKYO_BLINDNESS, this.mangekyoBlindess + amount);
     }
 
     @Override
@@ -506,6 +520,7 @@ public class NinjaPlayer implements INinjaPlayer {
         nbt.putInt("sharingan_level", this.sharinganLevel);
         nbt.putFloat("mangekyo_blindness", this.mangekyoBlindess);
         nbt.putBoolean("initialized", this.initialized);
+        nbt.putInt("ability_points", this.abilityPoints);
 
         if (this.mangekyoType != null) {
             nbt.putInt("mangekyo_type", this.mangekyoType.ordinal());
@@ -572,6 +587,7 @@ public class NinjaPlayer implements INinjaPlayer {
         this.sharinganLevel = nbt.getInt("sharingan_level");
         this.mangekyoBlindess = nbt.getFloat("mangekyo_blindness");
         this.initialized = nbt.getBoolean("initialized");
+        this.abilityPoints = nbt.getInt("ability_points");
 
         if (nbt.contains("mangekyo_type")) {
             this.mangekyoType = MangekyoType.values()[nbt.getInt("mangekyo_type")];

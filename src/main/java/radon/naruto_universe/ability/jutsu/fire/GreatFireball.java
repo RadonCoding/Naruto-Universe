@@ -17,6 +17,11 @@ import net.minecraft.world.phys.Vec3;
 
 public class GreatFireball extends Ability {
     @Override
+    public int getPrice() {
+        return 15;
+    }
+
+    @Override
     public NinjaRank getRank() {
         return NinjaRank.CHUNIN;
     }
